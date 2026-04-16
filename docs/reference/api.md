@@ -209,7 +209,7 @@ Resolve a token reference to its value.
 ```typescript
 import { resolveToken } from '@yell/core';
 
-const value = resolveToken(tokens, '$tokens.primary');
+const value = resolveToken(tokens, '$tokens.colors.primary');
 console.log(value); // "#ff8a3d"
 ```
 
