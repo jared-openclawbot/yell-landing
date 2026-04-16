@@ -50,6 +50,7 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 24px;
   padding: 18px 0 18px;
   position: sticky;
   top: 0;
@@ -62,10 +63,11 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
-.brand { display: flex; align-items: center; gap: 14px; }
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .brand-mark {
   width: 42px;
   height: 42px;
@@ -80,7 +82,18 @@ a { color: inherit; text-decoration: none; }
 .brand-name { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.03em; }
 .brand-tag { font-size: 0.82rem; color: var(--muted); }
 
-.nav { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 0.95rem; }
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  flex: 0 0 auto;
+}
+.nav a {
+  white-space: nowrap;
+}
 .menu-toggle {
   display: none;
   width: 46px;
@@ -105,10 +118,11 @@ a { color: inherit; text-decoration: none; }
 .menu-toggle.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 .nav-cta {
   color: var(--text);
-  padding: 10px 14px;
+  padding: 10px 16px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(255,255,255,0.03);
+  white-space: nowrap;
 }
 
 .hero {
@@ -354,14 +368,14 @@ a { color: inherit; text-decoration: none; }
   .site-header {
     position: relative;
     top: auto;
+    display: block;
     padding: 18px 0 8px;
-    gap: 10px;
     backdrop-filter: none;
   }
 
   .brand-row {
     min-height: 52px;
-    padding: 0;
+    width: 100%;
   }
 
   .brand {
@@ -384,7 +398,6 @@ a { color: inherit; text-decoration: none; }
     min-width: 46px;
     height: 46px;
     flex: 0 0 46px;
-    align-self: center;
   }
 
   .nav {
@@ -393,7 +406,7 @@ a { color: inherit; text-decoration: none; }
     align-items: stretch;
     gap: 10px;
     width: 100%;
-    margin-top: 6px;
+    margin-top: 10px;
     padding: 14px;
     border: 1px solid var(--line);
     border-radius: 18px;
@@ -417,6 +430,7 @@ a { color: inherit; text-decoration: none; }
 
   .nav .nav-cta {
     justify-content: center;
+    width: 100%;
   }
 
   .site-footer, .hero-actions, .cta-form {
