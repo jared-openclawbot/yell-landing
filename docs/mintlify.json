@@ -1,0 +1,78 @@
+{
+  "name": "yell",
+  "description": "Declarative UI for the serializable web",
+  "theme": {
+    "mode": "dark",
+    "primaryColor": "#ff8a3d",
+    "backgroundColor": "#0c0c0f",
+    "navbar": {
+      "title": "Yell",
+      "logo": "/logo.svg",
+      "items": [
+        {
+          "item": "Getting Started",
+          "path": "/getting-started/introduction"
+        },
+        {
+          "item": "Core Concepts",
+          "path": "/core-concepts/yaml-syntax"
+        },
+        {
+          "item": "Guides",
+          "path": "/guides/ssr"
+        },
+        {
+          "item": "Reference",
+          "path": "/reference/cli"
+        },
+        {
+          "item": "Playground",
+          "path": "/playground"
+        }
+      ]
+    },
+    "footer": {
+      "message": "Yell — Declarative UI for the serializable web",
+      "copyright": "2026 Yell Authors"
+    }
+  },
+  "docs": [
+    {
+      "path": "/getting-started",
+      "title": "Getting Started",
+      "items": [
+        "introduction",
+        "installation",
+        "quick-start"
+      ]
+    },
+    {
+      "path": "/core-concepts",
+      "title": "Core Concepts",
+      "items": [
+        "yaml-syntax",
+        "components",
+        "expressions",
+        "tokens"
+      ]
+    },
+    {
+      "path": "/guides",
+      "title": "Guides",
+      "items": [
+        "ssr",
+        "hydration",
+        "ai-generation"
+      ]
+    },
+    {
+      "path": "/reference",
+      "title": "Reference",
+      "items": [
+        "cli",
+        "api",
+        "schema"
+      ]
+    }
+  ]
+}
