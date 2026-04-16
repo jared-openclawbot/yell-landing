@@ -4,24 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Yell — Declarative UI for the serializable web</title>
+  <meta name="description" content="Yell is a declarative UI framework built on YAML instead of JSX — designed for design systems, SSR, hydration, and AI-native interfaces.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --color-bg: #0a0a0f;
       --color-surface: #12121a;
+      --color-surface-2: #18182a;
       --color-border: #1e1e2e;
       --color-text: #e4e4ef;
       --color-muted: #6b6b8a;
       --color-brand: #ff8a3d;
-      --color-brand-dim: rgba(255, 138, 61, 0.15);
+      --color-brand-dim: rgba(255, 138, 61, 0.12);
       --color-success: #34d399;
       --color-info: #60a5fa;
+      --color-warning: #fbbf24;
       --font-sans: 'Inter', -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: var(--font-sans);
       background: var(--color-bg);
@@ -29,7 +32,7 @@
       line-height: 1.6;
     }
 
-    /* ─── Navbar ─────────────────────────────────── */
+    /* ─── Nav ─────────────────────────────────────── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -37,43 +40,37 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 48px;
-      background: rgba(10, 10, 15, 0.85);
-      backdrop-filter: blur(12px);
+      padding: 14px 48px;
+      background: rgba(10, 10, 15, 0.88);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--color-border);
     }
     nav .logo {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--color-text);
-      text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--color-text);
     }
     nav .logo-icon {
-      width: 28px;
-      height: 28px;
+      width: 30px; height: 30px;
       background: var(--color-brand);
-      border-radius: 6px;
+      border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 900;
       color: #000;
     }
-    nav .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
+    nav .logo-name { font-size: 18px; font-weight: 800; }
+    nav .nav-links { display: flex; align-items: center; gap: 28px; }
     nav .nav-links a {
       color: var(--color-muted);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
-      transition: color 0.2s;
+      transition: color 0.15s;
     }
     nav .nav-links a:hover { color: var(--color-text); }
     nav .nav-cta {
@@ -82,40 +79,45 @@
       padding: 8px 18px;
       border-radius: 8px;
       font-weight: 600 !important;
+      text-decoration: none;
     }
-    nav .nav-cta:hover { opacity: 0.9; }
 
-    /* ─── Hero ───────────────────────────────────── */
+    /* ─── Hero ────────────────────────────────────── */
     .hero {
-      padding: 160px 48px 100px;
-      text-align: center;
-      max-width: 900px;
+      padding: 140px 48px 80px;
+      max-width: 860px;
       margin: 0 auto;
+      text-align: center;
     }
-    .hero .badge {
+    .hero .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       background: var(--color-brand-dim);
-      border: 1px solid rgba(255, 138, 61, 0.3);
+      border: 1px solid rgba(255, 138, 61, 0.25);
       color: var(--color-brand);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      padding: 6px 14px;
+      padding: 5px 14px;
       border-radius: 20px;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
-    .hero .badge .dot {
+    .hero .eyebrow .dot {
       width: 6px; height: 6px;
       background: var(--color-brand);
       border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
     }
     .hero h1 {
-      font-size: clamp(40px, 7vw, 72px);
+      font-size: clamp(36px, 6vw, 64px);
       font-weight: 800;
       line-height: 1.1;
       letter-spacing: -0.03em;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .hero h1 .gradient {
       background: linear-gradient(135deg, #ff8a3d, #ff5f9e);
@@ -124,99 +126,148 @@
       background-clip: text;
     }
     .hero p {
-      font-size: 18px;
+      font-size: 17px;
       color: var(--color-muted);
-      max-width: 600px;
-      margin: 0 auto 48px;
+      max-width: 560px;
+      margin: 0 auto 40px;
       line-height: 1.7;
     }
     .hero .actions {
       display: flex;
-      gap: 16px;
+      gap: 14px;
       justify-content: center;
       flex-wrap: wrap;
     }
-    .hero .btn-primary {
+    .btn-primary {
       background: var(--color-brand);
       color: #000;
-      padding: 14px 28px;
+      padding: 13px 26px;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 15px;
+      font-size: 14px;
       text-decoration: none;
-      transition: opacity 0.2s;
+      display: inline-block;
+      transition: transform 0.15s, box-shadow 0.15s;
     }
-    .hero .btn-primary:hover { opacity: 0.9; }
-    .hero .btn-secondary {
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(255, 138, 61, 0.35);
+    }
+    .btn-secondary {
       border: 1px solid var(--color-border);
       color: var(--color-text);
-      padding: 14px 28px;
+      padding: 13px 26px;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 15px;
+      font-size: 14px;
       text-decoration: none;
       background: var(--color-surface);
-      transition: border-color 0.2s;
+      display: inline-block;
+      transition: border-color 0.15s, background 0.15s;
     }
-    .hero .btn-secondary:hover { border-color: var(--color-muted); }
+    .btn-secondary:hover {
+      border-color: var(--color-muted);
+      background: var(--color-surface-2);
+    }
 
-    /* ─── YAML Preview ───────────────────────────── */
-    .yaml-section {
-      padding: 0 48px 100px;
-      max-width: 900px;
+    /* ─── Live Editor ─────────────────────────────── */
+    .editor-section {
+      padding: 0 48px 80px;
+      max-width: 1200px;
       margin: 0 auto;
     }
-    .yaml-section .label {
+    .editor-section .section-label {
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      color: var(--color-brand);
+      margin-bottom: 10px;
+    }
+    .editor-section h2 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+    .editor-section .editor-subtitle {
       color: var(--color-muted);
-      margin-bottom: 16px;
+      font-size: 14px;
+      margin-bottom: 28px;
     }
-    .code-block {
-      background: var(--color-surface);
+    .editor-shell {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
       border: 1px solid var(--color-border);
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
+      background: var(--color-surface);
     }
-    .code-block .header {
+    .editor-pane {
+      display: flex;
+      flex-direction: column;
+    }
+    .pane-header {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--color-border);
+      background: rgba(255,255,255,0.02);
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--color-border);
-      background: rgba(255,255,255,0.03);
     }
-    .code-block .dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-    }
-    .code-block .dot.red { background: #ff5f57; }
-    .code-block .dot.yellow { background: #febc2e; }
-    .code-block .dot.green { background: #28c840; }
-    .code-block .filename {
+    .pane-header .dot-red { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+    .pane-header .dot-yellow { width: 10px; height: 10px; border-radius: 50%; background: #febc2e; }
+    .pane-header .dot-green { width: 10px; height: 10px; border-radius: 50%; background: #28c840; }
+    .pane-header .pane-title {
       margin-left: 8px;
       font-size: 12px;
       color: var(--color-muted);
       font-family: var(--font-mono);
     }
-    .code-block pre {
-      padding: 24px;
+    .pane-body { flex: 1; display: flex; }
+    .editor-textarea {
+      width: 100%;
+      min-height: 340px;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      padding: 18px;
       font-family: var(--font-mono);
       font-size: 13px;
       line-height: 1.8;
-      overflow-x: auto;
       color: #c9d1d9;
+      tab-size: 2;
     }
-    .code-block .key { color: #79c0ff; }
-    .code-block .str { color: #a5d6ff; }
-    .code-block .num { color: #f0883e; }
-    .code-block .comment { color: #6b6b8a; }
-    .code-block .punct { color: #e4e4ef; }
-    .code-block .val { color: #34d399; }
+    .editor-textarea::placeholder { color: var(--color-muted); }
+    .output-pane .pane-body {
+      padding: 18px;
+      overflow-y: auto;
+      max-height: 380px;
+    }
+    .output-placeholder {
+      color: var(--color-muted);
+      font-size: 13px;
+      font-family: var(--font-mono);
+    }
+    .output-error {
+      color: #f87171;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .output-html { font-size: 13px; line-height: 1.6; }
+    .output-html .render-component { margin-bottom: 8px; }
+    .output-divider {
+      width: 1px;
+      background: var(--color-border);
+    }
 
-    /* ─── Features ───────────────────────────────── */
+    /* ─── Features ────────────────────────────────── */
     .features {
       padding: 80px 48px;
       max-width: 1100px;
@@ -228,50 +279,53 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--color-brand);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .features h2 {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       letter-spacing: -0.02em;
     }
     .features .subtitle {
       color: var(--color-muted);
-      font-size: 17px;
-      margin-bottom: 56px;
-      max-width: 540px;
+      font-size: 16px;
+      margin-bottom: 48px;
+      max-width: 520px;
     }
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
     }
     .feature-card {
       background: var(--color-surface);
       border: 1px solid var(--color-border);
-      border-radius: 16px;
-      padding: 28px;
-      transition: border-color 0.2s;
+      border-radius: 14px;
+      padding: 24px;
+      transition: border-color 0.2s, transform 0.2s;
     }
-    .feature-card:hover { border-color: rgba(255, 138, 61, 0.4); }
+    .feature-card:hover {
+      border-color: rgba(255, 138, 61, 0.4);
+      transform: translateY(-2px);
+    }
     .feature-icon {
-      width: 44px; height: 44px;
+      width: 40px; height: 40px;
       background: var(--color-brand-dim);
-      border-radius: 10px;
+      border-radius: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      margin-bottom: 20px;
+      font-size: 18px;
+      margin-bottom: 16px;
     }
     .feature-card h3 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 7px;
     }
     .feature-card p {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--color-muted);
       line-height: 1.6;
     }
@@ -288,58 +342,75 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--color-brand);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .showcase h2 {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 800;
-      margin-bottom: 48px;
+      margin-bottom: 36px;
       letter-spacing: -0.02em;
     }
     .component-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
     }
     .component-item {
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: 12px;
-      padding: 24px;
-      text-align: center;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .component-item-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      background: rgba(255,255,255,0.02);
     }
     .component-name {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--color-muted);
       font-family: var(--font-mono);
-      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
     .component-preview {
-      height: 60px;
+      padding: 20px 16px;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 72px;
+      flex: 1;
     }
 
-    /* ─── Button Variants ─────────────────────────── */
+    /* ─── Demo Button ─────────────────────────────── */
     .demo-btn {
-      padding: 10px 20px;
+      padding: 9px 18px;
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       border: none;
       cursor: pointer;
-      transition: opacity 0.2s;
+      font-family: var(--font-sans);
+      transition: transform 0.15s, box-shadow 0.15s;
     }
-    .demo-btn:hover { opacity: 0.85; }
+    .demo-btn:hover {
+      transform: translateY(-1px);
+    }
     .demo-btn-primary { background: var(--color-brand); color: #000; }
+    .demo-btn-primary:hover { box-shadow: 0 4px 14px rgba(255, 138, 61, 0.3); }
     .demo-btn-secondary { background: #1e1e2e; color: var(--color-text); border: 1px solid var(--color-border); }
+    .demo-btn-secondary:hover { border-color: var(--color-muted); background: #252538; }
     .demo-btn-ghost { background: transparent; color: var(--color-brand); border: 1px solid var(--color-brand); }
-    .demo-btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 6px; }
-    .demo-btn-lg { padding: 14px 28px; font-size: 16px; border-radius: 10px; }
+    .demo-btn-ghost:hover { background: var(--color-brand-dim); }
+    .demo-btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
+    .demo-btn-lg { padding: 13px 26px; font-size: 15px; border-radius: 10px; }
 
-    /* ─── Badge Variants ─────────────────────────── */
+    /* ─── Demo Badge ──────────────────────────────── */
     .demo-badge {
       display: inline-flex;
       align-items: center;
@@ -352,184 +423,201 @@
     .demo-badge-default { background: #1e1e2e; color: var(--color-text); }
     .demo-badge-success { background: rgba(52, 211, 153, 0.15); color: var(--color-success); }
     .demo-badge-info { background: rgba(96, 165, 250, 0.15); color: var(--color-info); }
-    .demo-badge-warning { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+    .demo-badge-warning { background: rgba(251, 191, 36, 0.15); color: var(--color-warning); }
 
-    /* ─── Input / Form ───────────────────────────── */
+    /* ─── Demo Input ──────────────────────────────── */
     .demo-input {
-      width: 100%;
-      padding: 10px 14px;
+      padding: 9px 13px;
       background: #0a0a0f;
       border: 1px solid var(--color-border);
       border-radius: 8px;
       color: var(--color-text);
-      font-size: 14px;
+      font-size: 13px;
       font-family: var(--font-sans);
-      transition: border-color 0.2s;
+      width: 180px;
+      transition: border-color 0.15s;
     }
     .demo-input:focus { outline: none; border-color: var(--color-brand); }
 
-    /* ─── Card ───────────────────────────────────── */
+    /* ─── Demo Card ───────────────────────────────── */
     .demo-card {
       background: #12121a;
       border: 1px solid var(--color-border);
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 10px;
+      padding: 16px;
       text-align: left;
+      width: 180px;
     }
-    .demo-card-title {
-      font-size: 14px;
+    .demo-card-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .demo-card-body { font-size: 12px; color: var(--color-muted); }
+
+    /* ─── Demo Modal ──────────────────────────────── */
+    .demo-modal {
+      background: #12121a;
+      border: 1px solid var(--color-brand);
+      border-radius: 10px;
+      padding: 14px 20px;
+      text-align: center;
+      min-width: 160px;
+    }
+    .demo-modal-label {
+      font-size: 10px;
       font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--color-brand);
       margin-bottom: 6px;
+      font-family: var(--font-mono);
     }
-    .demo-card-body {
-      font-size: 13px;
-      color: var(--color-muted);
+    .demo-modal-body { font-size: 12px; color: var(--color-text); }
+
+    /* ─── Divider ─────────────────────────────────── */
+    .divider {
+      max-width: 1100px;
+      margin: 0 auto 72px;
+      border: none;
+      border-top: 1px solid var(--color-border);
     }
 
-    /* ─── CTA Section ────────────────────────────── */
+    /* ─── CTA ─────────────────────────────────────── */
     .cta-section {
-      padding: 100px 48px;
+      padding: 80px 48px 100px;
       text-align: center;
     }
     .cta-card {
-      max-width: 700px;
+      max-width: 680px;
       margin: 0 auto;
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: 20px;
-      padding: 64px;
+      padding: 56px 64px;
     }
     .cta-card h2 {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       letter-spacing: -0.02em;
     }
     .cta-card p {
       color: var(--color-muted);
-      font-size: 17px;
-      margin-bottom: 40px;
+      font-size: 16px;
+      margin-bottom: 36px;
     }
     .cta-card .actions {
       display: flex;
-      gap: 16px;
+      gap: 14px;
       justify-content: center;
       flex-wrap: wrap;
     }
 
-    /* ─── Footer ─────────────────────────────────── */
+    /* ─── Footer ──────────────────────────────────── */
     footer {
-      padding: 32px 48px;
+      padding: 28px 48px;
       border-top: 1px solid var(--color-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
     footer .footer-brand {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--color-muted);
     }
-    footer .footer-links {
-      display: flex;
-      gap: 24px;
-    }
+    footer .footer-links { display: flex; gap: 22px; }
     footer .footer-links a {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--color-muted);
       text-decoration: none;
-      transition: color 0.2s;
+      transition: color 0.15s;
     }
     footer .footer-links a:hover { color: var(--color-text); }
 
-    /* ─── Divider ────────────────────────────────── */
-    .divider {
-      max-width: 900px;
-      margin: 0 auto 80px;
-      border: none;
-      border-top: 1px solid var(--color-border);
-    }
-
+    /* ─── Responsive ──────────────────────────────── */
     @media (max-width: 768px) {
-      nav { padding: 14px 20px; }
+      nav { padding: 12px 20px; }
       nav .nav-links { display: none; }
       .hero { padding: 120px 20px 60px; }
-      .yaml-section, .features, .showcase, .cta-section { padding-left: 20px; padding-right: 20px; }
-      footer { flex-direction: column; gap: 20px; text-align: center; }
+      .editor-section, .features, .showcase, .cta-section { padding-left: 20px; padding-right: 20px; }
+      .editor-shell { grid-template-columns: 1fr; }
+      .output-pane .pane-body { max-height: 260px; }
+      .cta-card { padding: 40px 28px; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      .divider { margin-left: 20px; margin-right: 20px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Navbar -->
+  <!-- Nav -->
   <nav>
     <a href="#" class="logo">
       <div class="logo-icon">Y</div>
-      Yell
+      <span class="logo-name">Yell</span>
     </a>
     <div class="nav-links">
+      <a href="#live-editor">Live Editor</a>
       <a href="#features">Features</a>
       <a href="#components">Components</a>
       <a href="docs/getting-started/introduction.html">Docs</a>
       <a href="https://github.com/jared-openclawbot/yell-landing" target="_blank">GitHub</a>
-      <a href="#" class="nav-cta">Get Started</a>
+      <a href="#live-editor" class="nav-cta">Try it →</a>
     </div>
   </nav>
 
   <!-- Hero -->
   <section class="hero">
-    <div class="badge">
+    <div class="eyebrow">
       <span class="dot"></span>
       v0.1.0 — AI-native UI framework
     </div>
     <h1>UI defined in <span class="gradient">YAML</span>.<br>Rendered everywhere.</h1>
-    <p>Yell replaces JSX with structured YAML. Every component is typed, versioned, and validated. AI agents and platform teams share one source of truth — no more design drift.</p>
+    <p>Yell replaces JSX with structured YAML. Every component is typed, versioned, and validated. AI agents and platform teams share one source of truth.</p>
     <div class="actions">
-      <a href="docs/getting-started/introduction.html" class="btn-primary">Read the docs →</a>
+      <a href="#live-editor" class="btn-primary">Try the live editor →</a>
       <a href="https://github.com/jared-openclawbot/yell-landing" class="btn-secondary">View on GitHub</a>
     </div>
   </section>
 
-  <!-- YAML Preview -->
-  <section class="yaml-section">
-    <p class="label">Example — Login form</p>
-    <div class="code-block">
-      <div class="header">
-        <span class="dot red"></span>
-        <span class="dot yellow"></span>
-        <span class="dot green"></span>
-        <span class="filename">login-form.yaml</span>
-      </div>
-      <pre><span class="comment"># Define design tokens</span>
-<span class="key">tokens</span><span class="punct">:</span>
-  <span class="key">colors</span><span class="punct">:</span>
-    <span class="key">brand</span><span class="punct">:</span> <span class="str">'#ff8a3d'</span>
+  <!-- Live Editor -->
+  <section class="editor-section" id="live-editor">
+    <p class="section-label">Live Editor</p>
+    <h2>YAML in, HTML out</h2>
+    <p class="editor-subtitle">Edit the YAML on the left — see the rendered output on the right, instantly.</p>
 
-<span class="comment"># Define the UI tree</span>
-<span class="key">app</span><span class="punct">:</span>
-  <span class="key">shell</span><span class="punct">:</span>
-    <span class="key">type</span><span class="punct">:</span> <span class="val">Container</span>
-    <span class="key">layout</span><span class="punct">:</span> <span class="val">stack</span>
-    <span class="key">gap</span><span class="punct">:</span> <span class="num">24</span>
-  <span class="key">children</span><span class="punct">:</span>
-    <span class="punct">-</span> <span class="key">type</span><span class="punct">:</span> <span class="val">Text</span>
-      <span class="key">props</span><span class="punct">:</span>
-        <span class="key">content</span><span class="punct">:</span> <span class="str">"Welcome back"</span>
-        <span class="key">variant</span><span class="punct">:</span> <span class="val">h1</span>
-    <span class="punct">-</span> <span class="key">type</span><span class="punct">:</span> <span class="val">Input</span>
-      <span class="key">props</span><span class="punct">:</span>
-        <span class="key">name</span><span class="punct">:</span> <span class="str">"email"</span>
-        <span class="key">placeholder</span><span class="punct">:</span> <span class="str">"you@example.com"</span>
-        <span class="key">style</span><span class="punct">:</span> <span class="str">"border-color: $tokens.colors.brand"</span>
-    <span class="punct">-</span> <span class="key">type</span><span class="punct">:</span> <span class="val">Button</span>
-      <span class="key">props</span><span class="punct">:</span>
-        <span class="key">label</span><span class="punct">:</span> <span class="str">"Sign in"</span>
-        <span class="key">variant</span><span class="punct">:</span> <span class="val">primary</span>
-      <span class="key">onClick</span><span class="punct">:</span> <span class="val">handleLogin</span></pre>
+    <div class="editor-shell">
+      <!-- YAML Pane -->
+      <div class="editor-pane">
+        <div class="pane-header">
+          <span class="dot-red"></span>
+          <span class="dot-yellow"></span>
+          <span class="dot-green"></span>
+          <span class="pane-title">page.yell.yaml</span>
+        </div>
+        <div class="pane-body">
+          <textarea id="yaml-input" class="editor-textarea" spellcheck="false" placeholder="app:
+  children:
+    - type: Button
+      props:
+        label: Hello World
+        variant: primary"></textarea>
+        </div>
+      </div>
+
+      <div class="output-divider"></div>
+
+      <!-- Output Pane -->
+      <div class="editor-pane output-pane">
+        <div class="pane-header">
+          <span class="dot-red"></span>
+          <span class="dot-yellow"></span>
+          <span class="dot-green"></span>
+          <span class="pane-title">Rendered output</span>
+        </div>
+        <div class="pane-body" id="output-body">
+          <span class="output-placeholder">Edit the YAML to see output here…</span>
+        </div>
+      </div>
     </div>
   </section>
-
-  <hr class="divider">
 
   <!-- Features -->
   <section class="features" id="features">
@@ -540,7 +628,7 @@
       <div class="feature-card">
         <div class="feature-icon">📐</div>
         <h3>Structured over syntax</h3>
-        <p>YAML has strict indentation and structure. LLMs produce cleaner, more consistent output than with JSX's的自由语法。</p>
+        <p>YAML has strict indentation and structure. LLMs produce cleaner, more consistent output than with ad-hoc JSX.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🔒</div>
@@ -570,8 +658,6 @@
     </div>
   </section>
 
-  <hr class="divider">
-
   <!-- Component Showcase -->
   <section class="showcase" id="components">
     <p class="section-label">Components</p>
@@ -579,15 +665,19 @@
     <div class="component-grid">
 
       <div class="component-item">
-        <div class="component-name">Button</div>
+        <div class="component-item-header">
+          <div class="component-name">Button</div>
+        </div>
         <div class="component-preview">
           <button class="demo-btn demo-btn-primary">Click me</button>
         </div>
       </div>
 
       <div class="component-item">
-        <div class="component-name">Button variants</div>
-        <div class="component-preview" style="flex-direction:column;gap:8px;">
+        <div class="component-item-header">
+          <div class="component-name">Button variants</div>
+        </div>
+        <div class="component-preview">
           <button class="demo-btn demo-btn-primary">primary</button>
           <button class="demo-btn demo-btn-secondary">secondary</button>
           <button class="demo-btn demo-btn-ghost">ghost</button>
@@ -595,8 +685,10 @@
       </div>
 
       <div class="component-item">
-        <div class="component-name">Button sizes</div>
-        <div class="component-preview" style="flex-direction:column;align-items:center;gap:8px;">
+        <div class="component-item-header">
+          <div class="component-name">Button sizes</div>
+        </div>
+        <div class="component-preview" style="flex-direction:column;gap:6px;">
           <button class="demo-btn demo-btn-primary demo-btn-sm">small</button>
           <button class="demo-btn demo-btn-primary">medium</button>
           <button class="demo-btn demo-btn-primary demo-btn-lg">large</button>
@@ -604,8 +696,10 @@
       </div>
 
       <div class="component-item">
-        <div class="component-name">Badge</div>
-        <div class="component-preview" style="flex-direction:column;gap:8px;align-items:center;">
+        <div class="component-item-header">
+          <div class="component-name">Badge</div>
+        </div>
+        <div class="component-preview" style="flex-direction:column;gap:6px;align-items:flex-start;">
           <span class="demo-badge demo-badge-default">Default</span>
           <span class="demo-badge demo-badge-success">Success</span>
           <span class="demo-badge demo-badge-info">Info</span>
@@ -614,38 +708,46 @@
       </div>
 
       <div class="component-item">
-        <div class="component-name">Input</div>
+        <div class="component-item-header">
+          <div class="component-name">Input</div>
+        </div>
         <div class="component-preview">
-          <input class="demo-input" placeholder="Type something..." style="max-width:140px;">
+          <input class="demo-input" placeholder="Type something…">
         </div>
       </div>
 
       <div class="component-item">
-        <div class="component-name">Card</div>
+        <div class="component-item-header">
+          <div class="component-name">Card</div>
+        </div>
         <div class="component-preview">
-          <div class="demo-card" style="max-width:160px;">
+          <div class="demo-card">
             <div class="demo-card-title">Card Title</div>
-            <div class="demo-card-body">Card body content goes here</div>
+            <div class="demo-card-body">Card body content</div>
           </div>
         </div>
       </div>
 
       <div class="component-item">
-        <div class="component-name">Modal</div>
+        <div class="component-item-header">
+          <div class="component-name">Modal</div>
+        </div>
         <div class="component-preview">
-          <div style="background:#12121a;border:1px solid #ff8a3d;border-radius:8px;padding:12px 20px;text-align:center;">
-            <div style="font-size:11px;color:#ff8a3d;margin-bottom:6px;">MODAL</div>
-            <div style="font-size:12px;color:#e4e4ef;">Overlay content</div>
+          <div class="demo-modal">
+            <div class="demo-modal-label">MODAL</div>
+            <div class="demo-modal-body">Overlay content</div>
           </div>
         </div>
       </div>
 
       <div class="component-item">
-        <div class="component-name">Text variants</div>
-        <div class="component-preview" style="flex-direction:column;gap:4px;text-align:left;width:100%;padding:0 8px;">
-          <div style="font-size:20px;font-weight:700;">Heading 1</div>
-          <div style="font-size:16px;font-weight:600;">Heading 2</div>
-          <div style="font-size:14px;color:#6b6b8a;">Body text</div>
+        <div class="component-item-header">
+          <div class="component-name">Text</div>
+        </div>
+        <div class="component-preview" style="flex-direction:column;gap:4px;align-items:flex-start;width:100%;padding:0 12px;">
+          <div style="font-size:18px;font-weight:700;">Heading 1</div>
+          <div style="font-size:15px;font-weight:600;">Heading 2</div>
+          <div style="font-size:13px;color:var(--color-muted);">Body text</div>
         </div>
       </div>
 
@@ -674,6 +776,179 @@
       <a href="https://github.com/jared-openclawbot/yell-landing">GitHub</a>
     </div>
   </footer>
+
+  <!-- Yell Runtime (inline for demo) -->
+  <script type="module">
+    // Simple Yell renderer for the live editor
+    const registry = new Map();
+
+    function register(type, fn) { registry.set(type, fn); }
+
+    function renderComponent(node, depth = 0) {
+      if (!node || typeof node !== 'object') return '';
+      const type = node.type;
+      if (!type) return '';
+
+      const fn = registry.get(type);
+      if (!fn) return `<span style="color:#f87171;font-size:12px;">[Unknown: ${type}]</span>`;
+
+      const props = node.props || {};
+      const children = node.children || [];
+
+      const renderedChildren = children.map(child => renderComponent(child, depth + 1)).join('');
+      return fn({ ...props, children: renderedChildren, node });
+    }
+
+    function parseSimple(yaml) {
+      // Very simple YAML-like parser for the demo
+      // Handles: type, props, children, basic strings
+      const lines = yaml.split('\n');
+      let indent = 0;
+      const stack = [{ children: [] }];
+      let current = stack[0];
+
+      for (const rawLine of lines) {
+        if (!rawLine.trim()) continue;
+        const line = rawLine.replace(/\t/g, '  ');
+        const spaces = line.match(/^ */)?.[0].length || 0;
+        const content = line.trim();
+
+        if (spaces < indent) {
+          // Go up in stack
+          const up = Math.floor((indent - spaces) / 2) + 1;
+          for (let i = 0; i < up && stack.length > 1; i++) stack.pop();
+        }
+        indent = spaces;
+        current = stack[stack.length - 1];
+
+        if (content === 'children:') {
+          // Create children array
+          if (!current.children) current.children = [];
+          continue;
+        }
+
+        if (content.startsWith('- type:')) {
+          const type = content.replace('- type:', '').trim();
+          const node = { type, props: {}, children: [] };
+          if (Array.isArray(current.children)) {
+            current.children.push(node);
+          }
+          stack.push(node);
+          continue;
+        }
+
+        if (content.startsWith('- ')) {
+          const rest = content.slice(2).trim();
+          if (rest.startsWith('type:')) {
+            const type = rest.replace('type:', '').trim();
+            const node = { type, props: {}, children: [] };
+            if (Array.isArray(current.children)) {
+              current.children.push(node);
+            }
+            stack.push(node);
+          }
+          continue;
+        }
+
+        const colonIdx = content.indexOf(':');
+        if (colonIdx > 0) {
+          const key = content.slice(0, colonIdx).trim();
+          const val = content.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, '');
+
+          if (key === 'props') {
+            if (!current.props) current.props = {};
+            // props block starts, but we need to handle nested props
+            continue;
+          }
+
+          // Set prop on current node
+          if (stack.length > 1) {
+            const target = stack[stack.length - 1];
+            if (!target.props) target.props = {};
+            target.props[key] = val;
+          }
+        }
+      }
+
+      return stack[0].children || [];
+    }
+
+    // Register built-in components
+    register('Button', ({ label = 'Button', variant = 'primary', children }) => {
+      const base = 'demo-btn demo-btn-' + (variant || 'primary');
+      return `<button class="${base}">${label || children}</button>`;
+    });
+
+    register('Text', ({ content = '', variant = 'body', children }) => {
+      if (variant === 'h1') return `<div style="font-size:20px;font-weight:700;">${content || children}</div>`;
+      if (variant === 'h2') return `<div style="font-size:16px;font-weight:600;">${content || children}</div>`;
+      return `<div style="font-size:14px;color:#6b6b8a;">${content || children}</div>`;
+    });
+
+    register('Container', ({ layout = 'stack', gap = 16, children }) => {
+      return `<div style="display:flex;flex-direction:${layout === 'grid' ? 'row' : 'column'};gap:${gap}px;">${children}</div>`;
+    });
+
+    register('Badge', ({ label = 'Badge', variant = 'default', children }) => {
+      const cls = 'demo-badge demo-badge-' + (variant || 'default');
+      return `<span class="${cls}">${label || children}</span>`;
+    });
+
+    register('Input', ({ placeholder = '', name = '', type = 'text' }) => {
+      return `<input class="demo-input" placeholder="${placeholder}" name="${name}" type="${type}">`;
+    });
+
+    register('Card', ({ title = '', body = '', children }) => {
+      return `<div class="demo-card"><div class="demo-card-title">${title || children}</div><div class="demo-card-body">${body}</div></div>`;
+    });
+
+    register('Modal', ({ label = 'MODAL', body = '', children }) => {
+      return `<div class="demo-modal"><div class="demo-modal-label">${label || children}</div><div class="demo-modal-body">${body}</div></div>`;
+    });
+
+    // Render on input
+    const yamlInput = document.getElementById('yaml-input');
+    const outputBody = document.getElementById('output-body');
+
+    const defaultYAML = `app:
+  children:
+    - type: Container
+      layout: stack
+      gap: 16
+      children:
+        - type: Text
+          props:
+            content: Welcome to Yell
+            variant: h1
+        - type: Button
+          props:
+            label: Get started
+            variant: primary
+        - type: Badge
+          props:
+            label: v0.1.0
+            variant: success`;
+
+    yamlInput.value = defaultYAML;
+
+    function renderOutput() {
+      const yaml = yamlInput.value;
+      try {
+        const nodes = parseSimple(yaml);
+        if (!nodes || nodes.length === 0) {
+          outputBody.innerHTML = '<span class="output-placeholder">No valid nodes found. Check your YAML indentation.</span>';
+          return;
+        }
+        const html = nodes.map(n => renderComponent(n)).join('');
+        outputBody.innerHTML = `<div class="output-html">${html}</div>`;
+      } catch (e) {
+        outputBody.innerHTML = `<div class="output-error">Parse error: ${e.message}</div>`;
+      }
+    }
+
+    yamlInput.addEventListener('input', renderOutput);
+    renderOutput();
+  </script>
 
 </body>
 </html>
