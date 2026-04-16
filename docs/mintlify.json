@@ -26,6 +26,18 @@
           "path": "/reference/cli"
         },
         {
+          "item": "Reference",
+          "path": "/reference/cli"
+        },
+        {
+          "item": "Schema",
+          "path": "/reference/schema"
+        },
+        {
+          "item": "Linter",
+          "path": "/guides/linter"
+        },
+        {
           "item": "Playground",
           "path": "/playground"
         }
