@@ -20,14 +20,21 @@
     <div class="page-shell">
       <div class="noise"></div>
       <header class="site-header">
-        <div class="brand">
-          <div class="brand-mark">Y</div>
-          <div>
-            <div class="brand-name">Yell</div>
-            <div class="brand-tag">Declarative UI in YAML</div>
+        <div class="brand-row">
+          <div class="brand">
+            <div class="brand-mark">Y</div>
+            <div>
+              <div class="brand-name">Yell</div>
+              <div class="brand-tag">Declarative UI in YAML</div>
+            </div>
           </div>
+          <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
         </div>
-        <nav class="nav">
+        <nav class="nav" id="site-nav">
           <a href="#features">Features</a>
           <a href="#syntax">Syntax</a>
           <a href="#faq">FAQ</a>
