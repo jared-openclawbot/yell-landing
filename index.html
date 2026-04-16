@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yell — Declarative UI for the serializable web</title>
+    <meta
+      name="description"
+      content="Yell is a declarative UI framework built on YAML instead of JSX — designed for design systems, SSR, hydration, and AI-native interfaces."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="noise"></div>
+      <header class="site-header">
+        <div class="brand">
+          <div class="brand-mark">Y</div>
+          <div>
+            <div class="brand-name">Yell</div>
+            <div class="brand-tag">Declarative UI in YAML</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="#features">Features</a>
+          <a href="#syntax">Syntax</a>
+          <a href="#faq">FAQ</a>
+          <a href="#cta" class="nav-cta">Request early access</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow">Launch preview · frontend infrastructure</div>
+            <h1>Stop compiling component trees from JavaScript. Start declaring them.</h1>
+            <p class="hero-lead">
+              Yell is a declarative UI framework built on YAML instead of JSX — designed for design systems, server rendering, hydration, and AI-native product surfaces.
+            </p>
+            <div class="hero-actions">
+              <a href="#cta" class="btn btn-primary">Join the waitlist</a>
+              <a href="#syntax" class="btn btn-secondary">See YAML in action</a>
+            </div>
+            <div class="hero-proof">
+              <div><strong>Serializable by default</strong><span>Stateful UI definitions you can store, diff, cache, and generate.</span></div>
+              <div><strong>SSR-first runtime</strong><span>Optimized for fast streaming, resumable hydration, and systemized interfaces.</span></div>
+            </div>
+          </div>
+
+          <div class="hero-panel">
+            <div class="panel-glow"></div>
+            <div class="panel-header">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="panel-title">app.yell.yaml</span>
+            </div>
+            <pre class="code-block"><code>app:
+  route: /dashboard
+  shell:
+    layout: stack
+    gap: 24
+  children:
+    - type: Hero
+      props:
+        eyebrow: "Declarative UI for product teams"
+        title: "Build interfaces your infra can understand"
+        actions:
+          - label: "Start with Yell"
+            variant: primary
+    - type: FeatureGrid
+      props:
+        columns: 3
+        items:
+          - title: "SSR-native"
+            body: "Stream first paint from YAML without rehydrating an ad-hoc component graph."
+          - title: "AI-friendly"
+            body: "Generate, validate, diff, and patch interfaces as structured content."
+          - title: "Design-system aware"
+            body: "Map schema-safe components to tokens, themes, slots, and constraints."
+            </code></pre>
+          </div>
+        </section>
+
+        <section class="positioning strip">
+          <div class="strip-card">
+            <p>
+              <strong>Yell is not a template engine.</strong> It is a UI runtime for teams who want component trees that are inspectable, portable, serializable, and governable.
+            </p>
+          </div>
+          <div class="strip-card">
+            <p>
+              Built for product surfaces where <strong>systems matter more than syntax preference</strong>: internal tools, AI-generated views, content-heavy SaaS, and design-system-led platforms.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="features">
+          <div class="section-heading">
+            <span class="section-kicker">Why teams are looking beyond JSX</span>
+            <h2>Structured UI that plays well with infra, not just developers.</h2>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <h3>Serializable syntax</h3>
+              <p>YAML gives you a transportable interface definition you can persist, cache, diff, validate, and version without inventing a parallel DSL.</p>
+            </article>
+            <article class="feature-card">
+              <h3>Design-system boundaries</h3>
+              <p>Restrict surfaces to approved components, tokens, slots, and prop shapes instead of exposing arbitrary render logic everywhere.</p>
+            </article>
+            <article class="feature-card">
+              <h3>SSR + hydration</h3>
+              <p>Render from schema on the server, hydrate only what is interactive, and keep the runtime aligned with a stable component contract.</p>
+            </article>
+            <article class="feature-card">
+              <h3>AI-native interfaces</h3>
+              <p>LLMs are dramatically better at producing structured, validated interface trees than ad-hoc JSX blobs with business logic sprinkled everywhere.</p>
+            </article>
+            <article class="feature-card">
+              <h3>Governed composition</h3>
+              <p>Let infra teams define what can be rendered, who can generate it, and how it gets validated before it ever reaches a browser.</p>
+            </article>
+            <article class="feature-card">
+              <h3>Production observability</h3>
+              <p>Trace UI definitions as data: inspect them in logs, snapshot them in storage, and replay them across environments with fewer unknowns.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section two-up" id="syntax">
+          <div>
+            <span class="section-kicker">The pitch</span>
+            <h2>What if your frontend syntax was also your runtime contract?</h2>
+            <p>
+              Yell treats interface definitions as structured documents, not arbitrary code islands. That makes it unusually good at powering generated UIs, controlled composition, server rendering, and multi-team design-system workflows.
+            </p>
+            <ul class="bullet-list">
+              <li>Strict schema validation before render</li>
+              <li>Portable config that survives services, queues, and caches</li>
+              <li>Clean separation between view declaration and imperative behavior</li>
+            </ul>
+          </div>
+          <div class="comparison-card">
+            <div class="comparison-title">Why not JSX?</div>
+            <p>
+              JSX is flexible, expressive, and beloved — but it is also harder to serialize, harder to govern, harder to diff semantically, and awkward when your UI needs to be generated or transported as data.
+            </p>
+            <p>
+              Yell is for the class of products where <strong>structure beats cleverness</strong> and where interfaces increasingly need to move between humans, services, and models.
+            </p>
+          </div>
+        </section>
+
+        <section class="section capabilities">
+          <div class="section-heading narrow">
+            <span class="section-kicker">Platform capabilities</span>
+            <h2>Built to feel like a serious framework, not a syntax experiment.</h2>
+          </div>
+          <div class="capability-list">
+            <div class="capability-row">
+              <h3>Design-system support</h3>
+              <p>Bind YAML nodes to approved primitives, compound components, variants, slots, tokens, and themes.</p>
+            </div>
+            <div class="capability-row">
+              <h3>SSR + streaming hydration</h3>
+              <p>Render on the server from schema and hydrate only the interactive surfaces that need a client runtime.</p>
+            </div>
+            <div class="capability-row">
+              <h3>AI-friendly by design</h3>
+              <p>Structured documents are dramatically easier for models to generate reliably than tree-shaped code with embedded logic.</p>
+            </div>
+            <div class="capability-row">
+              <h3>Typed component contracts</h3>
+              <p>Use schema-backed component definitions so teams can validate and evolve UI contracts intentionally.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section testimonials">
+          <div class="section-heading narrow">
+            <span class="section-kicker">What early teams are saying</span>
+            <h2>The “this should not work this well” phase.</h2>
+          </div>
+          <div class="testimonial-grid">
+            <blockquote>
+              “We started evaluating Yell for generated back-office surfaces. We stayed for the design-system guardrails and shockingly sane SSR story.”
+              <footer>— Priya N., Staff Frontend Engineer, Northline</footer>
+            </blockquote>
+            <blockquote>
+              “The first time we diffed an interface tree in a pull request like ordinary data, something in my body relaxed.”
+              <footer>— Marco S., Platform Lead, Wavelength</footer>
+            </blockquote>
+            <blockquote>
+              “It feels slightly over-ambitious, which is usually how genuinely important infrastructure starts.”
+              <footer>— Renee A., CTO, Halogen Cloud</footer>
+            </blockquote>
+          </div>
+        </section>
+
+        <section class="section" id="faq">
+          <div class="section-heading narrow">
+            <span class="section-kicker">FAQ</span>
+            <h2>Reasonable questions from sensible people.</h2>
+          </div>
+          <div class="faq-list">
+            <details open>
+              <summary>Is this replacing React?</summary>
+              <p>No. Yell is a declarative rendering layer and runtime contract. It can target familiar frontend ecosystems while changing how UI is expressed and governed.</p>
+            </details>
+            <details>
+              <summary>Can YAML really handle modern application UI?</summary>
+              <p>Yes, if the runtime is built around typed components, event contracts, server rendering, and strict design-system boundaries rather than raw template interpolation.</p>
+            </details>
+            <details>
+              <summary>Is this only for AI-generated interfaces?</summary>
+              <p>No — but AI is a compelling reason to want structured, serializable UI. The same benefits help internal tools, CMS-driven surfaces, and systemized product shells.</p>
+            </details>
+            <details>
+              <summary>What about hydration and interactivity?</summary>
+              <p>Yell keeps interactivity explicit, so the runtime can hydrate only what is needed instead of reconstituting a giant opaque tree.</p>
+            </details>
+          </div>
+        </section>
+
+        <section class="section cta-section" id="cta">
+          <div class="cta-card">
+            <span class="section-kicker">Private preview</span>
+            <h2>Ship interfaces your infra can understand.</h2>
+            <p>
+              Join the early access list for Yell and get updates on the compiler, runtime, schema registry, and framework adapters.
+            </p>
+            <form class="cta-form" onsubmit="return false;">
+              <input type="email" placeholder="you@company.com" aria-label="Email address" />
+              <button type="submit" class="btn btn-primary">Request access</button>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div>
+          <div class="brand-name footer-brand">Yell</div>
+          <p>Declarative UI for the serializable web.</p>
+        </div>
+        <div class="footer-links">
+          <a href="#">Docs</a>
+          <a href="#">Changelog</a>
+          <a href="#">Schema registry</a>
+          <a href="#">GitHub</a>
+        </div>
+      </footer>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
