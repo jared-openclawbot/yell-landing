@@ -102,6 +102,6 @@ const result = lint(yamlString, {
 
 ## See also
 
-- [Expressions](/core-concepts/expressions.html)
-- [Components](/core-concepts/components.html)
-- [Hydration](/guides/hydration.html)
+- [Expressions](/docs/core-concepts/expressions.html)
+- [Components](/docs/core-concepts/components.html)
+- [Hydration](/docs/guides/hydration.html)

@@ -176,6 +176,6 @@ Don't use tokens for:
 
 ## Next steps
 
-- [Components](/core-concepts/components.html)
-- [Hydration](/guides/hydration.html)
-- [Schema validation](/reference/schema.html)
+- [Components](/docs/core-concepts/components.html)
+- [Hydration](/docs/guides/hydration.html)
+- [Schema validation](/docs/reference/schema.html)

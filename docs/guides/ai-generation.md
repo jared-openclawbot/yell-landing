@@ -206,6 +206,6 @@ This outputs:
 
 ## Next steps
 
-- [CLI reference](/reference/cli.html)
-- [Schema validation](/reference/schema.html)
-- [Playground demo](/getting-started/quick-start.html)
+- [CLI reference](/docs/reference/cli.html)
+- [Schema validation](/docs/reference/schema.html)
+- [Playground demo](/docs/getting-started/quick-start.html)

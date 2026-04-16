@@ -190,6 +190,6 @@ Use specific version in YAML:
 
 ## Next steps
 
-- [Expressions](/core-concepts/expressions.html)
-- [Design tokens](/core-concepts/tokens.html)
-- [Schema validation](/reference/schema.html)
+- [Expressions](/docs/core-concepts/expressions.html)
+- [Design tokens](/docs/core-concepts/tokens.html)
+- [Schema validation](/docs/reference/schema.html)

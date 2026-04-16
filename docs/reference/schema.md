@@ -84,6 +84,6 @@ const section = buildSystemPromptSection(manifest);
 
 ## See also
 
-- [Components](/core-concepts/components.html)
-- [CLI Reference](/reference/cli.html)
-- [Quick Start](/getting-started/quick-start.html)
+- [Components](/docs/core-concepts/components.html)
+- [CLI Reference](/docs/reference/cli.html)
+- [Quick Start](/docs/getting-started/quick-start.html)

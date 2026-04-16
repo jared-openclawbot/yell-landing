@@ -49,6 +49,6 @@ This YAML renders to HTML with full schema validation and a clear hydration cont
 
 ## Next steps
 
-- [Install Yell](/getting-started/installation.html)
-- [Quick start: your first Yell page](/getting-started/quick-start.html)
-- [Understand YAML syntax](/core-concepts/yaml-syntax.html)
+- [Install Yell](/docs/getting-started/installation.html)
+- [Quick start: your first Yell page](/docs/getting-started/quick-start.html)
+- [Understand YAML syntax](/docs/core-concepts/yaml-syntax.html)

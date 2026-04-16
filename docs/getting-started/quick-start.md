@@ -96,6 +96,6 @@ node --loader ts-node/esm app.ts
 
 ## Next steps
 
-- [Understand YAML syntax](/core-concepts/yaml-syntax.html)
-- [Learn about components](/core-concepts/components.html)
-- [Add expressions](/core-concepts/expressions.html)
+- [Understand YAML syntax](/docs/core-concepts/yaml-syntax.html)
+- [Learn about components](/docs/core-concepts/components.html)
+- [Add expressions](/docs/core-concepts/expressions.html)
