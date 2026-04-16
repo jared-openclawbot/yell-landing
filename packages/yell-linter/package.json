@@ -1,7 +1,7 @@
 {
-  "name": "@yell/schema",
+  "name": "@yell/linter",
   "version": "0.1.0",
-  "description": "Schema definitions and validation for Yell components",
+  "description": "Linter for Yell YAML — blocks anti-patterns and enforces structure",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@yell/core": "*",
-    "zod": "^3.22.4"
+    "@yell/schema": "*"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

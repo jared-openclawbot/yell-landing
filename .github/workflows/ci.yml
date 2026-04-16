@@ -39,5 +39,5 @@ jobs:
       - name: Build
         run: npm run build
 
-        # Note: tests will be added in future issues
-        # For now, build step validates TypeScript compilation
+      - name: Run tests
+        run: npm test

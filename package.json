@@ -8,13 +8,17 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces",
-    "build:core": "npm run build -w yell-core",
-    "build:schema": "npm run build -w yell-schema",
-    "build:ai-adapter": "npm run build -w yell-ai-adapter",
+    "build:core": "npm run build -w @yell/core",
+    "build:schema": "npm run build -w @yell/schema",
+    "build:ai-adapter": "npm run build -w @yell/ai-adapter",
+    "build:linter": "npm run build -w @yell/linter",
     "test": "npm run test --workspaces",
     "dev": "npm run dev --workspaces"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.4"
   }
 }
