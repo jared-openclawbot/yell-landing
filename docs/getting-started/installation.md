@@ -53,5 +53,5 @@ import type { YellConfig, ComponentRegistry } from '@yell/core';
 
 ## Next steps
 
-- [Quick start](/getting-started/quick-start) — render your first YAML
-- [Create a component registry](/core-concepts/components)
+- [Quick start](getting-started/quick-start.html) — render your first YAML
+- [Create a component registry](core-concepts/components.html)

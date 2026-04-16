@@ -257,6 +257,6 @@ interface HydrationMap {
 
 ## Next steps
 
-- [Quick start](/getting-started/quick-start)
-- [SSR guide](/guides/ssr)
-- [Hydration guide](/guides/hydration)
+- [Quick start](getting-started/quick-start.html)
+- [SSR guide](guides/ssr.html)
+- [Hydration guide](guides/hydration.html)
