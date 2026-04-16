@@ -1,21 +1,27 @@
 {
-  "name": "yell-core",
+  "name": "@yell/core",
   "version": "0.1.0",
   "description": "Declarative UI runtime for YAML-defined interfaces",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./types": "./dist/types.js",
+    "./parser": "./dist/parser.js",
+    "./registry": "./dist/registry.js",
+    "./renderer": "./dist/renderer.js"
+  },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "dev": "tsc --watch"
   },
   "dependencies": {
-    "yaml": "^2.8.3",
-    "zod": "^3.25.76"
+    "yaml": "^2.3.4",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.3.3"
   }
 }

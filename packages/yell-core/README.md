@@ -1,6 +1,6 @@
 # @yell/core
 
-Declarative UI runtime for YAML-defined interfaces.
+The runtime foundation for Yell — parses YAML, manages components, and renders HTML.
 
 ## Install
 
@@ -11,83 +11,112 @@ npm install @yell/core
 ## Usage
 
 ```typescript
-import { 
-  parseYAML, 
-  createRegistry, 
-  registerComponent, 
-  renderToString 
+import {
+  parseYAML,
+  createRegistry,
+  registerComponent,
+  renderToString,
 } from '@yell/core';
 
-// Define your design system components
+// 1. Create a registry
 const registry = createRegistry();
 
+// 2. Register components
 registerComponent(registry, 'Button', {
-  component: MyButton,
-  schema: z.object({
-    label: z.string(),
-    variant: z.enum(['primary', 'secondary']).optional(),
-  }),
+  component: ({ label, variant = 'primary' }) =>
+    `<button class="btn btn-${variant}">${label}</button>`,
 });
 
-// Parse YAML from any source
+registerComponent(registry, 'Text', {
+  component: ({ content, size = 'md' }) =>
+    `<span class="text-${size}">${content}</span>`,
+});
+
+// 3. Parse YAML
 const yaml = `
 app:
-  route: /dashboard
   children:
+    - type: Text
+      props:
+        content: Hello World
     - type: Button
       props:
         label: Click me
-        variant: primary
 `;
 
 const config = parseYAML(yaml);
 
-// Server-side render to HTML with hydration map
+// 4. Render to HTML
+const { html, hydrationMap } = renderToString(config, registry);
+console.log(html);
+```
+
+## Design Tokens
+
+Reference design tokens in props:
+
+```typescript
+const config = parseYAML(`
+tokens:
+  colors:
+    primary: '#ff8a3d'
+app:
+  children:
+    - type: Button
+      props:
+        backgroundColor: $tokens.colors.primary
+`);
+
+const { html } = renderToString(config, registry);
+```
+
+## Hydration
+
+The hydration map tells the client which nodes need JavaScript:
+
+```typescript
 const { html, hydrationMap } = renderToString(config, registry);
 
-// On client: hydrate using hydrationMap
+// Send to client
+// <script>window.__HYDRATION_MAP__ = ${JSON.stringify(hydrationMap)}</script>
 ```
 
 ## API
 
 ### `parseYAML(yaml: string): YellConfig`
-Parse a YAML string into a YellConfig object.
+
+Parse YAML string into a YellConfig object.
 
 ### `createRegistry(): ComponentRegistry`
+
 Create an empty component registry.
 
 ### `registerComponent(registry, type, definition)`
-Register a component type in the registry.
+
+Register a component type.
 
 ### `renderToString(config, registry, options): SSRRenderResult`
-Render a YellConfig to HTML string with hydration map.
 
-## YAML Syntax
+Render to HTML string with hydration map.
 
-```yaml
-app:
-  route: /path
-  shell:
-    layout: stack
-    gap: 24
-  children:
-    - type: Hero
-      props:
-        title: Hello World
-        actions:
-          - type: Button
-            props:
-              label: Get Started
-              variant: primary
+## Types
+
+```typescript
+interface YellConfig {
+  tokens?: TokenMap;
+  app?: {
+    route?: string;
+    shell?: YellNode;
+    children?: YellNode[];
+  };
+}
+
+interface YellNode {
+  type: string;
+  props?: Record<string, unknown>;
+  children?: YellNode[];
+  slots?: Record<string, YellNode[]>;
+}
 ```
 
-## Roadmap
-
-- [x] YAML parser
-- [x] Component registry
-- [x] SSR renderer
-- [ ] Zod schema validation
-- [ ] Client-side hydration runtime
-- [ ] Design system adapter
-
-See [issues](https://github.com/jared-openclawbot/yell-landing/issues) for details.
+See [docs](docs/) for full reference.
