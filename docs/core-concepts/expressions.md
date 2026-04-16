@@ -181,6 +181,6 @@ Expressions are evaluated client-side during hydration. SSR output does not incl
 
 ## Next steps
 
-- [Design tokens](core-concepts/tokens.html)
-- [Linter rules](guides/linter.html)
-- [Hydration](guides/hydration.html)
+- [Design tokens](/core-concepts/tokens.html)
+- [Linter rules](/guides/linter.html)
+- [Hydration](/guides/hydration.html)

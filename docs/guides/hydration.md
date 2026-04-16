@@ -143,6 +143,6 @@ Large islands = more JS to hydrate. Split large interactive regions at natural b
 
 ## Next steps
 
-- [SSR guide](guides/ssr.html)
-- [Linter rules](guides/linter.html)
-- [Schema validation](reference/schema.html)
+- [SSR guide](/guides/ssr.html)
+- [Linter rules](/guides/linter.html)
+- [Schema validation](/reference/schema.html)
