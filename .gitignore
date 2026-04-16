@@ -2,3 +2,7 @@ node_modules/
 dist/
 .env
 *.log
+packages/yell-core/node_modules/
+packages/yell-schema/node_modules/
+packages/yell-ai-adapter/node_modules/
+packages/*/dist/
