@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yell — Declarative UI for the serializable web</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-bg: #0a0a0f;
+      --color-surface: #12121a;
+      --color-border: #1e1e2e;
+      --color-text: #e4e4ef;
+      --color-muted: #6b6b8a;
+      --color-brand: #ff8a3d;
+      --color-brand-dim: rgba(255, 138, 61, 0.15);
+      --color-success: #34d399;
+      --color-info: #60a5fa;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+
+    /* ─── Navbar ─────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 48px;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+    nav .logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    nav .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--color-brand);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+      color: #000;
+    }
+    nav .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    nav .nav-links a {
+      color: var(--color-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav .nav-links a:hover { color: var(--color-text); }
+    nav .nav-cta {
+      background: var(--color-brand);
+      color: #000 !important;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600 !important;
+    }
+    nav .nav-cta:hover { opacity: 0.9; }
+
+    /* ─── Hero ───────────────────────────────────── */
+    .hero {
+      padding: 160px 48px 100px;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .hero .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--color-brand-dim);
+      border: 1px solid rgba(255, 138, 61, 0.3);
+      color: var(--color-brand);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 32px;
+    }
+    .hero .badge .dot {
+      width: 6px; height: 6px;
+      background: var(--color-brand);
+      border-radius: 50%;
+    }
+    .hero h1 {
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #ff8a3d, #ff5f9e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--color-muted);
+      max-width: 600px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+    .hero .actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .hero .btn-primary {
+      background: var(--color-brand);
+      color: #000;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .hero .btn-primary:hover { opacity: 0.9; }
+    .hero .btn-secondary {
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      background: var(--color-surface);
+      transition: border-color 0.2s;
+    }
+    .hero .btn-secondary:hover { border-color: var(--color-muted); }
+
+    /* ─── YAML Preview ───────────────────────────── */
+    .yaml-section {
+      padding: 0 48px 100px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .yaml-section .label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 16px;
+    }
+    .code-block {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .code-block .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      background: rgba(255,255,255,0.03);
+    }
+    .code-block .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .code-block .dot.red { background: #ff5f57; }
+    .code-block .dot.yellow { background: #febc2e; }
+    .code-block .dot.green { background: #28c840; }
+    .code-block .filename {
+      margin-left: 8px;
+      font-size: 12px;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+    }
+    .code-block pre {
+      padding: 24px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.8;
+      overflow-x: auto;
+      color: #c9d1d9;
+    }
+    .code-block .key { color: #79c0ff; }
+    .code-block .str { color: #a5d6ff; }
+    .code-block .num { color: #f0883e; }
+    .code-block .comment { color: #6b6b8a; }
+    .code-block .punct { color: #e4e4ef; }
+    .code-block .val { color: #34d399; }
+
+    /* ─── Features ───────────────────────────────── */
+    .features {
+      padding: 80px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .features .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-brand);
+      margin-bottom: 12px;
+    }
+    .features h2 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .features .subtitle {
+      color: var(--color-muted);
+      font-size: 17px;
+      margin-bottom: 56px;
+      max-width: 540px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: rgba(255, 138, 61, 0.4); }
+    .feature-icon {
+      width: 44px; height: 44px;
+      background: var(--color-brand-dim);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: var(--color-muted);
+      line-height: 1.6;
+    }
+
+    /* ─── Component Showcase ─────────────────────── */
+    .showcase {
+      padding: 80px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .showcase .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-brand);
+      margin-bottom: 12px;
+    }
+    .showcase h2 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 48px;
+      letter-spacing: -0.02em;
+    }
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .component-item {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+    .component-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      margin-bottom: 16px;
+    }
+    .component-preview {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ─── Button Variants ─────────────────────────── */
+    .demo-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .demo-btn:hover { opacity: 0.85; }
+    .demo-btn-primary { background: var(--color-brand); color: #000; }
+    .demo-btn-secondary { background: #1e1e2e; color: var(--color-text); border: 1px solid var(--color-border); }
+    .demo-btn-ghost { background: transparent; color: var(--color-brand); border: 1px solid var(--color-brand); }
+    .demo-btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 6px; }
+    .demo-btn-lg { padding: 14px 28px; font-size: 16px; border-radius: 10px; }
+
+    /* ─── Badge Variants ─────────────────────────── */
+    .demo-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      gap: 4px;
+    }
+    .demo-badge-default { background: #1e1e2e; color: var(--color-text); }
+    .demo-badge-success { background: rgba(52, 211, 153, 0.15); color: var(--color-success); }
+    .demo-badge-info { background: rgba(96, 165, 250, 0.15); color: var(--color-info); }
+    .demo-badge-warning { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+
+    /* ─── Input / Form ───────────────────────────── */
+    .demo-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: #0a0a0f;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      color: var(--color-text);
+      font-size: 14px;
+      font-family: var(--font-sans);
+      transition: border-color 0.2s;
+    }
+    .demo-input:focus { outline: none; border-color: var(--color-brand); }
+
+    /* ─── Card ───────────────────────────────────── */
+    .demo-card {
+      background: #12121a;
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+    }
+    .demo-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .demo-card-body {
+      font-size: 13px;
+      color: var(--color-muted);
+    }
+
+    /* ─── CTA Section ────────────────────────────── */
+    .cta-section {
+      padding: 100px 48px;
+      text-align: center;
+    }
+    .cta-card {
+      max-width: 700px;
+      margin: 0 auto;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      padding: 64px;
+    }
+    .cta-card h2 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .cta-card p {
+      color: var(--color-muted);
+      font-size: 17px;
+      margin-bottom: 40px;
+    }
+    .cta-card .actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ─── Footer ─────────────────────────────────── */
+    footer {
+      padding: 32px 48px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    footer .footer-brand {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-muted);
+    }
+    footer .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+    footer .footer-links a {
+      font-size: 13px;
+      color: var(--color-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer .footer-links a:hover { color: var(--color-text); }
+
+    /* ─── Divider ────────────────────────────────── */
+    .divider {
+      max-width: 900px;
+      margin: 0 auto 80px;
+      border: none;
+      border-top: 1px solid var(--color-border);
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      nav .nav-links { display: none; }
+      .hero { padding: 120px 20px 60px; }
+      .yaml-section, .features, .showcase, .cta-section { padding-left: 20px; padding-right: 20px; }
+      footer { flex-direction: column; gap: 20px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <a href="#" class="logo">
+      <div class="logo-icon">Y</div>
+      Yell
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#components">Components</a>
+      <a href="docs/getting-started/introduction.html">Docs</a>
+      <a href="https://github.com/jared-openclawbot/yell-landing" target="_blank">GitHub</a>
+      <a href="#" class="nav-cta">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="badge">
+      <span class="dot"></span>
+      v0.1.0 — AI-native UI framework
+    </div>
+    <h1>UI defined in <span class="gradient">YAML</span>.<br>Rendered everywhere.</h1>
+    <p>Yell replaces JSX with structured YAML. Every component is typed, versioned, and validated. AI agents and platform teams share one source of truth — no more design drift.</p>
+    <div class="actions">
+      <a href="docs/getting-started/introduction.html" class="btn-primary">Read the docs →</a>
+      <a href="https://github.com/jared-openclawbot/yell-landing" class="btn-secondary">View on GitHub</a>
+    </div>
+  </section>
+
+  <!-- YAML Preview -->
+  <section class="yaml-section">
+    <p class="label">Example — Login form</p>
+    <div class="code-block">
+      <div class="header">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+        <span class="filename">login-form.yaml</span>
+      </div>
+      <pre><span class="comment"># Define design tokens</span>
+<span class="key">tokens</span><span class="punct">:</span>
+  <span class="key">colors</span><span class="punct">:</span>
+    <span class="key">brand</span><span class="punct">:</span> <span class="str">'#ff8a3d'</span>
+
+<span class="comment"># Define the UI tree</span>
+<span class="key">app</span><span class="punct">:</span>
+  <span class="key">shell</span><span class="punct">:</span>
+    <span class="key">type</span><span class="punct">:</span> <span class="val">Container</span>
+    <span class="key">layout</span><span class="punct">:</span> <span class="val">stack</span>
+    <span class="key">gap</span><span class="punct">:</span> <span class="num">24</span>
+  <span class="key">children</span><span class="punct">:</span>
+    <span class="punct">-</span> <span class="key">type</span><span class="punct">:</span> <span class="val">Text</span>
+      <span class="key">props</span><span class="punct">:</span>
+        <span class="key">content</span><span class="punct">:</span> <span class="str">"Welcome back"</span>
+        <span class="key">variant</span><span class="punct">:</span> <span class="val">h1</span>
+    <span class="punct">-</span> <span class="key">type</span><span class="punct">:</span> <span class="val">Input</span>
+      <span class="key">props</span><span class="punct">:</span>
+        <span class="key">name</span><span class="punct">:</span> <span class="str">"email"</span>
+        <span class="key">placeholder</span><span class="punct">:</span> <span class="str">"you@example.com"</span>
+        <span class="key">style</span><span class="punct">:</span> <span class="str">"border-color: $tokens.colors.brand"</span>
+    <span class="punct">-</span> <span class="key">type</span><span class="punct">:</span> <span class="val">Button</span>
+      <span class="key">props</span><span class="punct">:</span>
+        <span class="key">label</span><span class="punct">:</span> <span class="str">"Sign in"</span>
+        <span class="key">variant</span><span class="punct">:</span> <span class="val">primary</span>
+      <span class="key">onClick</span><span class="punct">:</span> <span class="val">handleLogin</span></pre>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <p class="section-label">Why Yell</p>
+    <h2>Built for AI-native development</h2>
+    <p class="subtitle">Yell was designed from the ground up to be generated, validated, and governed by AI agents.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📐</div>
+        <h3>Structured over syntax</h3>
+        <p>YAML has strict indentation and structure. LLMs produce cleaner, more consistent output than with JSX's的自由语法。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Schema-validated components</h3>
+        <p>Every component has a typed schema. Invalid props are caught at parse time, not runtime.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI guardrails built-in</h3>
+        <p>The linter blocks inline functions, ternary expressions, and function calls — keeping AI-generated YAML safe and predictable.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>Design tokens as contracts</h3>
+        <p>Tokens are defined once and referenced everywhere. AI uses them to generate consistent UIs without hardcoded values.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>SSR + hydration islands</h3>
+        <p>Render on the server, hydrate on the client. Selective hydration for interactive components only.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3>Monorepo packages</h3>
+        <p>@yell/core, @yell/schema, @yell/ai-adapter, @yell/linter — each independently usable, all designed to work together.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Component Showcase -->
+  <section class="showcase" id="components">
+    <p class="section-label">Components</p>
+    <h2>What's available</h2>
+    <div class="component-grid">
+
+      <div class="component-item">
+        <div class="component-name">Button</div>
+        <div class="component-preview">
+          <button class="demo-btn demo-btn-primary">Click me</button>
+        </div>
+      </div>
+
+      <div class="component-item">
+        <div class="component-name">Button variants</div>
+        <div class="component-preview" style="flex-direction:column;gap:8px;">
+          <button class="demo-btn demo-btn-primary">primary</button>
+          <button class="demo-btn demo-btn-secondary">secondary</button>
+          <button class="demo-btn demo-btn-ghost">ghost</button>
+        </div>
+      </div>
+
+      <div class="component-item">
+        <div class="component-name">Button sizes</div>
+        <div class="component-preview" style="flex-direction:column;align-items:center;gap:8px;">
+          <button class="demo-btn demo-btn-primary demo-btn-sm">small</button>
+          <button class="demo-btn demo-btn-primary">medium</button>
+          <button class="demo-btn demo-btn-primary demo-btn-lg">large</button>
+        </div>
+      </div>
+
+      <div class="component-item">
+        <div class="component-name">Badge</div>
+        <div class="component-preview" style="flex-direction:column;gap:8px;align-items:center;">
+          <span class="demo-badge demo-badge-default">Default</span>
+          <span class="demo-badge demo-badge-success">Success</span>
+          <span class="demo-badge demo-badge-info">Info</span>
+          <span class="demo-badge demo-badge-warning">Warning</span>
+        </div>
+      </div>
+
+      <div class="component-item">
+        <div class="component-name">Input</div>
+        <div class="component-preview">
+          <input class="demo-input" placeholder="Type something..." style="max-width:140px;">
+        </div>
+      </div>
+
+      <div class="component-item">
+        <div class="component-name">Card</div>
+        <div class="component-preview">
+          <div class="demo-card" style="max-width:160px;">
+            <div class="demo-card-title">Card Title</div>
+            <div class="demo-card-body">Card body content goes here</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-item">
+        <div class="component-name">Modal</div>
+        <div class="component-preview">
+          <div style="background:#12121a;border:1px solid #ff8a3d;border-radius:8px;padding:12px 20px;text-align:center;">
+            <div style="font-size:11px;color:#ff8a3d;margin-bottom:6px;">MODAL</div>
+            <div style="font-size:12px;color:#e4e4ef;">Overlay content</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-item">
+        <div class="component-name">Text variants</div>
+        <div class="component-preview" style="flex-direction:column;gap:4px;text-align:left;width:100%;padding:0 8px;">
+          <div style="font-size:20px;font-weight:700;">Heading 1</div>
+          <div style="font-size:16px;font-weight:600;">Heading 2</div>
+          <div style="font-size:14px;color:#6b6b8a;">Body text</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-card">
+      <h2>Start building with Yell</h2>
+      <p>Define your design system in YAML once. Generate UIs with AI. Validate everything with schemas.</p>
+      <div class="actions">
+        <a href="docs/getting-started/introduction.html" class="btn-primary">Read the docs →</a>
+        <a href="https://github.com/jared-openclawbot/yell-landing" class="btn-secondary">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-brand">Yell v0.1.0</div>
+    <div class="footer-links">
+      <a href="docs/getting-started/introduction.html">Docs</a>
+      <a href="docs/core-concepts/components.html">Components</a>
+      <a href="docs/guides/ai-generation.html">AI Generation</a>
+      <a href="https://github.com/jared-openclawbot/yell-landing">GitHub</a>
+    </div>
+  </footer>
+
+</body>
+</html>
