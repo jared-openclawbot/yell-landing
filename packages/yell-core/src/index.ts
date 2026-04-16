@@ -33,8 +33,8 @@ export type {
   RenderContext,
   ComponentRegistry,
   YellConfig,
-  AppConfig,
   SSRRenderOptions,
   SSRRenderResult,
   HydrationMap,
+  TokenMap,
 } from './types.js';

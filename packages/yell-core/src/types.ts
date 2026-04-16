@@ -41,23 +41,22 @@ export interface RenderContext {
 // Component registry — maps type strings to component definitions
 export type ComponentRegistry = Map<string, ComponentDef>;
 
-// YAML configuration as parsed from source
-export interface YellConfig {
-  app?: AppConfig;
-  route?: string;
-  shell?: YellNode;
-  children?: YellNode[];
+// Token map — loaded from tokens.yaml
+export interface TokenMap {
+  [category: string]: {
+    [key: string]: string | number | TokenMap;
+  };
 }
 
-export interface AppConfig {
-  route?: string;
-  shell?: {
-    layout?: 'stack' | 'grid' | 'flex' | 'columns';
-    gap?: number;
-    direction?: 'row' | 'column';
+// YAML configuration as parsed from source
+export interface YellConfig {
+  tokens?: TokenMap;
+  app?: {
+    route?: string;
+    shell?: YellNode;
+    children?: YellNode[];
     [key: string]: unknown;
   };
-  [key: string]: unknown;
 }
 
 // SSR-specific types

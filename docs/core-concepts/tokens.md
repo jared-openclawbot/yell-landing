@@ -24,13 +24,14 @@ props:
 
 ## Token syntax
 
-Tokens are referenced with the `$tokens.` prefix:
+Tokens are referenced with the `$tokens.` prefix followed by the full path:
 
 ```yaml
-$tokens.primary          # Color
-$tokens.spacing.md       # Spacing
-$tokens.fontSize.lg      # Typography
-$tokens.borderRadius.md  # Borders
+$tokens.colors.primary       # Color
+$tokens.colors.secondary     # Color
+$tokens.spacing.md           # Spacing
+$tokens.typography.fontSize.lg  # Typography
+$tokens.borderRadius.md     # Borders
 ```
 
 ## Token structure
