@@ -1,174 +1,156 @@
 /**
- * Yell Schema Registry
- * 
- * Schema registry for component contracts, validation, and AI manifests.
+ * Yell Schema Registry — typed component schemas with Zod validation
  */
 
 import { z } from 'zod';
 import type {
   ComponentSchema,
+  PropSchema,
   SchemaRegistry,
   ValidationError,
   ComponentManifest,
-  PropSchema,
+  ManifestComponent,
 } from './types.js';
 
-// Zod schema for internal use
-const propSchemaZod = z.object({
-  name: z.string(),
-  type: z.enum(['string', 'number', 'boolean', 'enum', 'component', 'array']),
-  required: z.boolean().optional(),
-  default: z.unknown().optional(),
-  enum: z.array(z.string()).optional(),
-  componentRef: z.string().optional(),
-  arrayOf: z.string().optional(),
-  description: z.string().optional(),
-});
+// ─── Zod Schemas for Props ───────────────────────────────────────────────────
 
-const componentSchemaZod = z.object({
-  name: z.string(),
-  version: z.string().optional(),
-  description: z.string().optional(),
-  props: z.array(propSchemaZod),
-  slots: z.array(z.object({
-    name: z.string(),
-    accepts: z.array(z.string()).optional(),
-    description: z.string().optional(),
-  })).optional(),
-  events: z.array(z.object({
-    name: z.string(),
-    payload: z.string().optional(),
-    description: z.string().optional(),
-  })).optional(),
-});
-
-/**
- * Create an empty schema registry.
- */
-export function createSchemaRegistry(): SchemaRegistry {
-  return { schemas: new Map() };
+function propSchemaToZod(prop: PropSchema): z.ZodTypeAny {
+  switch (prop.type) {
+    case 'string':   return z.string();
+    case 'number':   return z.number().optional();
+    case 'boolean':  return z.boolean();
+    case 'enum':     return z.enum(prop.enum as [string, ...string[]]);
+    case 'node':      return z.record(z.unknown());
+    case 'array':     return z.array(z.unknown());
+    default:         return z.unknown();
+  }
 }
 
-/**
- * Register a component schema.
- */
-export function registerComponentSchema(
-  registry: SchemaRegistry,
-  schema: ComponentSchema
-): void {
+function propSchemaToTsType(prop: PropSchema): string {
+  switch (prop.type) {
+    case 'string': return 'string';
+    case 'number': return 'number';
+    case 'boolean': return 'boolean';
+    case 'enum':   return prop.enum ? prop.enum.map(v => `"${v}"`).join(' | ') : 'string';
+    case 'node':   return 'Record<string, unknown>';
+    case 'array':  return 'unknown[]';
+    default:       return 'unknown';
+  }
+}
+
+// ─── Registry ───────────────────────────────────────────────────────────────
+
+export function createSchemaRegistry(): SchemaRegistry {
+  return { schemas: new Map(), versions: new Map() };
+}
+
+export function registerComponentSchema(registry: SchemaRegistry, schema: ComponentSchema): void {
   const key = schema.version ? `${schema.name}@${schema.version}` : schema.name;
   registry.schemas.set(key, schema);
+  if (!registry.versions.has(schema.name)) registry.versions.set(schema.name, []);
+  const versions = registry.versions.get(schema.name)!;
+  if (schema.version && !versions.includes(schema.version)) versions.push(schema.version);
 }
 
-/**
- * Get a schema by name (optionally with version).
- */
-export function getComponentSchema(
-  registry: SchemaRegistry,
-  name: string,
-  version?: string
-): ComponentSchema | undefined {
+export function getComponentSchema(registry: SchemaRegistry, name: string, version?: string): ComponentSchema | undefined {
   const key = version ? `${name}@${version}` : name;
   return registry.schemas.get(key);
 }
 
-/**
- * Get schema, trying versioned first then unversioned.
- */
-export function resolveSchema(
-  registry: SchemaRegistry,
-  name: string
-): ComponentSchema | undefined {
-  // Try exact match with version first
-  for (const [key, schema] of registry.schemas) {
-    if (key === name || key.startsWith(`${name}@`)) {
-      return schema;
-    }
-  }
-  return undefined;
+export function getLatestVersion(registry: SchemaRegistry, name: string): ComponentSchema | undefined {
+  const versions = registry.versions.get(name);
+  if (!versions || versions.length === 0) return undefined;
+  const latest = versions.sort().at(-1);
+  return getComponentSchema(registry, name, latest);
 }
 
-/**
- * Validate props against a component schema.
- */
+// ─── Validation ─────────────────────────────────────────────────────────────
+
 export function validateProps(
-  type: string,
-  props: Record<string, unknown> | undefined,
-  registry: SchemaRegistry
+  componentName: string,
+  props: Record<string, unknown>,
+  registry: SchemaRegistry,
+  options?: { strict?: boolean },
 ): ValidationError[] {
   const errors: ValidationError[] = [];
-  const schema = resolveSchema(registry, type);
+  const schema = getLatestVersion(registry, componentName) ?? getComponentSchema(registry, componentName);
 
   if (!schema) {
-    return [{ path: type, message: `Unknown component "${type}"`, type: 'unknown_component' }];
+    return [{
+      type: 'unknown_component',
+      path: componentName,
+      message: `Unknown component "${componentName}". Did you register it in the schema registry?`,
+      suggestion: `Register with: registerComponentSchema(registry, { name: "${componentName}", props: [...] })`,
+    }];
   }
 
-  const propMap = new Map<string, PropSchema>(schema.props.map(p => [p.name, p]));
-
-  // Check required props
-  for (const prop of schema.props) {
-    if (prop.required && (props === undefined || !(prop.name in props))) {
+  // Required props
+  for (const prop of schema.props.filter(p => p.required)) {
+    if (props[prop.name] === undefined || props[prop.name] === null) {
       errors.push({
-        path: `${type}.${prop.name}`,
-        message: `Missing required prop "${prop.name}"`,
         type: 'missing_required',
-        suggestion: `Add "${prop.name}" to props`,
+        path: `${componentName}.${prop.name}`,
+        message: `Missing required prop "${prop.name}" on <${componentName}>`,
+        suggestion: `Add "${prop.name}" to your component props. Type: ${prop.type}`,
+        expected: prop.type,
       });
     }
   }
 
-  // Validate provided props
-  if (props) {
-    for (const [key, value] of Object.entries(props)) {
-      const propDef = propMap.get(key);
-      if (!propDef) {
-        errors.push({
-          path: `${type}.${key}`,
-          message: `Unknown prop "${key}" on ${type}`,
-          type: 'invalid_prop',
-        });
-        continue;
-      }
+  // Validate each provided prop
+  for (const [key, value] of Object.entries(props)) {
+    const propDef = schema.props.find(p => p.name === key);
 
-      // Type check
-      switch (propDef.type) {
-        case 'string':
-          if (typeof value !== 'string') {
-            errors.push({
-              path: `${type}.${key}`,
-              message: `Expected string for "${key}", got ${typeof value}`,
-              type: 'invalid_type',
-            });
-          }
-          break;
-        case 'number':
-          if (typeof value !== 'number') {
-            errors.push({
-              path: `${type}.${key}`,
-              message: `Expected number for "${key}", got ${typeof value}`,
-              type: 'invalid_type',
-            });
-          }
-          break;
-        case 'boolean':
-          if (typeof value !== 'boolean') {
-            errors.push({
-              path: `${type}.${key}`,
-              message: `Expected boolean for "${key}", got ${typeof value}`,
-              type: 'invalid_type',
-            });
-          }
-          break;
-        case 'enum':
-          if (propDef.enum && !propDef.enum.includes(String(value))) {
-            errors.push({
-              path: `${type}.${key}`,
-              message: `Invalid value "${value}" for "${key}". Expected one of: ${propDef.enum.join('|')}`,
-              type: 'invalid_enum',
-              suggestion: `Use one of: ${propDef.enum.join(', ')}`,
-            });
-          }
-          break;
+    if (!propDef) {
+      errors.push({
+        type: 'invalid_prop',
+        path: `${componentName}.${key}`,
+        message: `Unknown prop "${key}" on <${componentName}>`,
+        suggestion: schema.props.length > 0
+          ? `Valid props: ${schema.props.map(p => p.name).join(', ')}`
+          : `This component has no defined props yet`,
+      });
+      continue;
+    }
+
+    // Enum validation — check before type (more specific)
+    if (propDef.type === 'enum' && propDef.enum && !propDef.enum.includes(String(value))) {
+      errors.push({
+        type: 'invalid_enum',
+        path: `${componentName}.${key}`,
+        message: `Invalid value "${value}" for "${key}". Allowed: ${propDef.enum.join(', ')}`,
+        received: value,
+        expected: propDef.enum.join(' | '),
+        suggestion: `Choose one of: ${propDef.enum.join(', ')}`,
+      });
+      continue; // don't also emit a type error
+    }
+
+    // Type validation
+    let valid = true;
+    try {
+      const zodSchema = propSchemaToZod(propDef);
+      valid = zodSchema.safeParse(value).success;
+    } catch { /* skip on Zod error */ }
+
+    if (!valid) {
+      errors.push({
+        type: 'invalid_type',
+        path: `${componentName}.${key}`,
+        message: `Invalid type for "${key}": expected ${propDef.type}, got ${typeof value}`,
+        received: typeof value,
+        expected: propDef.type,
+        suggestion: `Expected type: ${propDef.type}`,
+      });
+    }
+
+    // Range validation for numbers
+    if (propDef.type === 'number' && typeof value === 'number') {
+      if (propDef.min !== undefined && value < propDef.min) {
+        errors.push({ type: 'out_of_range', path: `${componentName}.${key}`, message: `Value ${value} for "${key}" is below minimum ${propDef.min}`, received: value, expected: `>= ${propDef.min}` });
+      }
+      if (propDef.max !== undefined && value > propDef.max) {
+        errors.push({ type: 'out_of_range', path: `${componentName}.${key}`, message: `Value ${value} for "${key}" exceeds maximum ${propDef.max}`, received: value, expected: `<= ${propDef.max}` });
       }
     }
   }
@@ -176,77 +158,63 @@ export function validateProps(
   return errors;
 }
 
-/**
- * Build an AI manifest from the registry.
- */
-export function getComponentManifest(registry: SchemaRegistry): ComponentManifest {
-  const components: ComponentManifest['components'] = [];
+// ─── Manifest for AI ────────────────────────────────────────────────────────
 
-  for (const schema of registry.schemas.values()) {
+export function getComponentManifest(registry: SchemaRegistry): ComponentManifest {
+  const components: ManifestComponent[] = [];
+  for (const [key, schema] of registry.schemas) {
+    if (key.includes('@')) continue; // skip versioned entries
     components.push({
       name: schema.name,
       version: schema.version,
       description: schema.description,
       props: schema.props.map(p => ({
         name: p.name,
-        type: p.type + (p.enum ? ` (${p.enum.join('|')})` : ''),
-        required: p.required ?? false,
+        type: propSchemaToTsType(p),
+        required: !!p.required,
         default: p.default,
-        enum: p.enum,
         description: p.description,
+        enum: p.enum,
       })),
-      slots: schema.slots?.map(s => s.name),
-      events: schema.events?.map(e => ({ name: e.name, payload: e.payload })),
+      events: schema.events ?? [],
     });
   }
-
-  return { components };
+  return { version: '1.0', components };
 }
 
-/**
- * Build a system prompt section from manifest (for AI adapters).
- */
 export function buildSystemPromptSection(manifest: ComponentManifest): string {
-  let section = '\nCOMPONENTS:\n';
-
-  for (const comp of manifest.components) {
-    section += `\n## ${comp.name}${comp.version ? `@${comp.version}` : ''}`;
-    if (comp.description) section += `\n${comp.description}`;
-    section += '\nProps:';
-    for (const prop of comp.props) {
+  const lines: string[] = ['## Available Components', ''];
+  for (const component of manifest.components) {
+    lines.push(`### ${component.name}${component.version ? ` (${component.version})` : ''}`);
+    if (component.description) lines.push(component.description);
+    lines.push('');
+    lines.push('**Props:**');
+    if (component.props.length === 0) {
+      lines.push('*(no defined props)*');
+    }
+    for (const prop of component.props) {
       const req = prop.required ? ' (required)' : '';
-      const def = prop.default !== undefined ? ` [default: ${JSON.stringify(prop.default)}]` : '';
-      section += `\n  - ${prop.name}: ${prop.type}${req}${def}`;
-      if (prop.description) section += `\n    "${prop.description}"`;
+      const def = prop.default !== undefined ? ` = ${JSON.stringify(prop.default)}` : '';
+      const enumStr = prop.enum ? ` — one of: ${prop.enum.join(', ')}` : '';
+      lines.push(`- \`${prop.name}\`: ${prop.type}${req}${def}${enumStr}`);
+      if (prop.description) lines.push(`  ${prop.description}`);
     }
-    if (comp.slots?.length) {
-      section += `\nSlots: ${comp.slots.join(', ')}`;
-    }
-    if (comp.events?.length) {
-      section += `\nEvents: ${comp.events.map(e => e.name).join(', ')}`;
-    }
+    lines.push('');
   }
-
-  return section;
+  return lines.join('\n');
 }
 
-/**
- * Validate a full YAML node tree against the schema registry.
- */
-export function validateNodes(
-  nodes: { type: string; props?: Record<string, unknown>; children?: unknown[] }[],
-  registry: SchemaRegistry
-): ValidationError[] {
-  const errors: ValidationError[] = [];
-
-  for (const node of nodes) {
-    const nodeErrors = validateProps(node.type, node.props, registry);
-    errors.push(...nodeErrors);
-
-    if (node.children) {
-      errors.push(...validateNodes(node.children as typeof nodes, registry));
+export function schemaAsTypeScript(registry: SchemaRegistry): string {
+  const lines: string[] = ['// Generated by @yell/schema', '// Do not edit manually', ''];
+  for (const [key, schema] of registry.schemas) {
+    if (key.includes('@')) continue;
+    const interfaceName = schema.name.charAt(0).toUpperCase() + schema.name.slice(1) + 'Props';
+    lines.push(`export interface ${interfaceName} {`);
+    for (const prop of schema.props) {
+      const req = prop.required ? '' : '?';
+      lines.push(`  ${prop.name}${req}: ${propSchemaToTsType(prop)};`);
     }
+    lines.push('}', '');
   }
-
-  return errors;
+  return lines.join('\n');
 }
