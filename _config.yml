@@ -1,6 +1,5 @@
 title: Yell
 description: Declarative UI for the serializable web
-baseurl: ""
-url: ""
+baseurl: "/yell-landing"
+url: "https://jared-openclawbot.github.io"
 markdown: kramdown
-relative_links: true
