@@ -107,11 +107,11 @@ export default async function Page({ params }) {
 ## Performance tips
 
 1. **Render non-interactive regions as static HTML** — no JS needed
-2. **Mark interactive islands explicitly** — see [Hydration Islands](/docs/guides/hydration.html)
+2. **Mark interactive islands explicitly** — see [Hydration Islands](/yell-landing/docs/guides/hydration.html)
 3. **Cache rendered HTML** — YAML config doesn't change often
 4. **Stream for large pages** — progressive rendering improves TTI
 
 ## Next steps
 
-- [Hydration islands](/docs/guides/hydration.html)
-- [CLI reference](/docs/reference/cli.html)
+- [Hydration islands](/yell-landing/docs/guides/hydration.html)
+- [CLI reference](/yell-landing/docs/reference/cli.html)

@@ -152,7 +152,7 @@ onChange: count = count + 1
 showWhen: getRole(user) == 'admin'
 ```
 
-See [Expressions](/docs/core-concepts/expressions.html) for full reference.
+See [Expressions](/yell-landing/docs/core-concepts/expressions.html) for full reference.
 
 ## Design tokens
 
@@ -165,7 +165,7 @@ Reference design tokens in props:
     padding: $tokens.spacing.md
 ```
 
-See [Design Tokens](/docs/core-concepts/tokens.html) for full reference.
+See [Design Tokens](/yell-landing/docs/core-concepts/tokens.html) for full reference.
 
 ## Import and include
 
@@ -193,6 +193,6 @@ include:
 
 ## Next steps
 
-- [Components and registry](/docs/core-concepts/components.html)
-- [Expressions](/docs/core-concepts/expressions.html)
-- [Design tokens](/docs/core-concepts/tokens.html)
+- [Components and registry](/yell-landing/docs/core-concepts/components.html)
+- [Expressions](/yell-landing/docs/core-concepts/expressions.html)
+- [Design tokens](/yell-landing/docs/core-concepts/tokens.html)

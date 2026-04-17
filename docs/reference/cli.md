@@ -152,5 +152,5 @@ File changes trigger rebuild.
 
 ## Next steps
 
-- [Quick start](/docs/getting-started/quick-start.html)
-- [Component registry](/docs/core-concepts/components.html)
+- [Quick start](/yell-landing/docs/getting-started/quick-start.html)
+- [Component registry](/yell-landing/docs/core-concepts/components.html)

@@ -84,6 +84,6 @@ const section = buildSystemPromptSection(manifest);
 
 ## See also
 
-- [Components](/docs/core-concepts/components.html)
-- [CLI Reference](/docs/reference/cli.html)
-- [Quick Start](/docs/getting-started/quick-start.html)
+- [Components](/yell-landing/docs/core-concepts/components.html)
+- [CLI Reference](/yell-landing/docs/reference/cli.html)
+- [Quick Start](/yell-landing/docs/getting-started/quick-start.html)

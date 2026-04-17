@@ -190,6 +190,6 @@ Use specific version in YAML:
 
 ## Next steps
 
-- [Expressions](/docs/core-concepts/expressions.html)
-- [Design tokens](/docs/core-concepts/tokens.html)
-- [Schema validation](/docs/reference/schema.html)
+- [Expressions](/yell-landing/docs/core-concepts/expressions.html)
+- [Design tokens](/yell-landing/docs/core-concepts/tokens.html)
+- [Schema validation](/yell-landing/docs/reference/schema.html)
