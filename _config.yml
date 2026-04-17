@@ -1,5 +1,6 @@
 title: Yell
 description: Declarative UI for the serializable web
-baseurl: "/yell-landing"
+baseurl: ""
 url: ""
 markdown: kramdown
+relative_links: true
