@@ -16,46 +16,43 @@
       --text: #e6edf3; --muted: #7d8590; --accent: #58a6ff;
       --green: #3fb950; --red: #f85149; --yellow: #d29922;
     }
-    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
-    header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--surface); }
-    header h1 { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    header { display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+    header h1 { font-size: 1rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
     header h1 span { color: var(--muted); font-weight: 400; }
-    .toolbar { display: flex; gap: 8px; margin-left: auto; }
-    .toolbar button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.85rem; transition: all 0.15s; }
-    .toolbar button:hover { background: var(--border); border-color: var(--accent); }
-    .toolbar button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
-    .toolbar button.primary:hover { background: #79b8ff; }
-    .toolbar button.link-btn { background: transparent; border-color: var(--border); color: var(--muted); font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; gap: 4px; }
-    .toolbar button.link-btn:hover { color: var(--text); border-color: var(--muted); background: var(--border); }
-    .toolbar .divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; align-self: center; }
-    .status { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .toolbar { display: flex; gap: 6px; margin-left: 8px; flex-wrap: wrap; align-items: center; }
+    .toolbar button { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.8rem; transition: all 0.12s; white-space: nowrap; }
+    .toolbar button:hover { background: var(--border); }
+    .toolbar a { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .toolbar a:hover { color: var(--text); background: var(--border); }
+    .divider { width: 1px; height: 22px; background: var(--border); margin: 0 2px; }
+    .status { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-left: auto; white-space: nowrap; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
     .status-dot.error { background: var(--red); }
     .status-dot.warn { background: var(--yellow); }
     main { display: grid; grid-template-columns: 1fr 1fr; flex: 1; overflow: hidden; min-height: 0; }
-    .pane { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); }
-    .pane-header { padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-    .badge { padding: 2px 7px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+    .pane { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); min-height: 0; }
+    .pane-header { padding: 6px 14px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .badge { padding: 2px 6px; border-radius: 8px; font-size: 0.65rem; font-weight: 700; }
     .badge-yaml { background: #2d333b; color: #79c0ff; }
-    .badge-html { background: #2d333b; color: #7ee787; }
     .badge-diff { background: #2d333b; color: #ffa657; }
-    .CodeMirror { flex: 1; height: 100% !important; font-size: 0.9rem; background: var(--bg); }
+    .CodeMirror { flex: 1; height: 100% !important; font-size: 0.88rem; background: var(--bg); min-height: 0; }
     .CodeMirror-gutters { background: var(--surface) !important; border-right: 1px solid var(--border) !important; }
     .preview { flex: 1; overflow: auto; min-height: 0; }
-    .preview iframe { width: 100%; height: 100%; border: none; background: #fff; display: block; min-height: 300px; }
-    .diff-view { flex: 1; overflow: auto; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 0.82rem; white-space: pre-wrap; background: var(--bg); }
+    .preview iframe { width: 100%; height: 100%; border: none; background: #fff; display: block; }
+    .diff-view { flex: 1; overflow: auto; padding: 10px 14px; font-family: 'Courier New', monospace; font-size: 0.8rem; white-space: pre-wrap; background: var(--bg); }
     .diff-line { display: block; padding: 1px 8px; border-radius: 3px; }
     .diff-add { background: rgba(63,185,80,0.15); color: #3fb950; border-left: 3px solid #3fb950; }
     .diff-remove { background: rgba(248,81,73,0.15); color: #f85149; border-left: 3px solid #f85149; text-decoration: line-through; }
     .diff-meta { color: var(--muted); font-style: italic; }
-    .tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); }
-    .tab { padding: 8px 16px; font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+    .tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .tab { padding: 7px 14px; font-size: 0.8rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.12s; }
     .tab:hover { color: var(--text); }
     .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-    .pane-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-    .error-panel { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 6px; margin: 12px; padding: 10px 14px; font-size: 0.85rem; color: var(--red); }
-    .error-panel strong { display: block; margin-bottom: 4px; }
-    .error-panel code { background: rgba(248,81,73,0.2); padding: 1px 5px; border-radius: 3px; font-size: 0.8rem; }
+    .pane-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+    .error-panel { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 6px; margin: 10px; padding: 8px 12px; font-size: 0.82rem; color: var(--red); flex-shrink: 0; }
+    .error-panel strong { display: block; margin-bottom: 3px; }
+    .error-panel code { background: rgba(248,81,73,0.2); padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
     .status-dot.live { animation: pulse 1.2s ease-in-out infinite; }
   </style>
@@ -63,13 +60,9 @@
 <body>
   <header>
     <h1>Yell <span>Playground</span></h1>
-    <div class="status">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusText">ready</span>
-    </div>
     <div class="toolbar">
-      <a href="https://github.com/jared-openclawbot/yell-landing" target="_blank" class="toolbar button link-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:6px; border:1px solid var(--border); border-color:#30363d; color:#7d8590; font-size:0.8rem;" onmouseover="this.style.borderColor='#7d8590'; this.style.color='#e6edf3'" onmouseout="this.style.borderColor='#30363d'; this.style.color='#7d8590'">GitHub →</a>
-      <a href="https://github.com/jared-openclawbot/yell-landing/issues" target="_blank" class="toolbar button link-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:6px; border:1px solid var(--border); border-color:#30363d; color:#7d8590; font-size:0.8rem;" onmouseover="this.style.borderColor='#7d8590'; this.style.color='#e6edf3'" onmouseout="this.style.borderColor='#30363d'; this.style.color='#7d8590'">Issues</a>
+      <a href="https://github.com/jared-openclawbot/yell-landing" target="_blank">GitHub</a>
+      <a href="https://github.com/jared-openclawbot/yell-landing/issues" target="_blank">Issues</a>
       <div class="divider"></div>
       <button onclick="loadExample('button')">Button</button>
       <button onclick="loadExample('components')">Components</button>
@@ -78,6 +71,10 @@
       <button onclick="loadExample('layout')">Layout</button>
       <div class="divider"></div>
       <button onclick="editor.setValue('')">Clear</button>
+    </div>
+    <div class="status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">ready</span>
     </div>
   </header>
   <main>
@@ -95,9 +92,10 @@
       </div>
       <div class="pane-content">
         <div id="pane-preview" class="preview"><iframe id="previewFrame"></iframe></div>
-        <div id="pane-diff" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
-          <div class="pane-header" style="border-bottom:none;">
-            <span class="badge badge-diff">YAML → HTML</span>
+        <div id="pane-diff" style="display:none; flex-direction:column; flex:1; overflow:hidden; min-height:0;">
+          <div class="pane-header" style="border-bottom:none; flex-shrink:0;">
+            <span class="badge badge-diff">YAML</span>
+            Diff
           </div>
           <div class="diff-view" id="diffView"></div>
         </div>
@@ -105,343 +103,348 @@
     </div>
   </main>
   <script>
-    const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+    var EXAMPLES = {};
+
+    function addExample(name, yaml) {
+      EXAMPLES[name] = yaml;
+    }
+
+    addExample("button",
+      "meta:\n" +
+      '  version: "1.0"\n' +
+      '  description: A configurable button\n' +
+      '\n' +
+      "props:\n" +
+      "  label:\n" +
+      '    type: string\n' +
+      '    required: true\n' +
+      "  variant:\n" +
+      '    type: enum\n' +
+      '    default: primary\n' +
+      '    enum: [primary, secondary, ghost, danger]\n' +
+      "  disabled:\n" +
+      '    type: boolean\n' +
+      '    default: false\n' +
+      '\n' +
+      "template: |\n" +
+      '  <button class="yell-btn yell-btn--$props.variant"\n' +
+      '    disabled="$props.disabled">\n' +
+      '    $props.label\n' +
+      '  </button>\n'
+    );
+
+    addExample("form",
+      "meta:\n" +
+      '  version: "1.0"\n' +
+      '\n' +
+      "props:\n" +
+      "  title:\n" +
+      '    type: string\n' +
+      '    default: "Welcome back"\n' +
+      '\n' +
+      "template: |\n" +
+      '  <form class="yell-form">\n' +
+      '    <h2>$props.title</h2>\n' +
+      '    <div class="field">\n' +
+      '      <label>Email</label>\n' +
+      '      <input type="email" placeholder="you@example.com" required />\n' +
+      '    </div>\n' +
+      '    <div class="field">\n' +
+      '      <label>Password</label>\n' +
+      '      <input type="password" placeholder="Your password" required />\n' +
+      '    </div>\n' +
+      '    <button type="submit" class="yell-btn yell-btn--primary">Sign in</button>\n' +
+      '  </form>\n'
+    );
+
+    addExample("card",
+      "meta:\n" +
+      '  version: "1.0"\n' +
+      '\n' +
+      "props:\n" +
+      "  title:\n" +
+      '    type: string\n' +
+      '    required: true\n' +
+      "  description:\n" +
+      '    type: string\n' +
+      "  price:\n" +
+      '    type: number\n' +
+      '    required: true\n' +
+      "  badge:\n" +
+      '    type: enum\n' +
+      '    default: none\n' +
+      '    enum: [new, sale, hot, none]\n' +
+      '\n' +
+      "template: |\n" +
+      '  <div class="yell-card">\n' +
+      '    <span class="badge badge--$props.badge">$props.badge</span>\n' +
+      '    <h3>$props.title</h3>\n' +
+      '    <p>$props.description</p>\n' +
+      '    <div class="price">$$props.price</div>\n' +
+      '    <button>Add to cart</button>\n' +
+      '  </div>\n'
+    );
+
+    addExample("layout",
+      "meta:\n" +
+      '  version: "1.0"\n' +
+      '\n' +
+      "props:\n" +
+      "  siteName:\n" +
+      '    type: string\n' +
+      '    default: "My Site"\n' +
+      '\n' +
+      "template: |\n" +
+      '  <div class="yell-layout">\n' +
+      '    <header>\n' +
+      '      <a href="/" class="logo">$props.siteName</a>\n' +
+      '      <nav>\n' +
+      '        <a href="/">Home</a>\n' +
+      '        <a href="/about">About</a>\n' +
+      '        <a href="/contact">Contact</a>\n' +
+      '      </nav>\n' +
+      '    </header>\n' +
+      '    <div class="yell-body">\n' +
+      '      <aside>\n' +
+      '        <h4>Sidebar</h4>\n' +
+      '        <ul>\n' +
+      '          <li><a href="/item1">Item 1</a></li>\n' +
+      '          <li><a href="/item2">Item 2</a></li>\n' +
+      '          <li><a href="/item3">Item 3</a></li>\n' +
+      '        </ul>\n' +
+      '      </aside>\n' +
+      '      <main>\n' +
+      '        <p>Edit the YAML to see changes in real time.</p>\n' +
+      '      </main>\n' +
+      '    </div>\n' +
+      '  </div>\n'
+    );
+
+    addExample("components",
+      "meta:\n" +
+      '  version: "1.0"\n' +
+      '  description: Component registry — Button, Card, Modal\n' +
+      '\n' +
+      "components:\n" +
+      "  Button:\n" +
+      "    props:\n" +
+      "      label:\n" +
+      '        type: string\n' +
+      '        required: true\n' +
+      "      variant:\n" +
+      '        type: enum\n' +
+      '        default: primary\n' +
+      '        enum: [primary, secondary, ghost]\n' +
+      '\n' +
+      "template: |\n" +
+      '  <div class="page">\n' +
+      '    <h2>Button</h2>\n' +
+      '    <div class="row">\n' +
+      '      <button class="yell-btn yell-btn--primary">Primary</button>\n' +
+      '      <button class="yell-btn yell-btn--secondary">Secondary</button>\n' +
+      '      <button class="yell-btn yell-btn--ghost">Ghost</button>\n' +
+      '      <button class="yell-btn yell-btn--primary" disabled>Disabled</button>\n' +
+      '    </div>\n' +
+      '\n' +
+      '    <h2>Card</h2>\n' +
+      '    <div class="row">\n' +
+      '      <div class="yell-card">\n' +
+      '        <h3>Getting Started</h3>\n' +
+      '        <p>Learn the basics of Yell in under 5 minutes.</p>\n' +
+      '        <button class="cta-btn">Learn more</button>\n' +
+      '      </div>\n' +
+      '      <div class="yell-card">\n' +
+      '        <h3>API Reference</h3>\n' +
+      '        <p>Full coverage of all Yell components and props.</p>\n' +
+      '        <button class="cta-btn">Read docs</button>\n' +
+      '      </div>\n' +
+      '      <div class="yell-card">\n' +
+      '        <h3>Examples</h3>\n' +
+      '        <p>Real-world patterns and templates to copy.</p>\n' +
+      '        <button class="cta-btn">Browse</button>\n' +
+      '      </div>\n' +
+      '    </div>\n' +
+      '\n' +
+      '    <h2>Modal</h2>\n' +
+      '    <div class="row">\n' +
+      '      <div class="modal-demo">\n' +
+      '        <div class="yell-modal-overlay">\n' +
+      '          <div class="yell-modal">\n' +
+      '            <h3>Confirm Action</h3>\n' +
+      '            <p>Are you sure you want to continue?</p>\n' +
+      '            <div class="yell-modal-actions">\n' +
+      '              <button class="yell-btn yell-btn--ghost">Cancel</button>\n' +
+      '              <button class="yell-btn yell-btn--primary">Confirm</button>\n' +
+      '            </div>\n' +
+      '          </div>\n' +
+      '        </div>\n' +
+      '      </div>\n' +
+      '    </div>\n' +
+      '  </div>\n'
+    );
+
+    var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
       mode: 'yaml', theme: 'dracula', lineNumbers: true, tabSize: 2,
       indentWithTabs: false, lineWrapping: true,
     });
     editor.setSize('100%', '100%');
 
-    const EXAMPLES = {
-      button: `meta:
-  version: "1.0"
-  description: A configurable button
-
-props:
-  label:
-    type: string
-    required: true
-  variant:
-    type: enum
-    default: primary
-    enum: [primary, secondary, ghost, danger]
-  disabled:
-    type: boolean
-    default: false
-
-template: |
-  <button
-    class="yell-btn yell-btn--$props.variant"
-    disabled="$props.disabled"
-  >$props.label</button>`,
-
-      components: `meta:
-  version: "1.0"
-  description: Component registry — Button, Card, Modal
-
-components:
-  Button:
-    props:
-      label:
-        type: string
-        required: true
-      variant:
-        type: enum
-        default: primary
-        enum: [primary, secondary, ghost]
-      size:
-        type: enum
-        default: md
-        enum: [sm, md, lg]
-  Card:
-    props:
-      title:
-        type: string
-        required: true
-      description:
-        type: string
-      image:
-        type: string
-      cta:
-        type: string
-        default: "Learn more"
-  Modal:
-    props:
-      open:
-        type: boolean
-        default: false
-      title:
-        type: string
-        required: true
-      body:
-        type: string
-
-template: |
-  <div class="page">
-    <h2>Button</h2>
-    <div class="row">
-      <button class="yell-btn yell-btn--primary">Primary</button>
-      <button class="yell-btn yell-btn--secondary">Secondary</button>
-      <button class="yell-btn yell-btn--ghost">Ghost</button>
-      <button class="yell-btn yell-btn--primary" disabled>Disabled</button>
-    </div>
-
-    <h2>Card</h2>
-    <div class="row">
-      <div class="yell-card">
-        <h3>Getting Started</h3>
-        <p>Learn the basics of Yell in under 5 minutes.</p>
-        <button class="cta-btn">Learn more →</button>
-      </div>
-      <div class="yell-card">
-        <h3>API Reference</h3>
-        <p>Full coverage of all Yell components and props.</p>
-        <button class="cta-btn">Read docs →</button>
-      </div>
-      <div class="yell-card">
-        <h3>Examples</h3>
-        <p>Real-world patterns and templates to copy.</p>
-        <button class="cta-btn">Browse →</button>
-      </div>
-    </div>
-
-    <h2>Modal</h2>
-    <div class="row">
-      <div class="modal-demo">
-        <div class="yell-modal-overlay">
-          <div class="yell-modal">
-            <h3>Confirm Action</h3>
-            <p>Are you sure you want to continue?</p>
-            <div class="yell-modal-actions">
-              <button class="yell-btn yell-btn--ghost">Cancel</button>
-              <button class="yell-btn yell-btn--primary">Confirm</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>`,
-      label: "        <Modal open=true title=\"Confirm Action\" body=\"Are you sure you want to continue?\" />"
-    },
-    {
-      newText: "",
-      label: ""
-    }],
-
-      form: `meta:
-  version: "1.0"
-
-props:
-  title:
-    type: string
-    default: "Welcome back"
-
-template: |
-  <form class="yell-form">
-    <h2>$props.title</h2>
-    <input type="email" placeholder="Email" required />
-    <input type="password" placeholder="Password" required />
-    <button type="submit">Sign in</button>
-  </form>`,
-
-      card: `meta:
-  version: "1.0"
-
-props:
-  title:
-    type: string
-    required: true
-  description:
-    type: string
-  price:
-    type: number
-    required: true
-  badge:
-    type: enum
-    enum: [new, sale, hot, none]
-    default: none
-
-template: |
-  <div class="yell-card">
-    <span class="badge badge--$props.badge">$props.badge</span>
-    <h3>$props.title</h3>
-    <p>$props.description</p>
-    <div class="price">$$props.price</div>
-    <button>Add to cart</button>
-  </div>`,
-
-      layout: `meta:
-  version: "1.0"
-
-props:
-  siteName:
-    type: string
-    default: "My Site"
-
-template: |
-  <div class="yell-layout">
-    <header>
-      <a href="/" class="logo">$props.siteName</a>
-      <nav>
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/contact">Contact</a>
-      </nav>
-    </header>
-    <div class="yell-body">
-      <aside>
-        <h4>Sidebar</h4>
-        <ul>
-          <li><a href="/item1">Item 1</a></li>
-          <li><a href="/item2">Item 2</a></li>
-        </ul>
-      </aside>
-      <main><slot /></main>
-    </div>
-  </div>`
-    };
-
-    let currentTab = 'preview';
-    let renderTimeout = null;
-    let lastYaml = '';
-    let lastHtml = '';
+    var currentTab = 'preview';
+    var renderTimeout = null;
+    var lastYaml = '';
+    var lastHtml = '';
 
     function loadExample(name) {
-      editor.setValue(EXAMPLES[name]);
+      editor.setValue(EXAMPLES[name] || '');
       render();
     }
 
     function switchTab(tab) {
       currentTab = tab;
-      document.getElementById('tab-preview').classList.toggle('active', tab === 'preview');
-      document.getElementById('tab-diff').classList.toggle('active', tab === 'diff');
+      document.getElementById('tab-preview').className = 'tab' + (tab === 'preview' ? ' active' : '');
+      document.getElementById('tab-diff').className = 'tab' + (tab === 'diff' ? ' active' : '');
       document.getElementById('pane-preview').style.display = tab === 'preview' ? '' : 'none';
       document.getElementById('pane-diff').style.display = tab === 'diff' ? '' : 'none';
       if (tab === 'diff') renderDiff();
     }
 
     function render() {
-      const yaml = editor.getValue();
+      var yaml = editor.getValue();
       if (!yaml.trim()) { setStatus('warn', 'empty'); return; }
       try {
-        const doc = jsyaml.load(yaml);
+        var doc = jsyaml.load(yaml);
         if (!doc || !doc.template) {
           setStatus('warn', 'no template');
           showError('<strong>No template</strong>Add a <code>template:</code> key with HTML');
           return;
         }
-        let html = doc.template;
+        var html = doc.template;
 
-        // Resolve token refs from props
-        const propMap = {};
+        // Resolve $props.token token refs
+        var propMap = {};
         if (doc.props) {
-          Object.entries(doc.props).forEach(([k, v]) => {
-            if (typeof v === 'object' && v.default !== undefined) propMap[k] = String(v.default);
-            else if (typeof v === 'object' && v.enum && v.default) propMap[k] = String(v.default);
-          });
+          var keys = Object.keys(doc.props);
+          for (var i = 0; i < keys.length; i++) {
+            var v = doc.props[keys[i]];
+            if (v && typeof v === 'object' && v.default !== undefined) {
+              propMap[keys[i]] = String(v.default);
+            } else if (v && typeof v === 'object' && v.enum && v.default) {
+              propMap[keys[i]] = String(v.default);
+            }
+          }
         }
 
-        html = html.replace(/\$(\w+)\.(\w+)/g, (_, obj, key) => propMap[key] ?? '');
+        html = html.replace(/\$(\w+)\.(\w+)/g, function(_, obj, key) {
+          return propMap[key] !== undefined ? propMap[key] : '';
+        });
 
         lastYaml = yaml;
         lastHtml = html;
 
-        const iframe = document.getElementById('previewFrame');
-        iframe.srcdoc = `<!DOCTYPE html><html><head>
-          <meta charset="UTF-8">
-          <style>
-            body { font-family: system-ui, sans-serif; padding: 20px; margin: 0; background: #0d1117; color: #e6edf3; overflow: auto; height: 100%; }
-            .page { display: flex; flex-direction: column; gap: 24px; }
-            .page h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: #7d8590; margin-bottom: 8px; border-bottom: 1px solid #30363d; padding-bottom: 6px; }
-            .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
-            .modal-demo { border: 1px dashed #30363d; border-radius: 8px; padding: 16px; }
-            .yell-btn { padding: 8px 16px; border-radius: 6px; border: 1px solid #30363d; background: #161b22; color: #e6edf3; cursor: pointer; margin: 4px; }
-            .yell-btn--primary { background: #58a6ff; border-color: #58a6ff; color: #000; font-weight: 600; }
-            .yell-btn--secondary { background: #238636; border-color: #238636; color: #fff; }
-            .yell-btn--ghost { background: transparent; border-color: #30363d; color: #e6edf3; }
-            .yell-btn--danger { background: #f85149; border-color: #f85149; color: #fff; }
-            .yell-form { max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
-            .yell-form h2 { margin-bottom: 4px; }
-            .yell-form input { padding: 8px 12px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #e6edf3; }
-            .yell-form button { padding: 8px; border-radius: 6px; background: #58a6ff; border: none; color: #000; font-weight: 600; cursor: pointer; }
-            .yell-card { border: 1px solid #30363d; border-radius: 8px; padding: 16px; max-width: 220px; background: #161b22; display: flex; flex-direction: column; gap: 8px; }
-            .yell-card h3 { margin: 0; font-size: 1rem; }
-            .yell-card p { margin: 0; font-size: 0.85rem; color: #7d8590; }
-            .yell-card .price { font-size: 1.4rem; font-weight: 700; color: #3fb950; }
-            .yell-card button { padding: 8px; border-radius: 6px; background: #58a6ff; border: none; color: #000; font-weight: 600; cursor: pointer; margin-top: 4px; }
-            .yell-card .cta-btn { background: transparent; border: 1px solid #30363d; color: #58a6ff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
-            .yell-card .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-            .badge--new { background: #58a6ff; color: #000; }
-            .badge--sale { background: #f85149; color: #fff; }
-            .badge--hot { background: #d29922; color: #000; }
-            .badge--none { background: transparent; color: transparent; }
-            .yell-layout { display: flex; flex-direction: column; min-height: 200px; border: 1px solid #30363d; border-radius: 8px; overflow: hidden; }
-            .yell-layout header { background: #161b22; padding: 12px 16px; display: flex; align-items: center; gap: 24px; border-bottom: 1px solid #30363d; }
-            .yell-layout header .logo { font-weight: 700; font-size: 1rem; color: #58a6ff; text-decoration: none; }
-            .yell-layout header nav { display: flex; gap: 16px; }
-            .yell-layout header nav a { color: #7d8590; text-decoration: none; font-size: 0.9rem; }
-            .yell-layout header nav a:hover { color: #e6edf3; }
-            .yell-layout .yell-body { display: flex; flex: 1; }
-            .yell-layout aside { width: 160px; background: #161b22; padding: 16px; border-right: 1px solid #30363d; }
-            .yell-layout aside h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #7d8590; margin-bottom: 8px; }
-            .yell-layout aside ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
-            .yell-layout aside a { color: #7d8590; text-decoration: none; font-size: 0.85rem; }
-            .yell-layout main { flex: 1; padding: 20px; background: #0d1117; }
-            /* Modal styles */
-            .yell-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-            .yell-modal { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-            .yell-modal h3 { margin: 0 0 12px; font-size: 1.1rem; }
-            .yell-modal p { margin: 0 0 20px; color: #7d8590; font-size: 0.9rem; }
-            .yell-modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-          </style>
-        </head><body>${html}</body></html>`;
+        var iframe = document.getElementById('previewFrame');
+        iframe.srcdoc = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
+          'body{font-family:system-ui,sans-serif;padding:20px;margin:0;background:#0d1117;color:#e6edf3;overflow:auto;height:100%;box-sizing:border-box}' +
+          '.page{display:flex;flex-direction:column;gap:24px}' +
+          '.page h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#7d8590;margin-bottom:8px;border-bottom:1px solid #30363d;padding-bottom:6px}' +
+          '.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}' +
+          '.modal-demo{border:1px dashed #30363d;border-radius:8px;padding:16px;display:inline-block}' +
+          '.yell-btn{padding:8px 16px;border-radius:6px;border:1px solid #30363d;background:#161b22;color:#e6edf3;cursor:pointer;font-size:.9rem}' +
+          '.yell-btn--primary{background:#58a6ff;border-color:#58a6ff;color:#000;font-weight:600}' +
+          '.yell-btn--secondary{background:#238636;border-color:#238636;color:#fff}' +
+          '.yell-btn--ghost{background:transparent;border-color:#30363d}' +
+          '.yell-form{max-width:360px;display:flex;flex-direction:column;gap:12px}' +
+          '.yell-form h2{margin-bottom:8px;font-size:1.2rem}' +
+          '.yell-form .field{display:flex;flex-direction:column;gap:4px}' +
+          '.yell-form label{font-size:.8rem;color:#7d8590}' +
+          '.yell-form input{padding:8px 12px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:.9rem}' +
+          '.yell-card{border:1px solid #30363d;border-radius:8px;padding:16px;max-width:220px;background:#161b22;display:flex;flex-direction:column;gap:8px}' +
+          '.yell-card h3{margin:0;font-size:1rem}' +
+          '.yell-card p{margin:0;font-size:.85rem;color:#7d8590}' +
+          '.yell-card .price{font-size:1.4rem;font-weight:700;color:#3fb950}' +
+          '.yell-card button{padding:8px;border-radius:6px;background:#58a6ff;border:none;color:#000;font-weight:600;cursor:pointer;margin-top:4px}' +
+          '.yell-card .cta-btn{background:transparent;border:1px solid #30363d;color:#58a6ff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:.85rem}' +
+          '.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:700;text-transform:uppercase}' +
+          '.badge--new{background:#58a6ff;color:#000}.badge--sale{background:#f85149;color:#fff}.badge--hot{background:#d29922;color:#000}.badge--none{background:transparent;color:transparent}' +
+          '.yell-layout{display:flex;flex-direction:column;min-height:200px;border:1px solid #30363d;border-radius:8px;overflow:hidden}' +
+          '.yell-layout header{background:#161b22;padding:12px 16px;display:flex;align-items:center;gap:24px;border-bottom:1px solid #30363d}' +
+          ".yell-layout header .logo{font-weight:700;font-size:1rem;color:#58a6ff;text-decoration:none}" +
+          '.yell-layout header nav{display:flex;gap:16px}' +
+          '.yell-layout header nav a{color:#7d8590;text-decoration:none;font-size:.9rem}' +
+          '.yell-layout header nav a:hover{color:#e6edf3}' +
+          '.yell-layout .yell-body{display:flex;flex:1}' +
+          '.yell-layout aside{width:160px;background:#161b22;padding:16px;border-right:1px solid #30363d}' +
+          '.yell-layout aside h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#7d8590;margin-bottom:8px}' +
+          '.yell-layout aside ul{list-style:none;display:flex;flex-direction:column;gap:4px}' +
+          '.yell-layout aside a{color:#7d8590;text-decoration:none;font-size:.85rem}' +
+          '.yell-layout main{flex:1;padding:20px;background:#0d1117}' +
+          '.yell-layout p{color:#7d8590;font-size:.9rem}' +
+          '.yell-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000}' +
+          '.yell-modal{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5)}' +
+          '.yell-modal h3{margin:0 0 12px;font-size:1.1rem}' +
+          '.yell-modal p{margin:0 0 20px;color:#7d8590;font-size:.9rem}' +
+          '.yell-modal-actions{display:flex;gap:8px;justify-content:flex-end}' +
+          '</style></head><body>' + html + '</body></html>';
 
         setStatus('ok', 'rendered');
         showError(null);
         if (currentTab === 'diff') renderDiff();
       } catch (err) {
         setStatus('error', 'YAML error');
-        showError(`<strong>YAML Error</strong><code>${err.message}</code>`);
+        showError('<strong>YAML Error</strong><code>' + err.message + '</code>');
       }
     }
 
     function renderDiff() {
-      const view = document.getElementById('diffView');
-      if (!lastHtml) { view.innerHTML = '<span class="diff-meta">Run Render first to see diff</span>'; return; }
-      let html = '';
-      html += `<span class="diff-line diff-meta"># YAML → HTML diff</span>\n`;
-      for (const line of lastYaml.split('\n')) {
-        html += `<span class="diff-line diff-remove">- ${escapeHtml(line)}</span>\n`;
+      var view = document.getElementById('diffView');
+      if (!lastHtml) {
+        view.innerHTML = '<span class="diff-line diff-meta">Run a YAML example first to see the diff</span>';
+        return;
       }
-      for (const line of lastHtml.split('\n')) {
-        html += `<span class="diff-line diff-add">+ ${escapeHtml(line)}</span>\n`;
+      var out = '';
+      var yamlLines = lastYaml.split('\n');
+      var htmlLines = lastHtml.split('\n');
+      out += '<span class="diff-line diff-meta"># YAML (' + yamlLines.length + ' lines) \u2192 HTML (' + htmlLines.length + ' lines)</span>\n';
+      for (var i = 0; i < yamlLines.length; i++) {
+        out += '<span class="diff-line diff-remove">- ' + escapeHtml(yamlLines[i]) + '</span>\n';
       }
-      view.innerHTML = html;
+      for (var j = 0; j < htmlLines.length; j++) {
+        out += '<span class="diff-line diff-add">+ ' + escapeHtml(htmlLines[j]) + '</span>\n';
+      }
+      view.innerHTML = out;
     }
 
     function escapeHtml(s) {
-      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function setStatus(state, text) {
-      const dot = document.getElementById('statusDot');
+      var dot = document.getElementById('statusDot');
       dot.className = 'status-dot' + (state === 'ok' ? ' live' : state === 'error' ? ' error' : state === 'warn' ? ' warn' : '');
       document.getElementById('statusText').textContent = text;
     }
 
     function showError(msg) {
-      const existing = document.getElementById('errorPanel');
+      var existing = document.getElementById('errorPanel');
       if (msg) {
         if (!existing) {
-          const div = document.createElement('div');
+          var div = document.createElement('div');
           div.id = 'errorPanel';
           div.className = 'error-panel';
           div.innerHTML = msg;
-          document.querySelector('.preview').prepend(div);
-        } else existing.innerHTML = msg;
-      } else existing?.remove();
+          document.querySelector('.preview').insertBefore(div, document.getElementById('previewFrame'));
+        } else {
+          existing.innerHTML = msg;
+        }
+      } else if (existing) {
+        existing.parentNode.removeChild(existing);
+      }
     }
 
-    editor.on('change', () => { clearTimeout(renderTimeout); renderTimeout = setTimeout(render, 700); });
+    editor.on('change', function() {
+      clearTimeout(renderTimeout);
+      renderTimeout = setTimeout(render, 700);
+    });
+
     loadExample('button');
   </script>
 </body>
