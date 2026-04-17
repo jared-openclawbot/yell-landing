@@ -117,7 +117,7 @@
       "props:\n" +
       "  label:\n" +
       '    type: string\n' +
-      '    required: true\n' +
+      '    default: "Click me"\n' +
       "  variant:\n" +
       '    type: enum\n' +
       '    default: primary\n' +
@@ -268,13 +268,13 @@
       '    <h2>Modal</h2>\n' +
       '    <div class="row">\n' +
       '      <div class="modal-demo">\n' +
-      '        <div class="yell-modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">\n' +
+      '        <div class="yell-modal-overlay" id="modalOverlay" onclick="if(event.target===this)this.style.display='none'">\n' +
       '          <div class="yell-modal">\n' +
       '            <h3>Confirm Action</h3>\n' +
       '            <p>Are you sure you want to continue?</p>\n' +
       '            <div class="yell-modal-actions">\n' +
-      '              <button class="yell-btn yell-btn--ghost" onclick="closeModal()">Cancel</button>\n' +
-      '              <button class="yell-btn yell-btn--primary" onclick="closeModal();showToast()">Confirm</button>\n' +
+      '              <button class="yell-btn yell-btn--ghost" onclick="document.getElementById('modalOverlay').style.display='none'">Cancel</button>\n' +
+      '              <button class="yell-btn yell-btn--primary" onclick="var t=document.getElementById('toy');if(!t){t=document.createElement('div');t.id='toy';t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3fb950;color:#000;padding:10px 20px;border-radius:8px;font-weight:600;font-size:0.9rem;z-index:2000;display:none';document.body.appendChild(t)}document.getElementById('modalOverlay').style.display='none';t.textContent='Action confirmed!';t.style.display='block';setTimeout(function(){t.style.display='none'},2000)">Confirm</button>\n' +
       '            </div>\n' +
       '          </div>\n' +
       '        </div>\n' +
@@ -440,22 +440,8 @@
       }
     }
 
-    function closeModal() {
-      var overlay = document.getElementById('modalOverlay');
-      if (overlay) {
-        overlay.style.display = 'none';
-        document.getElementById('modalBackdrop') || null;
-      }
     }
 
-    function showToast() {
-      var toast = document.getElementById('toastEl');
-      if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'toastEl';
-        toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3fb950;color:#000;padding:10px 20px;border-radius:8px;font-weight:600;font-size:0.9rem;z-index:2000;opacity:0;transition:opacity 0.2s;box-shadow:0 4px 20px rgba(0,0,0,0.4)';
-        document.body.appendChild(toast);
-      }
       toast.textContent = 'Action confirmed!';
       toast.style.opacity = '1';
       setTimeout(function() { toast.style.opacity = '0'; }, 2000);
