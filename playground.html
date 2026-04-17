@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yell Playground</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --muted: #7d8590; --accent: #58a6ff;
+      --green: #3fb950; --red: #f85149; --yellow: #d29922;
+    }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
+    header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--surface); }
+    header h1 { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    header h1 span { color: var(--muted); font-weight: 400; }
+    .toolbar { display: flex; gap: 8px; margin-left: auto; }
+    .toolbar button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.85rem; transition: all 0.15s; }
+    .toolbar button:hover { background: var(--border); border-color: var(--accent); }
+    .toolbar button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+    .toolbar button.primary:hover { background: #79b8ff; }
+    .status { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .status-dot.error { background: var(--red); }
+    .status-dot.warn { background: var(--yellow); }
+    main { display: grid; grid-template-columns: 1fr 1fr; flex: 1; overflow: hidden; }
+    .pane { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); }
+    .pane-header { padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    .badge { padding: 2px 7px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+    .badge-yaml { background: #2d333b; color: #79c0ff; }
+    .badge-html { background: #2d333b; color: #7ee787; }
+    .badge-diff { background: #2d333b; color: #ffa657; }
+    .CodeMirror { flex: 1; height: 100% !important; font-size: 0.9rem; background: var(--bg); }
+    .CodeMirror-gutters { background: var(--surface) !important; border-right: 1px solid var(--border) !important; }
+    .preview iframe { width: 100%; height: 100%; border: none; background: #fff; }
+    .diff-view { flex: 1; overflow: auto; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 0.82rem; white-space: pre-wrap; background: var(--bg); }
+    .diff-line { display: block; padding: 1px 8px; border-radius: 3px; }
+    .diff-add { background: rgba(63,185,80,0.15); color: #3fb950; border-left: 3px solid #3fb950; }
+    .diff-remove { background: rgba(248,81,73,0.15); color: #f85149; border-left: 3px solid #f85149; text-decoration: line-through; }
+    .diff-meta { color: var(--muted); font-style: italic; }
+    .tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .tab { padding: 8px 16px; font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .pane-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    .error-panel { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 6px; margin: 12px; padding: 10px 14px; font-size: 0.85rem; color: var(--red); }
+    .error-panel strong { display: block; margin-bottom: 4px; }
+    .error-panel code { background: rgba(248,81,73,0.2); padding: 1px 5px; border-radius: 3px; font-size: 0.8rem; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .status-dot.live { animation: pulse 1.2s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Yell <span>Playground</span></h1>
+    <div class="status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">ready</span>
+    </div>
+    <div class="toolbar">
+      <button onclick="loadExample('button')">Button</button>
+      <button onclick="loadExample('form')">Form</button>
+      <button onclick="loadExample('card')">Card</button>
+      <button onclick="loadExample('layout')">Layout</button>
+      <button class="primary" onclick="render()">Render →</button>
+    </div>
+  </header>
+  <main>
+    <div class="pane">
+      <div class="pane-header">
+        <span class="badge badge-yaml">YAML</span>
+        Yell Configuration
+      </div>
+      <textarea id="editor"></textarea>
+    </div>
+    <div class="pane">
+      <div class="tab-bar">
+        <div class="tab active" id="tab-preview" onclick="switchTab('preview')">Preview</div>
+        <div class="tab" id="tab-diff" onclick="switchTab('diff')">Diff</div>
+      </div>
+      <div class="pane-content">
+        <div id="pane-preview" class="preview"><iframe id="previewFrame"></iframe></div>
+        <div id="pane-diff" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
+          <div class="pane-header" style="border-bottom:none;">
+            <span class="badge badge-diff">YAML → HTML</span>
+          </div>
+          <div class="diff-view" id="diffView"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+      mode: 'yaml', theme: 'dracula', lineNumbers: true, tabSize: 2,
+      indentWithTabs: false, lineWrapping: true,
+    });
+    editor.setSize('100%', '100%');
+
+    const EXAMPLES = {
+      button: `meta:
+  version: "1.0"
+  description: A configurable button
+
+props:
+  label:
+    type: string
+    required: true
+  variant:
+    type: enum
+    default: primary
+    enum: [primary, secondary, ghost, danger]
+  disabled:
+    type: boolean
+    default: false
+
+template: |
+  <button
+    class="yell-btn yell-btn--$props.variant"
+    disabled="$props.disabled"
+  >$props.label</button>`,
+
+      form: `meta:
+  version: "1.0"
+
+props:
+  title:
+    type: string
+    default: "Welcome back"
+
+template: |
+  <form class="yell-form">
+    <h2>$props.title</h2>
+    <input type="email" placeholder="Email" required />
+    <input type="password" placeholder="Password" required />
+    <button type="submit">Sign in</button>
+  </form>`,
+
+      card: `meta:
+  version: "1.0"
+
+props:
+  title:
+    type: string
+    required: true
+  description:
+    type: string
+  price:
+    type: number
+    required: true
+  badge:
+    type: enum
+    enum: [new, sale, hot, none]
+    default: none
+
+template: |
+  <div class="yell-card">
+    <span class="badge badge--$props.badge">$props.badge</span>
+    <h3>$props.title</h3>
+    <p>$props.description</p>
+    <div class="price">$$props.price</div>
+    <button>Add to cart</button>
+  </div>`,
+
+      layout: `meta:
+  version: "1.0"
+
+props:
+  siteName:
+    type: string
+    default: "My Site"
+
+template: |
+  <div class="yell-layout">
+    <header>
+      <a href="/" class="logo">$props.siteName</a>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+      </nav>
+    </header>
+    <div class="yell-body">
+      <aside>
+        <h4>Sidebar</h4>
+        <ul>
+          <li><a href="/item1">Item 1</a></li>
+          <li><a href="/item2">Item 2</a></li>
+        </ul>
+      </aside>
+      <main><slot /></main>
+    </div>
+  </div>`
+    };
+
+    let currentTab = 'preview';
+    let renderTimeout = null;
+    let lastYaml = '';
+    let lastHtml = '';
+
+    function loadExample(name) {
+      editor.setValue(EXAMPLES[name]);
+      render();
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-preview').classList.toggle('active', tab === 'preview');
+      document.getElementById('tab-diff').classList.toggle('active', tab === 'diff');
+      document.getElementById('pane-preview').style.display = tab === 'preview' ? '' : 'none';
+      document.getElementById('pane-diff').style.display = tab === 'diff' ? '' : 'none';
+      if (tab === 'diff') renderDiff();
+    }
+
+    function render() {
+      const yaml = editor.getValue();
+      if (!yaml.trim()) { setStatus('warn', 'empty'); return; }
+      try {
+        const doc = jsyaml.load(yaml);
+        if (!doc || !doc.template) {
+          setStatus('warn', 'no template');
+          showError('<strong>No template</strong>Add a <code>template:</code> key with HTML');
+          return;
+        }
+        let html = doc.template;
+
+        // Resolve token refs from props
+        const propMap = {};
+        if (doc.props) {
+          Object.entries(doc.props).forEach(([k, v]) => {
+            if (typeof v === 'object' && v.default !== undefined) propMap[k] = String(v.default);
+            else if (typeof v === 'object' && v.enum && v.default) propMap[k] = String(v.default);
+          });
+        }
+
+        html = html.replace(/\$(\w+)\.(\w+)/g, (_, obj, key) => propMap[key] ?? '');
+
+        lastYaml = yaml;
+        lastHtml = html;
+
+        const iframe = document.getElementById('previewFrame');
+        iframe.srcdoc = `<!DOCTYPE html><html><head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: system-ui, sans-serif; padding: 20px; margin: 0; background: #0d1117; color: #e6edf3; }
+            .yell-btn { padding: 8px 16px; border-radius: 6px; border: 1px solid #30363d; background: #161b22; color: #e6edf3; cursor: pointer; margin: 4px; }
+            .yell-btn--primary { background: #58a6ff; border-color: #58a6ff; color: #000; font-weight: 600; }
+            .yell-btn--secondary { background: #238636; border-color: #238636; color: #fff; }
+            .yell-btn--ghost { background: transparent; border-color: #30363d; color: #e6edf3; }
+            .yell-btn--danger { background: #f85149; border-color: #f85149; color: #fff; }
+            .yell-form { max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
+            .yell-form h2 { margin-bottom: 4px; }
+            .yell-form input { padding: 8px 12px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #e6edf3; }
+            .yell-form button { padding: 8px; border-radius: 6px; background: #58a6ff; border: none; color: #000; font-weight: 600; cursor: pointer; }
+            .yell-card { border: 1px solid #30363d; border-radius: 8px; padding: 16px; max-width: 280px; background: #161b22; display: flex; flex-direction: column; gap: 8px; }
+            .yell-card h3 { margin: 0; }
+            .yell-card .price { font-size: 1.4rem; font-weight: 700; color: #3fb950; }
+            .yell-card button { padding: 8px; border-radius: 6px; background: #58a6ff; border: none; color: #000; font-weight: 600; cursor: pointer; }
+            .yell-card .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+            .badge--new { background: #58a6ff; color: #000; }
+            .badge--sale { background: #f85149; color: #fff; }
+            .badge--hot { background: #d29922; color: #000; }
+            .badge--none { background: transparent; color: transparent; }
+            .yell-layout { display: flex; flex-direction: column; min-height: 200px; border: 1px solid #30363d; border-radius: 8px; overflow: hidden; }
+            .yell-layout header { background: #161b22; padding: 12px 16px; display: flex; align-items: center; gap: 24px; border-bottom: 1px solid #30363d; }
+            .yell-layout header .logo { font-weight: 700; font-size: 1rem; color: #58a6ff; text-decoration: none; }
+            .yell-layout header nav { display: flex; gap: 16px; }
+            .yell-layout header nav a { color: #7d8590; text-decoration: none; font-size: 0.9rem; }
+            .yell-layout header nav a:hover { color: #e6edf3; }
+            .yell-layout .yell-body { display: flex; flex: 1; }
+            .yell-layout aside { width: 160px; background: #161b22; padding: 16px; border-right: 1px solid #30363d; }
+            .yell-layout aside h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #7d8590; margin-bottom: 8px; }
+            .yell-layout aside ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+            .yell-layout aside a { color: #7d8590; text-decoration: none; font-size: 0.85rem; }
+            .yell-layout main { flex: 1; padding: 20px; background: #0d1117; }
+          </style>
+        </head><body>${html}</body></html>`;
+
+        setStatus('ok', 'rendered');
+        showError(null);
+        if (currentTab === 'diff') renderDiff();
+      } catch (err) {
+        setStatus('error', 'YAML error');
+        showError(`<strong>YAML Error</strong><code>${err.message}</code>`);
+      }
+    }
+
+    function renderDiff() {
+      const view = document.getElementById('diffView');
+      if (!lastHtml) { view.innerHTML = '<span class="diff-meta">Run Render first to see diff</span>'; return; }
+      let html = '';
+      html += `<span class="diff-line diff-meta"># YAML → HTML diff</span>\n`;
+      for (const line of lastYaml.split('\n')) {
+        html += `<span class="diff-line diff-remove">- ${escapeHtml(line)}</span>\n`;
+      }
+      for (const line of lastHtml.split('\n')) {
+        html += `<span class="diff-line diff-add">+ ${escapeHtml(line)}</span>\n`;
+      }
+      view.innerHTML = html;
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function setStatus(state, text) {
+      const dot = document.getElementById('statusDot');
+      dot.className = 'status-dot' + (state === 'ok' ? ' live' : state === 'error' ? ' error' : state === 'warn' ? ' warn' : '');
+      document.getElementById('statusText').textContent = text;
+    }
+
+    function showError(msg) {
+      const existing = document.getElementById('errorPanel');
+      if (msg) {
+        if (!existing) {
+          const div = document.createElement('div');
+          div.id = 'errorPanel';
+          div.className = 'error-panel';
+          div.innerHTML = msg;
+          document.querySelector('.preview').prepend(div);
+        } else existing.innerHTML = msg;
+      } else existing?.remove();
+    }
+
+    editor.on('change', () => { clearTimeout(renderTimeout); renderTimeout = setTimeout(render, 700); });
+    loadExample('button');
+  </script>
+</body>
+</html>
