@@ -38,7 +38,7 @@
     .badge-diff { background: #2d333b; color: #ffa657; }
     .CodeMirror { flex: 1; height: 100% !important; font-size: 0.88rem; background: var(--bg); min-height: 0; }
     .CodeMirror-gutters { background: var(--surface) !important; border-right: 1px solid var(--border) !important; }
-    .preview { flex: 1; overflow: auto; min-height: 0; }
+    .preview { flex: 1; overflow: auto; min-height: 0; height: 100%; }
     .preview iframe { width: 100%; height: 100%; border: none; background: #fff; display: block; }
     .diff-view { flex: 1; overflow: auto; padding: 10px 14px; font-family: 'Courier New', monospace; font-size: 0.8rem; white-space: pre-wrap; background: var(--bg); }
     .diff-line { display: block; padding: 1px 8px; border-radius: 3px; }
@@ -438,13 +438,6 @@
       } else if (existing) {
         existing.parentNode.removeChild(existing);
       }
-    }
-
-    }
-
-      toast.textContent = 'Action confirmed!';
-      toast.style.opacity = '1';
-      setTimeout(function() { toast.style.opacity = '0'; }, 2000);
     }
 
     editor.on('change', function() {
