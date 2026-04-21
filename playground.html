@@ -109,6 +109,19 @@
       EXAMPLES[name] = yaml;
     }
 
+    function confirmAction() {
+      var t = document.getElementById('toy');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'toy';
+        t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3fb950;color:#000;padding:10px 20px;border-radius:8px;font-weight:600;font-size:0.9rem;z-index:2000;display:none';
+        document.body.appendChild(t);
+      }
+      document.getElementById('modalOverlay').style.display = 'none';
+      t.textContent = 'Action confirmed!';
+      t.style.display = 'block';
+      setTimeout(function() { t.style.display = 'none'; }, 2000);
+    }
     addExample("button",
       "meta:\n" +
       '  version: "1.0"\n' +
@@ -268,13 +281,13 @@
       '    <h2>Modal</h2>\n' +
       '    <div class="row">\n' +
       '      <div class="modal-demo">\n' +
-      '        <div class="yell-modal-overlay" id="modalOverlay" onclick="if(event.target===this)this.style.display='none'">\n' +
+      '        <div class="yell-modal-overlay" id="modalOverlay" onclick="if(event.target===this)this.style.display=\'none\'">\n' +
       '          <div class="yell-modal">\n' +
       '            <h3>Confirm Action</h3>\n' +
       '            <p>Are you sure you want to continue?</p>\n' +
       '            <div class="yell-modal-actions">\n' +
-      '              <button class="yell-btn yell-btn--ghost" onclick="document.getElementById('modalOverlay').style.display='none'">Cancel</button>\n' +
-      '              <button class="yell-btn yell-btn--primary" onclick="var t=document.getElementById('toy');if(!t){t=document.createElement('div');t.id='toy';t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3fb950;color:#000;padding:10px 20px;border-radius:8px;font-weight:600;font-size:0.9rem;z-index:2000;display:none';document.body.appendChild(t)}document.getElementById('modalOverlay').style.display='none';t.textContent='Action confirmed!';t.style.display='block';setTimeout(function(){t.style.display='none'},2000)">Confirm</button>\n' +
+      '              <button class="yell-btn yell-btn--ghost" onclick="document.getElementById(\'modalOverlay\').style.display=\'none\'">Cancel</button>\n' +
+      '              <button class="yell-btn yell-btn--primary" onclick="confirmAction()">Confirm</button>\n' +
       '            </div>\n' +
       '          </div>\n' +
       '        </div>\n' +
