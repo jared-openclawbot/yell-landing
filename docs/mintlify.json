@@ -63,6 +63,7 @@
       "title": "Core Concepts",
       "items": [
         "yaml-syntax",
+        "yaml-boundaries",
         "components",
         "expressions",
         "tokens"
