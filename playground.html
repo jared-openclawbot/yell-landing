@@ -14,47 +14,68 @@
     :root {
       --bg: #0d1117; --surface: #161b22; --border: #30363d;
       --text: #e6edf3; --muted: #7d8590; --accent: #58a6ff;
-      --green: #3fb950; --red: #f85149; --yellow: #d29922;
+      --green: #3fb950; --red: #f85149; --yellow: #d29922; --orange: #ffa657;
     }
     body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    header { display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
-    header h1 { font-size: 1rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+    header { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+    header h1 { font-size: 0.95rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
     header h1 span { color: var(--muted); font-weight: 400; }
-    .toolbar { display: flex; gap: 6px; margin-left: 8px; flex-wrap: wrap; align-items: center; }
-    .toolbar button { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.8rem; transition: all 0.12s; white-space: nowrap; }
+    .toolbar { display: flex; gap: 4px; margin-left: 6px; flex-wrap: wrap; align-items: center; }
+    .toolbar button { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.78rem; transition: all 0.12s; white-space: nowrap; }
     .toolbar button:hover { background: var(--border); }
-    .toolbar a { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .toolbar button.fetch { border-color: var(--orange); color: var(--orange); }
+    .toolbar button.fetch:hover { background: rgba(255,166,87,0.1); }
+    .toolbar button.url-btn { border-color: var(--green); color: var(--green); }
+    .toolbar button.url-btn:hover { background: rgba(63,185,80,0.1); }
+    .toolbar button.url-btn.copied { background: rgba(63,185,80,0.2); color: var(--green); }
+    .toolbar a { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
     .toolbar a:hover { color: var(--text); background: var(--border); }
-    .divider { width: 1px; height: 22px; background: var(--border); margin: 0 2px; }
-    .status { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-left: auto; white-space: nowrap; }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+    .divider { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
+    .status { font-size: 0.75rem; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-left: auto; white-space: nowrap; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
     .status-dot.error { background: var(--red); }
     .status-dot.warn { background: var(--yellow); }
+    .status-dot.loading { background: var(--orange); animation: pulse 1s ease-in-out infinite; }
     main { display: grid; grid-template-columns: 1fr 1fr; flex: 1; overflow: hidden; min-height: 0; }
     .pane { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); min-height: 0; }
-    .pane-header { padding: 6px 14px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-    .badge { padding: 2px 6px; border-radius: 8px; font-size: 0.65rem; font-weight: 700; }
+    .pane-header { padding: 5px 12px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .badge { padding: 1px 5px; border-radius: 6px; font-size: 0.62rem; font-weight: 700; }
     .badge-yaml { background: #2d333b; color: #79c0ff; }
     .badge-diff { background: #2d333b; color: #ffa657; }
-    .CodeMirror { flex: 1; height: 100% !important; font-size: 0.88rem; background: var(--bg); min-height: 0; }
+    .badge-error { background: rgba(248,81,73,0.2); color: var(--red); }
+    .badge-valid { background: rgba(63,185,80,0.2); color: var(--green); }
+    .CodeMirror { flex: 1; height: 100% !important; font-size: 0.86rem; background: var(--bg); min-height: 0; }
     .CodeMirror-gutters { background: var(--surface) !important; border-right: 1px solid var(--border) !important; }
     .preview { flex: 1; overflow: auto; min-height: 0; height: 100%; }
     .preview iframe { width: 100%; height: 100%; border: none; background: #fff; display: block; }
-    .diff-view { flex: 1; overflow: auto; padding: 10px 14px; font-family: 'Courier New', monospace; font-size: 0.8rem; white-space: pre-wrap; background: var(--bg); }
+    .diff-view { flex: 1; overflow: auto; padding: 8px 12px; font-family: 'Courier New', monospace; font-size: 0.78rem; white-space: pre-wrap; background: var(--bg); }
     .diff-line { display: block; padding: 1px 8px; border-radius: 3px; }
     .diff-add { background: rgba(63,185,80,0.15); color: #3fb950; border-left: 3px solid #3fb950; }
     .diff-remove { background: rgba(248,81,73,0.15); color: #f85149; border-left: 3px solid #f85149; text-decoration: line-through; }
     .diff-meta { color: var(--muted); font-style: italic; }
     .tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .tab { padding: 7px 14px; font-size: 0.8rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.12s; }
+    .tab { padding: 6px 12px; font-size: 0.78rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.12s; }
     .tab:hover { color: var(--text); }
     .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .pane-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
-    .error-panel { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 6px; margin: 10px; padding: 8px 12px; font-size: 0.82rem; color: var(--red); flex-shrink: 0; }
-    .error-panel strong { display: block; margin-bottom: 3px; }
-    .error-panel code { background: rgba(248,81,73,0.2); padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
+    .error-panel { border-radius: 6px; margin: 8px; padding: 8px 12px; font-size: 0.8rem; flex-shrink: 0; display: none; }
+    .error-panel.show { display: block; }
+    .error-panel.error { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); color: var(--red); }
+    .error-panel.warn { background: rgba(210,153,34,0.1); border: 1px solid rgba(210,153,34,0.3); color: var(--yellow); }
+    .error-panel.info { background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.3); color: var(--accent); }
+    .error-panel strong { display: block; margin-bottom: 3px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .error-panel code { background: rgba(248,81,73,0.2); padding: 1px 5px; border-radius: 3px; font-size: 0.75rem; }
+    .error-panel ul { margin: 4px 0 0 16px; }
+    .error-panel li { margin: 2px 0; }
+    .validation-errors { margin-top: 6px; }
+    .validation-error { display: flex; gap: 6px; align-items: flex-start; margin: 4px 0; }
+    .validation-error .badge { flex-shrink: 0; margin-top: 1px; }
+    .validation-error .msg { color: var(--red); }
+    .validation-error .path { color: var(--muted); font-family: monospace; font-size: 0.72rem; }
+    .url-hint { font-size: 0.72rem; color: var(--muted); margin-left: 8px; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-    .status-dot.live { animation: pulse 1.2s ease-in-out infinite; }
+    .skeleton { background: linear-gradient(90deg, #161b22 25%, #1f2937 50%, #161b22 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
   </style>
 </head>
 <body>
@@ -70,6 +91,9 @@
       <button onclick="loadExample('card')">Card</button>
       <button onclick="loadExample('layout')">Layout</button>
       <div class="divider"></div>
+      <button class="fetch" onclick="fetchGithubRepos()">&#9672; GitHub Repos</button>
+      <button class="url-btn" id="shareBtn" onclick="copyShareUrl()">&#8599; Share URL</button>
+      <div class="divider"></div>
       <button onclick="editor.setValue('')">Clear</button>
     </div>
     <div class="status">
@@ -82,6 +106,7 @@
       <div class="pane-header">
         <span class="badge badge-yaml">YAML</span>
         Yell Configuration
+        <span id="validationBadge" style="display:none; margin-left:4px;"></span>
       </div>
       <textarea id="editor"></textarea>
     </div>
@@ -99,6 +124,7 @@
           </div>
           <div class="diff-view" id="diffView"></div>
         </div>
+        <div id="feedbackPanel" class="error-panel"></div>
       </div>
     </div>
   </main>
@@ -122,6 +148,7 @@
       t.style.display = 'block';
       setTimeout(function() { t.style.display = 'none'; }, 2000);
     }
+
     addExample("button",
       "meta:\n" +
       '  version: "1.0"\n' +
@@ -202,32 +229,28 @@
       "meta:\n" +
       '  version: "1.0"\n' +
       '\n' +
-      "props:\n" +
-      "  siteName:\n" +
-      '    type: string\n' +
-      '    default: "My Site"\n' +
-      '\n' +
       "template: |\n" +
       '  <div class="yell-layout">\n' +
       '    <header>\n' +
-      '      <a href="/" class="logo">$props.siteName</a>\n' +
+      '      <a href="#" class="logo">Acme Corp</a>\n' +
       '      <nav>\n' +
-      '        <a href="/">Home</a>\n' +
-      '        <a href="/about">About</a>\n' +
-      '        <a href="/contact">Contact</a>\n' +
+      '        <a href="#">Dashboard</a>\n' +
+      '        <a href="#">Projects</a>\n' +
+      '        <a href="#">Settings</a>\n' +
       '      </nav>\n' +
       '    </header>\n' +
       '    <div class="yell-body">\n' +
       '      <aside>\n' +
-      '        <h4>Sidebar</h4>\n' +
+      '        <h4>Navigation</h4>\n' +
       '        <ul>\n' +
-      '          <li><a href="/item1">Item 1</a></li>\n' +
-      '          <li><a href="/item2">Item 2</a></li>\n' +
-      '          <li><a href="/item3">Item 3</a></li>\n' +
+      '          <li><a href="#">Overview</a></li>\n' +
+      '          <li><a href="#">Analytics</a></li>\n' +
+      '          <li><a href="#">Reports</a></li>\n' +
+      '          <li><a href="#">Settings</a></li>\n' +
       '        </ul>\n' +
       '      </aside>\n' +
       '      <main>\n' +
-      '        <p>Edit the YAML to see changes in real time.</p>\n' +
+      '        <p>Select an option from the sidebar to get started.</p>\n' +
       '      </main>\n' +
       '    </div>\n' +
       '  </div>\n'
@@ -236,48 +259,10 @@
     addExample("components",
       "meta:\n" +
       '  version: "1.0"\n' +
-      '  description: Component registry — Button, Card, Modal\n' +
-      '\n' +
-      "components:\n" +
-      "  Button:\n" +
-      "    props:\n" +
-      "      label:\n" +
-      '        type: string\n' +
-      '        required: true\n' +
-      "      variant:\n" +
-      '        type: enum\n' +
-      '        default: primary\n' +
-      '        enum: [primary, secondary, ghost]\n' +
+      '  description: Modal dialog with confirm/cancel actions\n' +
       '\n' +
       "template: |\n" +
-      '  <div class="page">\n' +
-      '    <h2>Button</h2>\n' +
-      '    <div class="row">\n' +
-      '      <button class="yell-btn yell-btn--primary">Primary</button>\n' +
-      '      <button class="yell-btn yell-btn--secondary">Secondary</button>\n' +
-      '      <button class="yell-btn yell-btn--ghost">Ghost</button>\n' +
-      '      <button class="yell-btn yell-btn--primary" disabled>Disabled</button>\n' +
-      '    </div>\n' +
-      '\n' +
-      '    <h2>Card</h2>\n' +
-      '    <div class="row">\n' +
-      '      <div class="yell-card">\n' +
-      '        <h3>Getting Started</h3>\n' +
-      '        <p>Learn the basics of Yell in under 5 minutes.</p>\n' +
-      '        <button class="cta-btn">Learn more</button>\n' +
-      '      </div>\n' +
-      '      <div class="yell-card">\n' +
-      '        <h3>API Reference</h3>\n' +
-      '        <p>Full coverage of all Yell components and props.</p>\n' +
-      '        <button class="cta-btn">Read docs</button>\n' +
-      '      </div>\n' +
-      '      <div class="yell-card">\n' +
-      '        <h3>Examples</h3>\n' +
-      '        <p>Real-world patterns and templates to copy.</p>\n' +
-      '        <button class="cta-btn">Browse</button>\n' +
-      '      </div>\n' +
-      '    </div>\n' +
-      '\n' +
+      '  <div>\n' +
       '    <h2>Modal</h2>\n' +
       '    <div class="row">\n' +
       '      <div class="modal-demo">\n' +
@@ -291,11 +276,86 @@
       '            </div>\n' +
       '          </div>\n' +
       '        </div>\n' +
+      '        <button class="yell-btn yell-btn--primary" onclick="document.getElementById(\'modalOverlay\').style.display=\'flex\'">Open Modal</button>\n' +
       '      </div>\n' +
       '    </div>\n' +
       '  </div>\n'
     );
 
+    // --- GitHub repos example (fetched dynamically) ---
+    addExample("github-repos",
+      "# GitHub Repos\n" +
+      "# Replace OWNER below with any GitHub username\n" +
+      "# The \"Fetch GitHub Repos\" button loads real data\n" +
+      "meta:\n" +
+      '  version: "1.0"\n' +
+      '  description: GitHub repositories for a user\n' +
+      '\n' +
+      "props:\n" +
+      "  owner:\n" +
+      '    type: string\n' +
+      '    default: "jared-openclawbot"\n' +
+      "  repo0_name:\n" +
+      '    type: string\n' +
+      '    default: "yell-landing"\n' +
+      "  repo0_desc:\n" +
+      '    type: string\n' +
+      '    default: "Declarative UI framework in YAML"\n' +
+      "  repo0_stars:\n" +
+      '    type: number\n' +
+      '    default: 42\n' +
+      "  repo1_name:\n" +
+      '    type: string\n' +
+      '    default: "tardigrade-db"\n' +
+      "  repo1_desc:\n" +
+      '    type: string\n' +
+      '    default: "LLM-native memory kernel"\n' +
+      "  repo1_stars:\n" +
+      '    type: number\n' +
+      '    default: 18\n' +
+      "  repo2_name:\n" +
+      '    type: string\n' +
+      '    default: "hydra-gateway"\n' +
+      "  repo2_desc:\n" +
+      '    type: string\n' +
+      '    default: "API gateway for AI agents"\n' +
+      "  repo2_stars:\n" +
+      '    type: number\n' +
+      '    default: 9\n' +
+      '\n' +
+      "template: |\n" +
+      '  <div class="repo-page">\n' +
+      '    <div class="repo-header">\n' +
+      '      <h2>$props.owner\'s Repos</h2>\n' +
+      '      <span class="repo-hint">Data fetched from GitHub API</span>\n' +
+      '    </div>\n' +
+      '    <div class="repo-grid">\n' +
+      '      <div class="repo-card">\n' +
+      '        <div class="repo-name">$props.repo0_name</div>\n' +
+      '        <div class="repo-desc">$props.repo0_desc</div>\n' +
+      '        <div class="repo-meta">\n' +
+      '          <span class="repo-stars">$props.repo0_stars stars</span>\n' +
+      '        </div>\n' +
+      '      </div>\n' +
+      '      <div class="repo-card">\n' +
+      '        <div class="repo-name">$props.repo1_name</div>\n' +
+      '        <div class="repo-desc">$props.repo1_desc</div>\n' +
+      '        <div class="repo-meta">\n' +
+      '          <span class="repo-stars">$props.repo1_stars stars</span>\n' +
+      '        </div>\n' +
+      '      </div>\n' +
+      '      <div class="repo-card">\n' +
+      '        <div class="repo-name">$props.repo2_name</div>\n' +
+      '        <div class="repo-desc">$props.repo2_desc</div>\n' +
+      '        <div class="repo-meta">\n' +
+      '          <span class="repo-stars">$props.repo2_stars stars</span>\n' +
+      '        </div>\n' +
+      '      </div>\n' +
+      '    </div>\n' +
+      '  </div>\n'
+    );
+
+    // --- CodeMirror setup ---
     var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
       mode: 'yaml', theme: 'dracula', lineNumbers: true, tabSize: 2,
       indentWithTabs: false, lineWrapping: true,
@@ -307,11 +367,118 @@
     var lastYaml = '';
     var lastHtml = '';
 
+    // --- Load URL state on startup ---
+    function loadUrlState() {
+      var hash = window.location.hash.slice(1);
+      if (hash) {
+        try {
+          var decoded = decodeURIComponent(atob(hash));
+          editor.setValue(decoded);
+          render();
+          return;
+        } catch(e) {}
+      }
+      loadExample('button');
+    }
+
+    // --- Share via URL ---
+    function copyShareUrl() {
+      var yaml = editor.getValue();
+      if (!yaml.trim()) { showFeedback('warn', 'Nothing to share — write some YAML first'); return; }
+      var encoded = encodeURIComponent(btoa(yaml));
+      var url = window.location.origin + window.location.pathname + '#' + encoded;
+      navigator.clipboard.writeText(url).then(function() {
+        var btn = document.getElementById('shareBtn');
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.innerHTML = '&#8599; Share URL';
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(function() {
+        showFeedback('error', 'Could not copy — copy URL from address bar');
+      });
+    }
+
+    // --- Fetch GitHub repos ---
+    function fetchGithubRepos() {
+      var yaml = editor.getValue();
+      var owner = 'jared-openclawbot';
+
+      // Try to extract owner from current YAML if it looks like a GitHub user
+      try {
+        var doc = jsyaml.load(yaml);
+        if (doc && doc.props && doc.props.owner) {
+          owner = String(doc.props.owner.default || doc.props.owner);
+        }
+      } catch(e) {}
+
+      setStatus('loading', 'fetching...');
+      showFeedback('info', 'Fetching ' + owner + '/repos from GitHub API...');
+
+      fetch('https://api.github.com/users/' + owner + '/repos?sort=updated&per_page=6')
+        .then(function(res) {
+          if (!res.ok) throw new Error('User "' + owner + '" not found (HTTP ' + res.status + ')');
+          return res.json();
+        })
+        .then(function(repos) {
+          if (!Array.isArray(repos) || repos.length === 0) {
+            showFeedback('warn', 'No public repos found for "' + owner + '"');
+            setStatus('warn', 'no repos');
+            return;
+          }
+          // Build YAML with up to 6 repos
+          var lines = ['meta:', '  version: "1.0"', '  description: GitHub repos for ' + owner, '', 'props:', '  owner:', '    type: string', '    default: "' + owner + '"'];
+          for (var i = 0; i < Math.min(repos.length, 6); i++) {
+            var r = repos[i];
+            lines.push('  repo' + i + '_name:');
+            lines.push('    type: string');
+            lines.push('    default: "' + (r.name || '').replace(/"/g, '\\"') + '"');
+            lines.push('  repo' + i + '_desc:');
+            lines.push('    type: string');
+            var desc = (r.description || 'No description').replace(/"/g, '\\"');
+            lines.push('    default: "' + desc + '"');
+            lines.push('  repo' + i + '_stars:');
+            lines.push('    type: number');
+            lines.push('    default: ' + (r.stargazers_count || 0));
+          }
+          lines.push('\ntemplate: |');
+          lines.push('  <div class="repo-page">');
+          lines.push('    <div class="repo-header">');
+          lines.push('      <h2>$props.owner\\&#39;s Repos</h2>');
+          lines.push('      <span class="repo-hint">Live data from GitHub API</span>');
+          lines.push('    </div>');
+          lines.push('    <div class="repo-grid">');
+          for (var j = 0; j < Math.min(repos.length, 6); j++) {
+            lines.push('      <a class="repo-card" href="' + repos[j].html_url + '" target="_blank">');
+            lines.push('        <div class="repo-name">$props.repo' + j + '_name</div>');
+            lines.push('        <div class="repo-desc">$props.repo' + j + '_desc</div>');
+            lines.push('        <div class="repo-meta">');
+            lines.push('          <span class="repo-stars">$props.repo' + j + '_stars stars</span>');
+            lines.push('          <span class="repo-lang">' + (repos[j].language || '') + '</span>');
+            lines.push('        </div>');
+            lines.push('      </a>');
+          }
+          lines.push('    </div>');
+          lines.push('  </div>');
+
+          editor.setValue(lines.join('\n'));
+          showFeedback('info', 'Loaded ' + repos.length + ' repos for ' + owner + ' — edit or fetch another user');
+          render();
+        })
+        .catch(function(err) {
+          showFeedback('error', 'GitHub fetch failed: ' + err.message);
+          setStatus('error', 'fetch failed');
+        });
+    }
+
+    // --- Example loading ---
     function loadExample(name) {
       editor.setValue(EXAMPLES[name] || '');
       render();
     }
 
+    // --- Tab switching ---
     function switchTab(tab) {
       currentTab = tab;
       document.getElementById('tab-preview').className = 'tab' + (tab === 'preview' ? ' active' : '');
@@ -321,92 +488,155 @@
       if (tab === 'diff') renderDiff();
     }
 
+    // --- Render pipeline ---
     function render() {
       var yaml = editor.getValue();
-      if (!yaml.trim()) { setStatus('warn', 'empty'); return; }
+      if (!yaml.trim()) {
+        setStatus('warn', 'empty');
+        showFeedback(null);
+        return;
+      }
+
+      var doc;
       try {
-        var doc = jsyaml.load(yaml);
-        if (!doc || !doc.template) {
-          setStatus('warn', 'no template');
-          showError('<strong>No template</strong>Add a <code>template:</code> key with HTML');
-          return;
-        }
-        var html = doc.template;
-
-        // Resolve $props.token token refs
-        var propMap = {};
-        if (doc.props) {
-          var keys = Object.keys(doc.props);
-          for (var i = 0; i < keys.length; i++) {
-            var v = doc.props[keys[i]];
-            if (v && typeof v === 'object' && v.default !== undefined) {
-              propMap[keys[i]] = String(v.default);
-            } else if (v && typeof v === 'object' && v.enum && v.default) {
-              propMap[keys[i]] = String(v.default);
-            }
-          }
-        }
-
-        html = html.replace(/\$(\w+)\.(\w+)/g, function(_, obj, key) {
-          return propMap[key] !== undefined ? propMap[key] : '';
-        });
-
-        lastYaml = yaml;
-        lastHtml = html;
-
-        var iframe = document.getElementById('previewFrame');
-        iframe.srcdoc = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
-          'body{font-family:system-ui,sans-serif;padding:20px;margin:0;background:#0d1117;color:#e6edf3;overflow:auto;height:100%;box-sizing:border-box}' +
-          '.page{display:flex;flex-direction:column;gap:24px}' +
-          '.page h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#7d8590;margin-bottom:8px;border-bottom:1px solid #30363d;padding-bottom:6px}' +
-          '.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}' +
-          '.modal-demo{border:1px dashed #30363d;border-radius:8px;padding:16px;display:inline-block}' +
-          '.yell-btn{padding:8px 16px;border-radius:6px;border:1px solid #30363d;background:#161b22;color:#e6edf3;cursor:pointer;font-size:.9rem}' +
-          '.yell-btn--primary{background:#58a6ff;border-color:#58a6ff;color:#000;font-weight:600}' +
-          '.yell-btn--secondary{background:#238636;border-color:#238636;color:#fff}' +
-          '.yell-btn--ghost{background:transparent;border-color:#30363d}' +
-          '.yell-form{max-width:360px;display:flex;flex-direction:column;gap:12px}' +
-          '.yell-form h2{margin-bottom:8px;font-size:1.2rem}' +
-          '.yell-form .field{display:flex;flex-direction:column;gap:4px}' +
-          '.yell-form label{font-size:.8rem;color:#7d8590}' +
-          '.yell-form input{padding:8px 12px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:.9rem}' +
-          '.yell-card{border:1px solid #30363d;border-radius:8px;padding:16px;max-width:220px;background:#161b22;display:flex;flex-direction:column;gap:8px}' +
-          '.yell-card h3{margin:0;font-size:1rem}' +
-          '.yell-card p{margin:0;font-size:.85rem;color:#7d8590}' +
-          '.yell-card .price{font-size:1.4rem;font-weight:700;color:#3fb950}' +
-          '.yell-card button{padding:8px;border-radius:6px;background:#58a6ff;border:none;color:#000;font-weight:600;cursor:pointer;margin-top:4px}' +
-          '.yell-card .cta-btn{background:transparent;border:1px solid #30363d;color:#58a6ff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:.85rem}' +
-          '.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:700;text-transform:uppercase}' +
-          '.badge--new{background:#58a6ff;color:#000}.badge--sale{background:#f85149;color:#fff}.badge--hot{background:#d29922;color:#000}.badge--none{background:transparent;color:transparent}' +
-          '.yell-layout{display:flex;flex-direction:column;min-height:200px;border:1px solid #30363d;border-radius:8px;overflow:hidden}' +
-          '.yell-layout header{background:#161b22;padding:12px 16px;display:flex;align-items:center;gap:24px;border-bottom:1px solid #30363d}' +
-          ".yell-layout header .logo{font-weight:700;font-size:1rem;color:#58a6ff;text-decoration:none}" +
-          '.yell-layout header nav{display:flex;gap:16px}' +
-          '.yell-layout header nav a{color:#7d8590;text-decoration:none;font-size:.9rem}' +
-          '.yell-layout header nav a:hover{color:#e6edf3}' +
-          '.yell-layout .yell-body{display:flex;flex:1}' +
-          '.yell-layout aside{width:160px;background:#161b22;padding:16px;border-right:1px solid #30363d}' +
-          '.yell-layout aside h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#7d8590;margin-bottom:8px}' +
-          '.yell-layout aside ul{list-style:none;display:flex;flex-direction:column;gap:4px}' +
-          '.yell-layout aside a{color:#7d8590;text-decoration:none;font-size:.85rem}' +
-          '.yell-layout main{flex:1;padding:20px;background:#0d1117}' +
-          '.yell-layout p{color:#7d8590;font-size:.9rem}' +
-          '.yell-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000}' +
-          '.yell-modal{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5)}' +
-          '.yell-modal h3{margin:0 0 12px;font-size:1.1rem}' +
-          '.yell-modal p{margin:0 0 20px;color:#7d8590;font-size:.9rem}' +
-          '.yell-modal-actions{display:flex;gap:8px;justify-content:flex-end}' +
-          '</style></head><body>' + html + '</body></html>';
-
-        setStatus('ok', 'rendered');
-        showError(null);
-        if (currentTab === 'diff') renderDiff();
+        doc = jsyaml.load(yaml);
       } catch (err) {
         setStatus('error', 'YAML error');
-        showError('<strong>YAML Error</strong><code>' + err.message + '</code>');
+        showFeedback('error', '<strong>YAML Parse Error</strong><code>' + err.message + '</code><ul><li>Check for indentation issues, unclosed quotes, or invalid YAML syntax</li></ul>');
+        return;
       }
+
+      if (!doc || !doc.template) {
+        setStatus('warn', 'no template');
+        showFeedback('warn', '<strong>Missing template</strong>Add a <code>template:</code> key with HTML content');
+        return;
+      }
+
+      // Props validation
+      var validationErrors = validateProps(doc);
+
+      // Resolve $props.token refs
+      var propMap = {};
+      if (doc.props) {
+        Object.keys(doc.props).forEach(function(k) {
+          var v = doc.props[k];
+          if (v && typeof v === 'object' && v.default !== undefined) {
+            propMap[k] = String(v.default);
+          } else if (v && typeof v === 'object' && v.enum && v.default) {
+            propMap[k] = String(v.default);
+          } else if (typeof v === 'string' || typeof v === 'number') {
+            propMap[k] = String(v);
+          }
+        });
+      }
+
+      var html = doc.template;
+      html = html.replace(/\$(\w+)\.(\w+)/g, function(_, obj, key) {
+        return propMap[key] !== undefined ? propMap[key] : '';
+      });
+
+      lastYaml = yaml;
+      lastHtml = html;
+
+      var iframe = document.getElementById('previewFrame');
+      iframe.srcdoc = buildPreviewDoc(html);
+
+      if (validationErrors.length > 0) {
+        setStatus('warn', 'validation errors');
+        showFeedback('warn', '<strong>Validation Warnings</strong><div class="validation-errors">' +
+          validationErrors.map(function(e) {
+            return '<div class="validation-error"><span class="badge badge-error">WARN</span><div><span class="path">' + e.path + '</span> — <span class="msg">' + e.msg + '</span></div></div>';
+          }).join('') + '</div>');
+      } else {
+        setStatus('ok', 'rendered');
+        showFeedback(null);
+      }
+
+      if (currentTab === 'diff') renderDiff();
     }
 
+    // --- Props validation ---
+    function validateProps(doc) {
+      var errors = [];
+      if (!doc.props) return errors;
+
+      Object.keys(doc.props).forEach(function(k) {
+        var v = doc.props[k];
+        // Check for unknown type
+        if (v && typeof v === 'object' && v.type && !['string', 'number', 'boolean', 'enum', 'array', 'object'].includes(v.type)) {
+          errors.push({ path: 'props.' + k + '.type', msg: 'Unknown type "' + v.type + '"' });
+        }
+        // Check enum values
+        if (v && typeof v === 'object' && v.enum && v.default && !v.enum.includes(v.default)) {
+          errors.push({ path: 'props.' + k + '.default', msg: 'Default "' + v.default + '" not in enum [' + v.enum.join(', ') + ']' });
+        }
+        // Check required but no default
+        if (v && typeof v === 'object' && v.required && (v.default === undefined)) {
+          errors.push({ path: 'props.' + k, msg: 'Required prop with no default' });
+        }
+      });
+      return errors;
+    }
+
+    // --- Build preview iframe HTML ---
+    function buildPreviewDoc(html) {
+      return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
+        'body{font-family:system-ui,sans-serif;padding:20px;margin:0;background:#0d1117;color:#e6edf3;overflow:auto;height:100%;box-sizing:border-box}' +
+        '.page{display:flex;flex-direction:column;gap:24px}' +
+        '.page h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#7d8590;margin-bottom:8px;border-bottom:1px solid #30363d;padding-bottom:6px}' +
+        '.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}' +
+        '.modal-demo{border:1px dashed #30363d;border-radius:8px;padding:16px;display:inline-block}' +
+        '.yell-btn{padding:8px 16px;border-radius:6px;border:1px solid #30363d;background:#161b22;color:#e6edf3;cursor:pointer;font-size:.9rem}' +
+        '.yell-btn--primary{background:#58a6ff;border-color:#58a6ff;color:#000;font-weight:600}' +
+        '.yell-btn--secondary{background:#238636;border-color:#238636;color:#fff}' +
+        '.yell-btn--ghost{background:transparent;border-color:#30363d}' +
+        '.yell-form{max-width:360px;display:flex;flex-direction:column;gap:12px}' +
+        '.yell-form h2{margin-bottom:8px;font-size:1.2rem}' +
+        '.yell-form .field{display:flex;flex-direction:column;gap:4px}' +
+        '.yell-form label{font-size:.8rem;color:#7d8590}' +
+        '.yell-form input{padding:8px 12px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:.9rem}' +
+        '.yell-card{border:1px solid #30363d;border-radius:8px;padding:16px;max-width:220px;background:#161b22;display:flex;flex-direction:column;gap:8px}' +
+        '.yell-card h3{margin:0;font-size:1rem}' +
+        '.yell-card p{margin:0;font-size:.85rem;color:#7d8590}' +
+        '.yell-card .price{font-size:1.4rem;font-weight:700;color:#3fb950}' +
+        '.yell-card button{padding:8px;border-radius:6px;background:#58a6ff;border:none;color:#000;font-weight:600;cursor:pointer;margin-top:4px}' +
+        '.yell-card .cta-btn{background:transparent;border:1px solid #30363d;color:#58a6ff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:.85rem}' +
+        '.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:700;text-transform:uppercase}' +
+        '.badge--new{background:#58a6ff;color:#000}.badge--sale{background:#f85149;color:#fff}.badge--hot{background:#d29922;color:#000}.badge--none{background:transparent;color:transparent}' +
+        '.yell-layout{display:flex;flex-direction:column;min-height:200px;border:1px solid #30363d;border-radius:8px;overflow:hidden}' +
+        '.yell-layout header{background:#161b22;padding:12px 16px;display:flex;align-items:center;gap:24px;border-bottom:1px solid #30363d}' +
+        '.yell-layout header .logo{font-weight:700;font-size:1rem;color:#58a6ff;text-decoration:none}' +
+        '.yell-layout header nav{display:flex;gap:16px}' +
+        '.yell-layout header nav a{color:#7d8590;text-decoration:none;font-size:.9rem}' +
+        '.yell-layout header nav a:hover{color:#e6edf3}' +
+        '.yell-layout .yell-body{display:flex;flex:1}' +
+        '.yell-layout aside{width:160px;background:#161b22;padding:16px;border-right:1px solid #30363d}' +
+        '.yell-layout aside h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#7d8590;margin-bottom:8px}' +
+        '.yell-layout aside ul{list-style:none;display:flex;flex-direction:column;gap:4px}' +
+        '.yell-layout aside a{color:#7d8590;text-decoration:none;font-size:.85rem}' +
+        '.yell-layout main{flex:1;padding:20px;background:#0d1117}' +
+        '.yell-layout p{color:#7d8590;font-size:.9rem}' +
+        '.yell-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;z-index:1000}' +
+        '.yell-modal{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5)}' +
+        '.yell-modal h3{margin:0 0 12px;font-size:1.1rem}' +
+        '.yell-modal p{margin:0 0 20px;color:#7d8590;font-size:.9rem}' +
+        '.yell-modal-actions{display:flex;gap:8px;justify-content:flex-end}' +
+        '.repo-page{display:flex;flex-direction:column;gap:16px}' +
+        '.repo-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}' +
+        '.repo-header h2{margin:0;font-size:1rem}' +
+        '.repo-hint{font-size:.72rem;color:#7d8590}' +
+        '.repo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}' +
+        '.repo-card{border:1px solid #30363d;border-radius:8px;padding:12px;background:#161b22;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:6px;transition:border-color 0.12s}' +
+        '.repo-card:hover{border-color:#58a6ff}' +
+        '.repo-name{font-weight:600;font-size:.9rem;color:#58a6ff}' +
+        '.repo-desc{font-size:.78rem;color:#7d8590;flex:1}' +
+        '.repo-meta{display:flex;gap:8px;align-items:center;font-size:.72rem;color:#7d8590}' +
+        '.repo-stars{color:#d29922}' +
+        '.repo-lang{color:#7d8590}' +
+        '</style></head><body>' + html + '</body></html>';
+    }
+
+    // --- Diff view ---
     function renderDiff() {
       var view = document.getElementById('diffView');
       if (!lastHtml) {
@@ -426,39 +656,37 @@
       view.innerHTML = out;
     }
 
+    // --- Feedback panel ---
+    function showFeedback(type, html) {
+      var panel = document.getElementById('feedbackPanel');
+      if (!type || !html) {
+        panel.className = 'error-panel';
+        panel.innerHTML = '';
+        return;
+      }
+      panel.className = 'error-panel ' + type + ' show';
+      panel.innerHTML = html;
+    }
+
+    // --- Status dot ---
+    function setStatus(state, text) {
+      var dot = document.getElementById('statusDot');
+      dot.className = 'status-dot' + (state === 'ok' ? '' : state === 'error' ? ' error' : state === 'warn' ? ' warn' : state === 'loading' ? ' loading' : '');
+      document.getElementById('statusText').textContent = text;
+    }
+
     function escapeHtml(s) {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    function setStatus(state, text) {
-      var dot = document.getElementById('statusDot');
-      dot.className = 'status-dot' + (state === 'ok' ? ' live' : state === 'error' ? ' error' : state === 'warn' ? ' warn' : '');
-      document.getElementById('statusText').textContent = text;
-    }
-
-    function showError(msg) {
-      var existing = document.getElementById('errorPanel');
-      if (msg) {
-        if (!existing) {
-          var div = document.createElement('div');
-          div.id = 'errorPanel';
-          div.className = 'error-panel';
-          div.innerHTML = msg;
-          document.querySelector('.preview').insertBefore(div, document.getElementById('previewFrame'));
-        } else {
-          existing.innerHTML = msg;
-        }
-      } else if (existing) {
-        existing.parentNode.removeChild(existing);
-      }
-    }
-
+    // --- Editor change handler ---
     editor.on('change', function() {
       clearTimeout(renderTimeout);
-      renderTimeout = setTimeout(render, 700);
+      renderTimeout = setTimeout(render, 500);
     });
 
-    loadExample('button');
+    // --- Init ---
+    loadUrlState();
   </script>
 </body>
 </html>

@@ -150,8 +150,8 @@ describe('@yell/schema', () => {
 
       expect(section).toContain('## Button');
       expect(section).toContain('A button component');
-      expect(section).toContain('label: string (required)');
-      expect(section).toContain('variant: enum (primary)');
+      expect(section).toContain('`label`: string (required)');
+      expect(section).toContain('`variant`: "primary" — one of: primary');
       expect(section).toContain('Button style');
     });
   });
