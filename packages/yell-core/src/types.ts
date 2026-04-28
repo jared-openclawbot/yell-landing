@@ -63,6 +63,7 @@ export interface YellConfig {
 export interface SSRRenderOptions {
   registry: ComponentRegistry;
   pretty?: boolean;
+  minify?: boolean;
 }
 
 export interface SSRRenderResult {

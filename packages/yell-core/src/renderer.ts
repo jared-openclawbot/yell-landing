@@ -14,6 +14,8 @@ import type {
   HydrationMap,
 } from './types.js';
 import { getComponent } from './registry.js';
+import { buildTokenManifest, tokensAsCSS } from './tokens.js';
+import { minifyHTML } from './minify.js';
 
 let nodeIdCounter = 0;
 function nextId(): string {
@@ -135,6 +137,19 @@ export function renderToString(
   const tokens = config.tokens as Record<string, unknown> | undefined;
   const state: Record<string, unknown> = {};
 
+  // Build token manifest and generate CSS if tokens are present
+  let tokenCSS = '';
+  if (tokens) {
+    try {
+      const manifest = buildTokenManifest(tokens);
+      tokenCSS = `<style>:root{${Object.entries(manifest.resolved)
+        .map(([name, t]) => `--${name.replace(/\./g, '-').toLowerCase()}:${t.value}`)
+        .join(';')}}</style>`;
+    } catch {
+      // If token resolution fails, skip CSS injection
+    }
+  }
+
   function renderNode(node: YellNode): string {
     const nodeId = nextId();
     const def = getComponent(reg, node.type);
@@ -176,6 +191,16 @@ export function renderToString(
     html += renderNode(config.app.shell);
   } else if (config.app?.children) {
     html += config.app.children.map(c => renderNode(c)).join('');
+  }
+
+  // Inject token CSS at the start of body
+  if (tokenCSS) {
+    html = tokenCSS + html;
+  }
+
+  // Apply minification if requested
+  if (options.minify === true) {
+    html = minifyHTML(html);
   }
 
   return { html, hydrationMap };

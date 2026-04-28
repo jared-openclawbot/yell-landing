@@ -32,12 +32,16 @@ export {
   tokensAsMap,
   validateTokens,
 } from './tokens.js';
+export { minifyHTML, minifyCSS } from './minify.js';
 export type {
   TokenManifest,
   ResolvedToken,
   TokenCategory,
   TokenValidationResult,
 } from './tokens.js';
+export type {
+  MinifyOptions,
+} from './minify.js';
 
 export type {
   YellNode,
