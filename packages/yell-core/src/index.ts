@@ -24,6 +24,20 @@
 export { parseYAML, normalizeNode, flattenConfig, tryParseYAML } from './parser.js';
 export { createRegistry, registerComponent, getComponent, isRegistered, getRegisteredTypes, findUnregisteredTypes } from './registry.js';
 export { renderToString, resetIdCounter, validateConfig } from './renderer.js';
+export {
+  buildTokenManifest,
+  expandTokenRef,
+  getTokenValue,
+  tokensAsCSS,
+  tokensAsMap,
+  validateTokens,
+} from './tokens.js';
+export type {
+  TokenManifest,
+  ResolvedToken,
+  TokenCategory,
+  TokenValidationResult,
+} from './tokens.js';
 
 export type {
   YellNode,
