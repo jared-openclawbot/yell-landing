@@ -36,6 +36,7 @@ The playground uses an **inline bundle** (`playground.bundle.js`, ~9KB minified)
 - [x] GitHub Pages deployment (playground.html + playground.bundle.js committed)
 - [x] All scripts migrated to bun (`bun run build`, etc.)
 - [x] `index.min.html` — minified landing page
+- [x] `pre-push` hook — blocks push if `bun run test` fails (local `.git/hooks/pre-push`)
 
 ### Playground UX
 - [x] LocalStorage persistence (editor content survives reload)
