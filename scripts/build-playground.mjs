@@ -49,6 +49,11 @@ for (const mod of MODULES) {
   // Skip re-exports (already in bundle)
   code = code.replace(/^export\s+{\s*[^}]*}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
 
+  // Fix href="#" links — prevent parent page navigation when playground is embedded
+  if (mod === 'playground.mjs') {
+    code = code.replace(/href="#"/g, 'href="javascript:void(0)"');
+  }
+
   out.push(comment(mod));
   out.push(code.trim() + '\n\n');
 }

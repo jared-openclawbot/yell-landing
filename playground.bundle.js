@@ -792,7 +792,7 @@ function makeHeaderComponent() {
   return {
     component: ({ logo }) => {
       logo = escapeText(String(logo || ''));
-      return `<header style="display:flex;gap:24px;align-items:center;padding:16px 24px;border-bottom:1px solid #30363d"><a href="#" style="font-weight:bold;font-size:18px;color:#58a6ff;text-decoration:none">${logo}</a></header>`;
+      return `<header style="display:flex;gap:24px;align-items:center;padding:16px 24px;border-bottom:1px solid #30363d"><a href="javascript:void(0)" style="font-weight:bold;font-size:18px;color:#58a6ff;text-decoration:none">${logo}</a></header>`;
     }
   };
 }
@@ -802,7 +802,7 @@ function makeSidebarComponent() {
     component: ({ items }) => {
       let itemsArr = [];
       try { itemsArr = JSON.parse(items); } catch {}
-      const ul = itemsArr.map(item => `<li><a href="#">${escapeText(item)}</a></li>`).join('');
+      const ul = itemsArr.map(item => `<li><a href="javascript:void(0)">${escapeText(item)}</a></li>`).join('');
       return `<aside style="padding:16px;background:#161b22;border-radius:8px;border:1px solid #30363d"><ul>${ul}</ul></aside>`;
     }
   };
