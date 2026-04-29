@@ -97,36 +97,97 @@ function extractYAML(text: string): string | null {
   return blocks[0];
 }
 
+/**
+ * AST-based validation — walks parsed YAML objects instead of regex on raw string.
+ * Issue #27: Replaces fragile regex guardrails with structural validation.
+ */
 function validateYAML(yaml: string): AIError[] {
   const errors: AIError[] = [];
-
-  const inlineFnRegex = /onClick:\s*\(|onChange:\s*\(|on\w+:\s*\(\s*\)/g;
-  let match;
-  while ((match = inlineFnRegex.exec(yaml)) !== null) {
-    errors.push({
-      path: 'inline-function',
-      type: 'inline_function',
-      message: 'Inline functions are not allowed. Use a reference like onClick: handleClick',
-      suggestion: 'Replace inline function with a named event handler reference',
-    });
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = parseYAML(yaml) as Record<string, unknown>;
+  } catch {
+    // Fall back to raw string checks for malformed edge cases
+    const errors: AIError[] = [];
+    // Inline functions: onClick: () => or onClick: function()
+    if (/on\w+:\s*\(|on\w+:\s*\(\s*\)/.test(yaml) || /on\w+:\s*\([^)]*\)\s*=>/.test(yaml)) {
+      errors.push({ path: 'inline-function', type: 'inline_function', message: 'Inline functions not allowed', suggestion: 'Use a reference like onClick: handleClick' });
+    }
+    if (/\?\s*[^:\s]/.test(yaml)) {
+      errors.push({ path: 'expression', type: 'invalid_expression', message: 'Ternary expressions not allowed' });
+    }
+    if (/\b\w+\s*\([^)]*\)/.test(yaml)) {
+      errors.push({ path: 'expression', type: 'invalid_expression', message: 'Function calls not allowed' });
+    }
+    return errors;
   }
 
-  const complexExprRegex = /\?\s*|:.*\?/;
-  if (complexExprRegex.test(yaml)) {
-    errors.push({
-      path: 'expression',
-      type: 'invalid_expression',
-      message: 'Ternary expressions are not allowed. Use if/then/else nodes instead',
-    });
+  function checkStringProp(path: string, key: string, value: string) {
+    if (value.includes('=>') || /\bfunction\b/.test(value)) {
+      errors.push({
+        path: `${path}/${key}`,
+        type: 'inline_function',
+        message: `"${key}" cannot be an inline function. Use a reference like "${key}: handleClick"`,
+        suggestion: 'Replace inline function with a named event handler reference',
+      });
+    }
+    if (/\b\w+\s*\([^)]*\)/.test(value) && !value.startsWith('$')) {
+      errors.push({
+        path: `${path}/${key}`,
+        type: 'invalid_expression',
+        message: 'Function calls in expressions are not allowed. Precompute values in event handlers.',
+      });
+    }
+    if (/\?\s*[^:\s]/.test(value)) {
+      errors.push({
+        path: `${path}/${key}`,
+        type: 'invalid_expression',
+        message: 'Ternary expressions are not allowed. Use if/then/else nodes instead.',
+      });
+    }
   }
 
-  const funcCallRegex = /\w+\([^)]*\)/;
-  if (funcCallRegex.test(yaml)) {
-    errors.push({
-      path: 'expression',
-      type: 'invalid_expression',
-      message: 'Function calls in expressions are not allowed',
-    });
+  function walk(node: unknown, depth: number, path: string) {
+    if (!node || typeof node !== 'object') return;
+    const obj = node as Record<string, unknown>;
+
+    // Check props object for event handlers
+    const props = obj.props;
+    if (props && typeof props === 'object') {
+      for (const [k, v] of Object.entries(props as Record<string, unknown>)) {
+        if (typeof v === 'string') {
+          checkStringProp(path, k, v);
+        }
+      }
+    }
+
+    // Also check direct node properties (onClick lives at node level, not under props)
+    for (const [k, v] of Object.entries(obj)) {
+      if (k !== 'children' && typeof v === 'string') {
+        checkStringProp(path, k, v);
+      }
+    }
+
+    if (obj.children && Array.isArray(obj.children)) {
+      for (let i = 0; i < obj.children.length; i++) {
+        walk(obj.children[i], depth + 1, `${path}/children[${i}]`);
+      }
+    }
+  }
+
+  const app = parsed.app as Record<string, unknown> | undefined;
+  if (!app) {
+    // No app root — walk the whole parsed document (e.g., inline props without app wrapper)
+    for (const [k, v] of Object.entries(parsed)) {
+      if (typeof v === 'string') {
+        checkStringProp('', k, v);
+      }
+    }
+    return errors;
+  }
+  if (app.shell) walk(app.shell, 0, 'shell');
+  if (app.children && Array.isArray(app.children)) {
+    (app.children as unknown[]).forEach((child, i) => walk(child, 0, `children[${i}]`));
   }
 
   return errors;
