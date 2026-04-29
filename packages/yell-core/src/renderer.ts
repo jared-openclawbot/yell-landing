@@ -230,7 +230,8 @@ export function renderToString(
         }
       }
       try {
-        return comp({ ...safeProps, children: renderedChildren });
+        // Pass nodeId so component can embed it in HTML for hydration
+        return comp({ ...safeProps, nodeId, children: renderedChildren });
       } catch {
         // Fallback to generic tag
       }
