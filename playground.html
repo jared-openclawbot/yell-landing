@@ -610,6 +610,7 @@
     var _playgroundCore = null;
     var _playgroundRegistry = null;
     var _playgroundRenderFn = null;
+    var _playgroundValidate = null;
 
     function setPlaygroundCore(core) {
       _playgroundCore = core;
@@ -622,7 +623,25 @@
         var result = _playgroundCore.initPlayground();
         _playgroundRegistry = result.registry;
         _playgroundRenderFn = result.renderFn;
+        _playgroundValidate = result.validateComponentProps;
       }
+    }
+
+    function validateWithSchema(yaml) {
+      if (!_playgroundValidate) return [];
+      var errors = [];
+      try {
+        var doc = jsyaml.load(yaml);
+        if (!doc || !doc.app || !doc.app.children) return errors;
+        for (var i = 0; i < doc.app.children.length; i++) {
+          var node = doc.app.children[i];
+          if (node.props) {
+            var nodeErrors = _playgroundValidate(node.type, node.props);
+            errors.push.apply(errors, nodeErrors);
+          }
+        }
+      } catch (e) { /* skip yaml errors, they'll be caught elsewhere */ }
+      return errors;
     }
 
     function renderWithCore(yaml) {
@@ -668,9 +687,21 @@
       var html = renderWithCore(yaml);
       lastHtml = html;
 
+      // Schema validation via @yell/core
+      var schemaErrors = validateWithSchema(yaml);
+
       iframe.srcdoc = buildPreviewDoc(html);
-      setStatus('ok', 'rendered');
-      showFeedback(null);
+
+      if (schemaErrors.length > 0) {
+        var errorMsgs = schemaErrors.map(function(e) {
+          return '<div class="validation-error"><span class="badge badge--sale">' + e.type + '</span><span class="msg">' + escHtml(e.message) + '</span><span class="path">' + escHtml(e.path) + '</span></div>';
+        }).join('');
+        showFeedback('warn', '<strong>Schema Warnings</strong>' + errorMsgs);
+        setStatus('warn', 'schema issues');
+      } else {
+        setStatus('ok', 'rendered');
+        showFeedback(null);
+      }
     }
 
     function escHtml(s) {

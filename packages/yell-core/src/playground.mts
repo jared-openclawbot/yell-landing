@@ -2,21 +2,152 @@
  * Yell Playground — Built-in Component Registry
  * 
  * Uses @yell/core to render playground examples.
- * Exports initPlayground() which returns { registry, renderFn }.
+ * Exports initPlayground() which returns { registry, renderFn, validateComponentProps }.
+ * 
+ * Built-in schema validation for playground components (self-contained, no external dep).
  */
 
 import { createRegistry, registerComponent, renderToString, parseYAML } from './index.js';
 import { escapeAttr, escapeText } from './renderer.js';
 
-// Re-export for playground use
 export { createRegistry, registerComponent, renderToString, parseYAML };
 
-// ─── Built-in component definitions ──────────────────────────────────────────
-// These mirror the playground's built-in types (Text, Button, etc.)
-// Registered when initPlayground() is called.
-// Components receive nodeId for hydration support.
+// ─── Schema types (self-contained for playground) ─────────────────────────────
 
-// ── Text ──────────────────────────────────────────────────────────────────────
+export interface PropSchema {
+  name: string;
+  type: 'string' | 'number' | 'boolean' | 'enum' | 'node' | 'array';
+  required?: boolean;
+  default?: unknown;
+  enum?: string[];
+}
+
+export interface ComponentSchema {
+  name: string;
+  props: PropSchema[];
+}
+
+export interface ValidationError {
+  type: string;
+  path: string;
+  message: string;
+  suggestion?: string;
+}
+
+// ─── Built-in component schemas ─────────────────────────────────────────────
+
+const builtinSchemas: Map<string, ComponentSchema> = new Map([
+  ['Text', { name: 'Text', props: [
+    { name: 'content', type: 'string', required: true },
+    { name: 'variant', type: 'enum', enum: ['h1', 'h2', 'h3', 'p'], default: 'p' },
+  ]}],
+  ['Button', { name: 'Button', props: [
+    { name: 'label', type: 'string', required: true },
+    { name: 'variant', type: 'enum', enum: ['primary', 'secondary', 'ghost'], default: 'primary' },
+    { name: 'disabled', type: 'boolean', default: false },
+    { name: 'onClick', type: 'string' },
+  ]}],
+  ['Container', { name: 'Container', props: [
+    { name: 'layout', type: 'enum', enum: ['stack', 'row', 'grid'], default: 'stack' },
+    { name: 'gap', type: 'number', default: 16 },
+  ]}],
+  ['Input', { name: 'Input', props: [
+    { name: 'name', type: 'string', required: true },
+    { name: 'type', type: 'enum', enum: ['text', 'email', 'password', 'number'], default: 'text' },
+    { name: 'placeholder', type: 'string', default: '' },
+  ]}],
+  ['Card', { name: 'Card', props: [
+    { name: 'title', type: 'string', required: true },
+    { name: 'description', type: 'string', default: '' },
+    { name: 'badge', type: 'string' },
+    { name: 'price', type: 'string' },
+  ]}],
+  ['Modal', { name: 'Modal', props: [
+    { name: 'label', type: 'string', default: 'Confirm' },
+    { name: 'body', type: 'string', default: '' },
+  ]}],
+  ['Header', { name: 'Header', props: [
+    { name: 'logo', type: 'string', required: true },
+  ]}],
+  ['Sidebar', { name: 'Sidebar', props: [
+    { name: 'items', type: 'string' },
+  ]}],
+  ['StatCard', { name: 'StatCard', props: [
+    { name: 'label', type: 'string', required: true },
+    { name: 'value', type: 'string', default: '0' },
+  ]}],
+  ['PricingCard', { name: 'PricingCard', props: [
+    { name: 'tier', type: 'string', required: true },
+    { name: 'price', type: 'string', required: true },
+    { name: 'features', type: 'string' },
+    { name: 'variant', type: 'enum', enum: ['ghost', 'solid'], default: 'ghost' },
+    { name: 'featured', type: 'boolean', default: false },
+  ]}],
+  ['Form', { name: 'Form', props: [] }],
+  ['Field', { name: 'Field', props: [
+    { name: 'label', type: 'string', required: true },
+    { name: 'name', type: 'string', required: true },
+    { name: 'type', type: 'enum', enum: ['text', 'email', 'password', 'number'], default: 'text' },
+    { name: 'default', type: 'string' },
+  ]}],
+  ['RepoCard', { name: 'RepoCard', props: [
+    { name: 'name', type: 'string', required: true },
+    { name: 'description', type: 'string', default: '' },
+    { name: 'url', type: 'string' },
+    { name: 'stars', type: 'string' },
+    { name: 'language', type: 'string' },
+  ]}],
+]);
+
+/**
+ * Validate props against built-in component schemas.
+ * Returns array of ValidationError (empty = valid).
+ */
+export function validateComponentProps(componentName: string, props: Record<string, unknown>): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const schema = builtinSchemas.get(componentName);
+
+  if (!schema) {
+    return [{ type: 'unknown_component', path: componentName, message: `Unknown component "${componentName}"` }];
+  }
+
+  for (const prop of schema.props) {
+    if (prop.required && (props[prop.name] === undefined || props[prop.name] === null)) {
+      errors.push({
+        type: 'missing_required',
+        path: `${componentName}.${prop.name}`,
+        message: `Missing required prop "${prop.name}" on <${componentName}>`,
+        suggestion: `Add "${prop.name}" to your component props`,
+      });
+    }
+  }
+
+  for (const [key, value] of Object.entries(props)) {
+    const propDef = schema.props.find(p => p.name === key);
+    if (!propDef) {
+      errors.push({
+        type: 'invalid_prop',
+        path: `${componentName}.${key}`,
+        message: `Unknown prop "${key}" on <${componentName}>`,
+        suggestion: `Valid props: ${schema.props.map(p => p.name).join(', ')}`,
+      });
+      continue;
+    }
+    if (propDef.type === 'enum' && propDef.enum && !propDef.enum.includes(String(value))) {
+      errors.push({
+        type: 'invalid_enum',
+        path: `${componentName}.${key}`,
+        message: `Invalid value "${value}" for "${key}". Allowed: ${propDef.enum.join(', ')}`,
+        suggestion: `Choose one of: ${propDef.enum.join(', ')}`,
+      });
+    }
+  }
+
+  return errors;
+}
+
+// ─── Component definitions ────────────────────────────────────────────────────
+// Components receive nodeId for hydration support.
 
 function makeTextComponent() {
   return {
@@ -32,16 +163,10 @@ function makeTextComponent() {
   };
 }
 
-// ── Button ─────────────────────────────────────────────────────────────────────
-
 function makeButtonComponent() {
   return {
-    component: ({ label, variant, disabled, onClick, nodeId }: { 
-      label: string; 
-      variant?: string; 
-      disabled?: boolean;
-      onClick?: string;
-      nodeId?: string;
+    component: ({ label, variant, disabled, onClick, nodeId }: {
+      label: string; variant?: string; disabled?: boolean; onClick?: string; nodeId?: string;
     }) => {
       label = escapeText(String(label || ''));
       variant = escapeAttr(String(variant || 'primary'));
@@ -53,15 +178,10 @@ function makeButtonComponent() {
   };
 }
 
-// ── Container ─────────────────────────────────────────────────────────────────
-
 function makeContainerComponent() {
   return {
-    component: ({ layout, gap, children, nodeId }: { 
-      layout?: string; 
-      gap?: string | number; 
-      children?: string;
-      nodeId?: string;
+    component: ({ layout, gap, children, nodeId }: {
+      layout?: string; gap?: string | number; children?: string; nodeId?: string;
     }) => {
       layout = layout || 'stack';
       gap = String(gap || '16');
@@ -75,15 +195,10 @@ function makeContainerComponent() {
   };
 }
 
-// ── Input ─────────────────────────────────────────────────────────────────────
-
 function makeInputComponent() {
   return {
-    component: ({ name, type, placeholder, nodeId }: { 
-      name?: string; 
-      type?: string; 
-      placeholder?: string;
-      nodeId?: string;
+    component: ({ name, type, placeholder, nodeId }: {
+      name?: string; type?: string; placeholder?: string; nodeId?: string;
     }) => {
       name = escapeAttr(String(name || ''));
       type = escapeAttr(String(type || 'text'));
@@ -94,16 +209,10 @@ function makeInputComponent() {
   };
 }
 
-// ── Card ─────────────────────────────────────────────────────────────────────
-
 function makeCardComponent() {
   return {
-    component: ({ title, description, badge, price, nodeId }: { 
-      title?: string; 
-      description?: string; 
-      badge?: string;
-      price?: string;
-      nodeId?: string;
+    component: ({ title, description, badge, price, nodeId }: {
+      title?: string; description?: string; badge?: string; price?: string; nodeId?: string;
     }) => {
       title = escapeText(String(title || ''));
       description = escapeText(String(description || ''));
@@ -116,33 +225,24 @@ function makeCardComponent() {
   };
 }
 
-// ── Modal ─────────────────────────────────────────────────────────────────────
-
 function makeModalComponent() {
   return {
     component: ({ label, body, nodeId }: { label?: string; body?: string; nodeId?: string }) => {
       label = escapeText(String(label || 'Confirm'));
       body = escapeText(String(body || ''));
-      const idAttr = nodeId ? ` data-yell-id="${nodeId}"` : '';
-      // Uses global confirmAction from playground.html
       return `<div class="yell-modal-overlay" id="mOverlay"><div class="yell-modal"><h3>${label}</h3><p>${body}</p><div class="yell-modal-actions"><button class="yell-btn yell-btn--ghost" onclick="document.getElementById('mOverlay').style.display='none'">Cancel</button><button class="yell-btn yell-btn--primary" onclick="confirmAction()">Confirm</button></div></div></div><button class="yell-btn yell-btn--primary" onclick="document.getElementById('mOverlay').style.display='flex'">${label}</button>`;
     }
   };
 }
 
-// ── Header ─────────────────────────────────────────────────────────────────────
-
 function makeHeaderComponent() {
   return {
     component: ({ logo, nodeId }: { logo?: string; nodeId?: string }) => {
       logo = escapeText(String(logo || ''));
-      const idAttr = nodeId ? ` data-yell-id="${nodeId}"` : '';
-      return `<header style="display:flex;gap:24px;align-items:center;padding:16px 24px;border-bottom:1px solid #30363d"${idAttr}><a href="javascript:void(0)" style="font-weight:bold;font-size:18px;color:#58a6ff;text-decoration:none">${logo}</a></header>`;
+      return `<header style="display:flex;gap:24px;align-items:center;padding:16px 24px;border-bottom:1px solid #30363d"><a href="javascript:void(0)" style="font-weight:bold;font-size:18px;color:#58a6ff;text-decoration:none">${logo}</a></header>`;
     }
   };
 }
-
-// ── Sidebar ───────────────────────────────────────────────────────────────────
 
 function makeSidebarComponent() {
   return {
@@ -150,13 +250,10 @@ function makeSidebarComponent() {
       let itemsArr: string[] = [];
       try { itemsArr = JSON.parse(items || '[]'); } catch {}
       const ul = itemsArr.map(item => `<li><a href="javascript:void(0)">${escapeText(item)}</a></li>`).join('');
-      const idAttr = nodeId ? ` data-yell-id="${nodeId}"` : '';
-      return `<aside style="padding:16px;background:#161b22;border-radius:8px;border:1px solid #30363d"${idAttr}><ul>${ul}</ul></aside>`;
+      return `<aside style="padding:16px;background:#161b22;border-radius:8px;border:1px solid #30363d"><ul>${ul}</ul></aside>`;
     }
   };
 }
-
-// ── StatCard ───────────────────────────────────────────────────────────────────
 
 function makeStatCardComponent() {
   return {
@@ -169,17 +266,10 @@ function makeStatCardComponent() {
   };
 }
 
-// ── PricingCard ───────────────────────────────────────────────────────────────
-
 function makePricingCardComponent() {
   return {
-    component: ({ tier, price, features, variant, featured, nodeId }: { 
-      tier?: string; 
-      price?: string; 
-      features?: string;
-      variant?: string;
-      featured?: boolean;
-      nodeId?: string;
+    component: ({ tier, price, features, variant, featured, nodeId }: {
+      tier?: string; price?: string; features?: string; variant?: string; featured?: boolean; nodeId?: string;
     }) => {
       tier = escapeText(String(tier || ''));
       price = escapeText(String(price || ''));
@@ -193,8 +283,6 @@ function makePricingCardComponent() {
   };
 }
 
-// ── Form ──────────────────────────────────────────────────────────────────────
-
 function makeFormComponent() {
   return {
     component: ({ children, nodeId }: { children?: string; nodeId?: string }) => {
@@ -204,16 +292,10 @@ function makeFormComponent() {
   };
 }
 
-// ── Field ─────────────────────────────────────────────────────────────────────
-
 function makeFieldComponent() {
   return {
-    component: ({ label, name, type, default: defaultVal, nodeId }: { 
-      label?: string; 
-      name?: string; 
-      type?: string;
-      default?: string;
-      nodeId?: string;
+    component: ({ label, name, type, default: defaultVal, nodeId }: {
+      label?: string; name?: string; type?: string; default?: string; nodeId?: string;
     }) => {
       label = escapeText(String(label || ''));
       name = escapeAttr(String(name || ''));
@@ -225,17 +307,10 @@ function makeFieldComponent() {
   };
 }
 
-// ── RepoCard ───────────────────────────────────────────────────────────────────
-
 function makeRepoCardComponent() {
   return {
-    component: ({ name, description, url, stars, language, nodeId }: { 
-      name?: string; 
-      description?: string; 
-      url?: string;
-      stars?: string;
-      language?: string;
-      nodeId?: string;
+    component: ({ name, description, url, stars, language, nodeId }: {
+      name?: string; description?: string; url?: string; stars?: string; language?: string; nodeId?: string;
     }) => {
       name = escapeText(String(name || ''));
       description = escapeText(String(description || ''));
@@ -248,15 +323,15 @@ function makeRepoCardComponent() {
   };
 }
 
-// ── Init ───────────────────────────────────────────────────────────────────────
+// ─── Init ─────────────────────────────────────────────────────────────────────
 
 /**
  * Initialize playground with @yell/core and register built-in components.
- * Returns { registry, renderFn }.
+ * Returns { registry, renderFn, validateComponentProps }.
  */
 export function initPlayground() {
   const registry = createRegistry();
-  
+
   registerComponent(registry, 'Text', makeTextComponent());
   registerComponent(registry, 'Button', makeButtonComponent());
   registerComponent(registry, 'Container', makeContainerComponent());
@@ -270,12 +345,12 @@ export function initPlayground() {
   registerComponent(registry, 'Form', makeFormComponent());
   registerComponent(registry, 'Field', makeFieldComponent());
   registerComponent(registry, 'RepoCard', makeRepoCardComponent());
-  
+
   function renderFn(yaml: string): string {
     const config = parseYAML(yaml);
     const { html } = renderToString(config, registry);
     return html;
   }
-  
-  return { registry, renderFn };
+
+  return { registry, renderFn, validateComponentProps };
 }
