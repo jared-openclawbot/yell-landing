@@ -1,8 +1,8 @@
 /**
  * Playground Bundle Builder — esbuild
  * 
- * Each dist file wrapped in IIFE to avoid duplicate declarations.
- * esbuild then concatenates with minification.
+ * Concatenates dist files with IIFE wrapping per file to avoid duplicate declarations.
+ * Injects shared helpers (escapeText, escapeAttr) into every IIFE.
  * 
  * Usage: bun run bundle:playground
  */
@@ -16,6 +16,14 @@ const OUTFILE = resolve('playground.bundle.js');
 
 const FILES = ['parser.js', 'registry.js', 'renderer.js', 'tokens.js', 'minify.js', 'playground.mjs'];
 
+// Shared helpers injected into every IIFE
+const HELPERS = `
+function escapeAttr(v){return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escapeText(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+`;
+
+// ── Pre-process each file ─────────────────────────────────────────────────────
+
 function preprocess(content, file) {
   // Remove import/export lines
   content = content
@@ -23,27 +31,29 @@ function preprocess(content, file) {
     .replace(/^import\s+\w+\s+from\s+['"][^'"]+['"];?\n?/gm, '')
     .replace(/^export\s+/gm, '');
   
-  // Fix jsyaml in parser
   if (file === 'parser.js') {
     content = content
       .replace(/parseDocument\(yaml\)/g, 'jsyaml.load(yaml)')
       .replace(/\.toJS\(\)/g, '');
   }
   
-  // Fix href="#" in playground components  
   if (file === 'playground.mjs') {
     content = content.replace(/href="#"/g, 'href="javascript:void(0)"');
   }
   
-  // Wrap each file in IIFE to isolate function declarations
-  return `(function(){\n${content}\n})();\n`;
+  return content;
 }
+
+// ── Build ─────────────────────────────────────────────────────────────────────
 
 async function build() {
   let src = '';
+  
   for (const file of FILES) {
     const content = readFileSync(resolve(DIST, file), 'utf8');
-    src += `/* ${file} */\n` + preprocess(content, file) + '\n';
+    const patched = preprocess(content, file);
+    // Wrap each file in IIFE, injecting shared helpers
+    src += `/* ${file} */\n(function(global){${HELPERS}${patched}})(this);\n\n`;
   }
   
   const tmp = resolve('.playground-src.mjs');
