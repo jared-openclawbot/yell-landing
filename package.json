@@ -15,7 +15,7 @@
     "bundle": "bun run scripts/bundle.mjs",
     "bundle:playground": "bun run scripts/build-playground.mjs",
     "bundle:all": "bun run bundle && bun run bundle:playground",
-    "test": "bun run test --workspaces",
+    "test": "bun run --workspaces test",
     "dev": "bun run dev --workspaces"
   },
   "engines": {
