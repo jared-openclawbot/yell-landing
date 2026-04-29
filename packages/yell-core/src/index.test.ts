@@ -216,17 +216,18 @@ app:
     });
 
     it('escapes HTML in Button label prop (registered component)', () => {
+      // escapeText runs before props reach the component, so < becomes &lt;
+      // The escaped string is rendered as text, not parsed as HTML — safe
       const yaml = `app:
   children:
     - type: Button
       props:
-        label: "<img src=x onerror=alert(1)>"
+        label: "<script>alert(1)</script>"
 `;
       const config = parseYAML(yaml);
       const { html } = renderToString(config, registry);
-      expect(html).not.toContain('<img');
-      expect(html).not.toContain('onerror');
-      expect(html).toContain('&lt;img');
+      expect(html).not.toContain('<script>');
+      expect(html).toContain('&lt;script&gt;');
     });
   });
 

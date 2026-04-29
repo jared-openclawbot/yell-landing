@@ -212,8 +212,20 @@ export function renderToString(
     // If component has a render function, call it
     if (def?.component) {
       const comp = def.component as (props: Record<string, unknown>) => string;
+      // Escape text props before passing to component (security boundary)
+      // Unless the value is explicitly marked as UnsafeHTML (trusted HTML)
+      const safeProps: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(props)) {
+        if (isUnsafeHTML(v)) {
+          safeProps[k] = (v as UnsafeHTML).__unsafeHTML;
+        } else if (typeof v === 'string') {
+          safeProps[k] = escapeText(v);
+        } else {
+          safeProps[k] = v;
+        }
+      }
       try {
-        return comp({ ...props, children: renderedChildren });
+        return comp({ ...safeProps, children: renderedChildren });
       } catch {
         // Fallback to generic tag
       }
