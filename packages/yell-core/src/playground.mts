@@ -97,6 +97,11 @@ const builtinSchemas: Map<string, ComponentSchema> = new Map([
     { name: 'stars', type: 'string' },
     { name: 'language', type: 'string' },
   ]}],
+  ['Counter', { name: 'Counter', props: [
+    { name: 'count', type: 'number', default: 0 },
+    { name: 'onIncrement', type: 'string' },
+    { name: 'onDecrement', type: 'string' },
+  ]}],
 ]);
 
 /**
@@ -329,6 +334,24 @@ function makeRepoCardComponent() {
  * Initialize playground with @yell/core and register built-in components.
  * Returns { registry, renderFn, validateComponentProps }.
  */
+function makeCounterComponent() {
+  return {
+    component: ({ count, onIncrement, onDecrement, nodeId }: {
+      count?: number; onIncrement?: string; onDecrement?: string; nodeId?: string;
+    }) => {
+      const n = typeof count === 'number' ? count : 0;
+      const incAttr = onIncrement ? ` data-yell-event="onClick" data-yell-handler="${escapeAttr(onIncrement)}"` : '';
+      const decAttr = onDecrement ? ` data-yell-event="onClick" data-yell-handler="${escapeAttr(onDecrement)}"` : '';
+      const idAttr = nodeId ? ` data-yell-id="${nodeId}"` : '';
+      return `<div class="yell-counter"${idAttr} style="display:inline-flex;align-items:center;gap:12px;padding:16px 24px;border:1px solid #30363d;border-radius:12px;background:#161b22">` +
+        `<button class="yell-btn yell-btn--ghost"${decAttr} style="width:36px;height:36px;font-size:1.2rem">−</button>` +
+        `<span id="counter-${nodeId}" style="font-size:1.6rem;font-weight:700;min-width:40px;text-align:center">${n}</span>` +
+        `<button class="yell-btn yell-btn--primary"${incAttr} style="width:36px;height:36px;font-size:1.2rem">+</button>` +
+        `</div>`;
+    }
+  };
+}
+
 export function initPlayground() {
   const registry = createRegistry();
 
@@ -345,6 +368,7 @@ export function initPlayground() {
   registerComponent(registry, 'Form', makeFormComponent());
   registerComponent(registry, 'Field', makeFieldComponent());
   registerComponent(registry, 'RepoCard', makeRepoCardComponent());
+  registerComponent(registry, 'Counter', makeCounterComponent());
 
   function renderFn(yaml: string): string {
     const config = parseYAML(yaml);

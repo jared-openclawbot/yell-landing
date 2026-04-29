@@ -143,6 +143,7 @@
           <option value="github-repos">GitHub Repos</option>
           <option value="dashboard">Dashboard</option>
           <option value="settings-form">Settings Form</option>
+          <option value="counter">Counter</option>
           <option value="pricing-table">Pricing Table</option>
         </select>
         <span id="validationBadge" style="display:none; margin-left:4px;"></span>
@@ -416,6 +417,19 @@
               props:
                 label: Save Changes
                 variant: primary
+`);
+
+    addExample("counter", `app:
+  children:
+    - type: Text
+      props:
+        content: Counter
+        variant: h1
+    - type: Counter
+      props:
+        count: 0
+        onIncrement: increment
+        onDecrement: decrement
 `);
 
     addExample("github-repos", `app:
@@ -796,7 +810,29 @@
         '.pricing-card li{font-size:.8rem;color:#7d8590}' +
         '.pricing-card li::before{content:"✓ ";color:#3fb950}' +
         '.pricing-card select{padding:6px 10px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#e6edf3}' +
-        '</style></head><body><div class="page">' + html + '</div></body></html>';
+        '</style></head><body><div class="page">' + html + '</div><script>
+(function(){
+  var _yst = {};
+  document.addEventListener("click", function(e) {
+    var btn = e.target.closest("[data-yell-id]");
+    if (!btn) return;
+    var id = btn.getAttribute("data-yell-id");
+    var h = btn.getAttribute("data-yell-handler");
+    if (!h) return;
+    if (h === "increment") {
+      _yst[id] = (_yst[id] || 0) + 1;
+      var d = document.getElementById("counter-" + id);
+      if (d) d.textContent = _yst[id];
+    } else if (h === "decrement") {
+      _yst[id] = (_yst[id] || 0) - 1;
+      var d = document.getElementById("counter-" + id);
+      if (d) d.textContent = _yst[id];
+    } else {
+      try { (new Function(h)).call(btn); } catch(err) { console.error("Yell:", err); }
+    }
+  });
+})();
+</script></body></html>';
     }
 
     // --- Diff view ---

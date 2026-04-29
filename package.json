@@ -23,6 +23,7 @@
     "bun": ">=1.0"
   },
   "devDependencies": {
+    "esbuild": "^0.28.0",
     "terser": "^5.46.2",
     "vitest": "^4.1.4"
   },
