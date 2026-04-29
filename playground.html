@@ -79,16 +79,21 @@
 
     /* Mobile: stacked layout with toggle between preview/diff */
     @media (max-width: 768px) {
-      main { display: flex; flex-direction: column; }
-      .pane:first-child { min-height: 40vh; border-right: none; border-bottom: 1px solid var(--border); }
-      .pane:last-child { flex: 1; min-height: 0; }
-      .mobile-toggle { display: flex; flex-shrink: 0; }
+      main { display: flex; flex-direction: column; height: calc(100vh - 56px); }
+      /* Row 1: YAML editor — 40% of height */
+      .pane:first-child { flex: 0 0 40%; border-right: none; border-bottom: 1px solid var(--border); overflow: hidden; }
+      /* Row 2: Preview/Diff — fills remaining space */
+      .pane:last-child { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+      .mobile-toggle { display: flex; flex-shrink: 0; background: var(--surface); border-bottom: 1px solid var(--border); }
+      .pane-content { flex: 1; min-height: 0; overflow: hidden; }
+      .preview { min-height: 0; }
+      .pane-diff { min-height: 0; }
     }
     @media (min-width: 769px) {
       .mobile-toggle { display: none; }
     }
     .mobile-toggle { background: var(--surface); border-bottom: 1px solid var(--border); }
-    .mobile-toggle button { flex: 1; padding: 8px; border: none; border-bottom: 2px solid transparent; background: none; color: var(--muted); font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .mobile-toggle button { flex: 1; padding: 10px; border: none; border-bottom: 2px solid transparent; background: none; color: var(--muted); font-size: 0.85rem; font-weight: 600; cursor: pointer; }
     .mobile-toggle button.active { color: var(--accent); border-bottom-color: var(--accent); }
     .mobile-toggle button:hover { color: var(--text); }
   </style>
@@ -244,6 +249,60 @@
         - type: Text
           props:
             content: Select an option from the sidebar to get started.
+`);
+
+    addExample("components", `app:
+  children:
+    - type: Text
+      props:
+        content: All Components
+        variant: h1
+    - type: Container
+      props:
+        layout: grid
+        gap: 16
+      children:
+        - type: Card
+          props:
+            title: Card Component
+            description: Display content in a card
+            badge: new
+            price: $99
+        - type: StatCard
+          props:
+            label: Active Users
+            value: 1,234
+        - type: Button
+          props:
+            label: Primary
+            variant: primary
+        - type: Button
+          props:
+            label: Secondary
+            variant: secondary
+    - type: Container
+      props:
+        layout: row
+        gap: 8
+      children:
+        - type: Input
+          props:
+            name: email
+            type: email
+            placeholder: email@example.com
+        - type: Field
+          props:
+            label: Password
+            name: password
+            type: password
+    - type: Form
+      children:
+        - type: Field
+          props:
+            label: Full Name
+            name: fullname
+            type: text
+            default: Ada Lovelace
 `);
 
     addExample("modal", `app:
