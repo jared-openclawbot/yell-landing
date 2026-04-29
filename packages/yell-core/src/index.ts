@@ -41,6 +41,13 @@ export {
   injectCSRFToken,
   extractCSRFToken,
 } from './security/csrf.js';
+export {
+  loadDesignSystem,
+  loadDesignCSS,
+  validateDesignConfig,
+} from './design_system.js';
+export { defaultTokens } from './default_tokens.js';
+export type { DesignSystem, DesignSystemOptions } from './design_system.js';
 export type {
   TokenManifest,
   ResolvedToken,

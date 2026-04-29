@@ -22,5 +22,8 @@
   "devDependencies": {
     "terser": "^5.46.2",
     "vitest": "^4.1.4"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.1"
   }
 }
