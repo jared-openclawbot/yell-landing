@@ -1,127 +1,114 @@
-# Yell — Roadmap de Implementação
+# Yell Roadmap — Implementation Guide
 
-## Prioridades do Matheus (Ordem)
+## Architecture Decision: Two DSL Models
 
-### 1. 🎨 Design Tokens → legível para agent
-### 2. 📦 HTML minified output (renderer → browser)
-### 3. 🔒 CSRF generator (forms protection)
-### 4. 📜 JS dentro do index.html (compactado, sem deps externas)
+The project currently has **two different DSL models** that should NOT be mixed in the same file:
 
----
+### Model A — Page Composition (`app.children`)
+Used in `index.html`. Defines a page as a tree of component instances.
 
-## Fase 1 — Design Tokens
-
-**O que é:** hoje os tokens são CSS custom properties escondidas no output. O goal é que o YAML de input declare tokens e o parser expanda pra CSS legível E pro agente conseguir ler/manipular.
-
-**Estado atual:** tokens existem mas são processados no renderer sem schema formal
-
-**O que fazer:**
-- Criar `/packages/yell-core/src/tokens.ts` — parser de token definitions
-- Adicionar no schema: `yell_tokens.yaml` com tipos (color, spacing, font, shadow, etc.)
-- Exportar `TokenManifest` com todos os tokens resolved
-- Tool para agent: `getTokenValue(tokenRef)` → retorna valor CSS
-- Updates no playground pra mostrar token tree visualmente
-
-**Arquivo novo:** `packages/yell-core/src/tokens.ts`
-
-**Questão de design:**
-```
-# Input YAML
-tokens:
-  colors:
-    primary: "#3B82F6"
-    danger: "#EF4444"
-  spacing:
-    sm: "8px"
-    md: "16px"
-
-# Output CSS (minified)
-:root{--color-primary:#3B82F6;--color-danger:#EF4444;--space-sm:8px;--space-md:16px}
+```yaml
+app:
+  children:
+    - type: Button
+      props:
+        label: Click me
+        variant: primary
 ```
 
----
+**Use for:** Pages, layouts, compositions of existing components.
 
-## Fase 2 — HTML Minified Output
+### Model B — Component Definition (`meta/props/template`)
+Used in `playground.html` examples. Defines a reusable component schema.
 
-**O que é:** o renderer outputa HTMLpretty-printed. Pra produção, precisa minificar antes de enviar pro browser.
+```yaml
+meta:
+  version: "1.0"
+  description: A configurable button
 
-**Estado atual:** `renderToString()` retorna HTML com indentação
+props:
+  label:
+    type: string
+    default: "Click me"
+  variant:
+    type: enum
+    default: primary
+    enum: [primary, secondary, ghost]
 
-**O que fazer:**
-- Adicionar `minify: true` flag em `SSRRenderOptions`
-- Integrar `html-minifier` ou implementar regex-based minifier simples
-- Minificar only no `production` mode (dev stays readable)
-- Testar que hydration ainda funciona depois de minified
-
-**Dependência:** Fase 1 (tokens precisam estar no CSS output antes de minificar)
-
-**Arquivo novo:** `packages/yell-core/src/minify.ts`
-
----
-
-## Fase 3 — CSRF Generator
-
-**O que é:** Yell forms precisam de proteção CSRF. O generator cria tokens únicos por sessão/form e valida no hydration.
-
-**Estado atual:** não existe
-
-**O que fazer:**
-- Criar `yell-security` package ou módulo dentro do core
-- `generateCSRFToken()` — crypto random, 32 bytes, base64url encoded
-- `CSRFMiddleware` — injeta token no form hidden field + cookie
-- `validateCSRFToken(request)` — verifica token do form vs cookie
-- Integrar no renderer: quando `form` component renderizado, auto-add hidden csrf field
-
-**Arquivo novo:** `packages/yell-core/src/security/csrf.ts`
-
-**Design decision:** tokens no cookie (httponly) ou localStorage? Cookie é mais seguro porque JS não acessa.
-
----
-
-## Fase 4 — JS Compactado no index.html
-
-**O que é:** todo o JS do playground (event handlers, diff, etc.) tá em `script.js` separado. Matheus quer que vá tudo pro `index.html` inline e minified.
-
-**Estado atual:** `script.js` separado + `styles.css` separado
-
-**O que fazer:**
-- Minificar todo o JS inline no index.html (uglify ou terser)
-- Minificar CSS inline (remove comments, whitespace, newline)
-- Resultado: single `index.html` self-contained, sem network requests
-- Manter versão de desenvolvimento legível Separada (`index.dev.html`)
-- Build script: `npm run build:bundle` — produção
-- Build script: `npm run build:dev` — desenvolvimento
-
-**Arquivo novo:** `scripts/bundle.mjs` (build script)
-
----
-
-## Prioridade de Execução
-
-```
-Semana 1-2: Fase 1 (Design Tokens)
-Semana 3-4: Fase 2 (HTML Minified)  
-Semana 5-6: Fase 3 (CSRF Generator)
-Semana 7-8: Fase 4 (JS bundling)
+template: |
+  <button class="yell-btn yell-btn--$props.variant">
+    $props.label
+  </button>
 ```
 
-**Por que começar pelos tokens?** Porque token resolution já tá no renderer — é a mudança mais natural e menos risk de quebrar o que existe. Os outros mudam fluxo de render e adding security layer.
+**Use for:** Authoring reusable components (design system components, etc.)
+
+### Rule
+**Do not mix Model A and Model B in the same file.** The playground uses Model B for examples (component authoring). The `index.html` uses Model A (page composition). Keep them separate.
 
 ---
 
-## Issues GitHub a criar
+## Pending Work
 
-- `design-tokens-parser` — parse and expand tokens
-- `token-manifest-export` — expose resolved tokens to agents  
-- `html-minifier` — production minification
-- `csrf-generator` — form security
-- `inline-js-bundle` — self-contained index.html
+### 1. Unify DSL Model
+**Priority:** HIGH — prevents confusion and bad DX
+
+Pick one composition model and be consistent. Recommendation:
+- Keep `app.children` as the page/instance format
+- Migrate playground examples to `app.children` for page-level demos
+- Keep `meta/props/template` only for component *authoring* (design system)
+
+### 2. HTML Escape / Security
+**Priority:** HIGH — XSS vulnerability
+
+- [x] `escapeAttr()` added to renderer — escapes `& " < >` in data-* attributes
+- [ ] Escape text content (not just attributes)
+- [ ] Unsafe HTML API — explicit opt-in for `innerHTML`-style rendering with `__html: string` marker
+- [ ] Audit all `innerHTML` / `srcdoc` usage in playground and renderer
+
+### 3. Dogfood @yell/core in Playground
+**Priority:** MEDIUM — demonstrates the package works
+
+The playground currently has a parallel implementation of rendering. It should:
+- Import and use `@yell/core` (or its dist) as the actual renderer
+- The playground HTML rendering becomes the "integration test" of the core package
+- Requires: `yell-core` builds to a usable UMD/ESM bundle consumable via `<script>` tag
+
+### 4. Real SSR + Hydration + Events Example
+**Priority:** MEDIUM — the core thesis of the project
+
+A complete end-to-end example that demonstrates:
+```
+Prompt → YAML (validated) → SSR HTML → Hydration → Event handler
+```
+
+This is the "thing" the project sells. Without it, the thesis is unproven.
+
+### 5. AI Adapter Guardrails
+**Priority:** MEDIUM
+
+Current linter blocks are regex-based and easily bypassed. Real guardrails need:
+- AST-level validation of YAML (not string matching)
+- Block evaluation of expressions (`${}`, `{{}}`, function calls)
+- Explicit safe/unsafe API surface
+
+### 6. Schema Validation
+**Priority:** LOW — nice to have
+
+Strong Zod schemas for all component props. Currently accepts any prop.
 
 ---
 
-## Métricas de Sucesso
+## Completed Items
 
-- [ ] Agent consegue ler token manifest e sugerir novos tokens
-- [ ] HTML output < 50KB minified (sem assets externos)
-- [ ] CSRF token validation em < 1ms
-- [ ] index.html carrega em < 200ms em conexão lenta
+- [x] Design tokens parser (`tokens.ts`) with alias resolution
+- [x] HTML minification (`minify.ts`)
+- [x] CSRF generator (`security/csrf.ts`)
+- [x] JS/CSS bundling (`scripts/bundle.mjs`, `index.min.html`)
+- [x] Default design system shipped with package
+- [x] Theme toggle (dark/light) with localStorage
+- [x] Playground localStorage persistence
+- [x] 3 new templates (dashboard, settings-form, pricing-table)
+- [x] Template dropdown in playground
+- [x] js-yaml parser in index.html (removed fragile parseSimple)
+- [x] XSS fix in renderer (escapeAttr)
