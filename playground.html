@@ -17,10 +17,10 @@
       --green: #3fb950; --red: #f85149; --yellow: #d29922; --orange: #ffa657;
     }
     body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    header { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
-    header h1 { font-size: 0.95rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+    header { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+    header h1 { font-size: 0.95rem; font-weight: 700; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
     header h1 span { color: var(--muted); font-weight: 400; }
-    .toolbar { display: flex; gap: 4px; margin-left: 6px; flex-wrap: wrap; align-items: center; }
+    .toolbar { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; flex: 1; min-width: 0; }
     .toolbar button { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.78rem; transition: all 0.12s; white-space: nowrap; }
     .toolbar button:hover { background: var(--border); }
     .toolbar button.fetch { border-color: var(--orange); color: var(--orange); }
@@ -30,8 +30,8 @@
     .toolbar button.url-btn.copied { background: rgba(63,185,80,0.2); color: var(--green); }
     .toolbar a { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
     .toolbar a:hover { color: var(--text); background: var(--border); }
-    .divider { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
-    .status { font-size: 0.75rem; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-left: auto; white-space: nowrap; }
+    .divider { width: 1px; height: 18px; background: var(--border); margin: 0 2px; flex-shrink: 0; }
+    .status { display: flex; align-items: center; gap: 5px; white-space: nowrap; flex-shrink: 0; }
     .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
     .status-dot.error { background: var(--red); }
     .status-dot.warn { background: var(--yellow); }
@@ -89,6 +89,12 @@
       .pane-content { flex: 1; min-height: 0; overflow: hidden; }
       .preview { min-height: 0; }
       .pane-diff { overflow: auto; }
+      header { padding: 6px 10px; gap: 6px; }
+      header h1 { font-size: 0.82rem; }
+      .toolbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+      .toolbar::-webkit-scrollbar { display: none; }
+      .toolbar button, .toolbar a { font-size: 0.7rem; padding: 3px 7px; }
+      .status { font-size: 0.68rem; }
     }
     @media (min-width: 769px) {
       .mobile-toggle { display: none; }
@@ -826,7 +832,17 @@
           render();
         }
       } catch(e) {
-        console.warn('Could not load @yell/core:', e);
+        // Show error in status and preview, don't stay stuck on loading
+        setStatus('error', 'core error');
+        var iframe = document.getElementById('previewFrame');
+        if (iframe) {
+          iframe.srcdoc = '<html><body style="background:#0d1117;color:#f85149;padding:20px;font-family:system-ui">'
+            + '<h3>Failed to load @yell/core</h3>'
+            + '<p style="color:#7d8590">Run <code>npm run build</code> in the yell-landing directory.</p>'
+            + '<pre style="background:#161b22;padding:12px;border-radius:6px;overflow:auto;font-size:.8rem">' + e.message + '</pre>'
+            + '</body></html>';
+        }
+        showFeedback('error', '<strong>Core Load Failed</strong><code>' + e.message + '</code><ul><li>Run <code>npm run build</code> in the project root</li><li>Make sure <code>packages/yell-core/dist/playground.mjs</code> exists</li></ul>');
       }
     };
     window._loadYellCore();
