@@ -504,11 +504,47 @@
     }
 
     // --- Render pipeline ---
+    // ─── @yell/core renderer (dogfood) ───────────────────────────────────────
+    // Issue #28: Playground uses @yell/core instead of a parallel inline renderer.
+
+    var _playgroundCore = null;
+    var _playgroundRegistry = null;
+    var _playgroundRenderFn = null;
+
+    function setPlaygroundCore(core) {
+      _playgroundCore = core;
+      _playgroundRegistry = null; // reset so it re-inits
+    }
+
+    function ensurePlaygroundCore() {
+      if (_playgroundRegistry) return;
+      if (_playgroundCore && _playgroundCore.initPlayground) {
+        var result = _playgroundCore.initPlayground();
+        _playgroundRegistry = result.registry;
+        _playgroundRenderFn = result.renderFn;
+      }
+    }
+
+    function renderWithCore(yaml) {
+      ensurePlaygroundCore();
+      if (!_playgroundRenderFn) {
+        return '<div style="color:red;padding:20px">@yell/core not loaded</div>';
+      }
+      try {
+        return _playgroundRenderFn(yaml);
+      } catch (err) {
+        return '<div style="color:red;padding:20px"><strong>Render Error:</strong> ' + escHtml(err.message) + '</div>';
+      }
+    }
+
     function render() {
       var yaml = editor.getValue();
       if (!yaml.trim()) {
         setStatus('warn', 'empty');
         showFeedback(null);
+        lastYaml = '';
+        lastHtml = '';
+        iframe.srcdoc = '';
         return;
       }
 
@@ -527,163 +563,19 @@
         return;
       }
 
-      // Props validation
-      var validationErrors = validateProps(doc);
-
-      // app.children rendering pipeline
-      var app = doc.app;
-      var cs = app.children || [];
-
-      var reg = window.YELL_COMPONENTS || {};
-
-      function resolveProps(node) {
-        var props = {};
-        if (node.props) {
-          for (var k in node.props) {
-            var v = node.props[k];
-            if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
-              props[k] = v;
-            }
-          }
-        }
-        return props;
-      }
-
-      function escHtml(s) {
-        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      }
-      function escAttr(s) {
-        return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      }
-
-      function renderNode(node) {
-        var type = node.type;
-        var props = resolveProps(node);
-        var children = node.children || [];
-
-        var childHtml = '';
-        for (var i = 0; i < children.length; i++) {
-          childHtml += renderNode(children[i]);
-        }
-
-        if (type === 'Text') {
-          var content = props.content || '';
-          var variant = props.variant || 'p';
-          if (variant === 'h1') return '<h1>' + escHtml(content) + '</h1>';
-          if (variant === 'h2') return '<h2>' + escHtml(content) + '</h2>';
-          if (variant === 'h3') return '<h3>' + escHtml(content) + '</h3>';
-          return '<p>' + escHtml(content) + '</p>';
-        }
-        if (type === 'Button') {
-          var label = props.label || '';
-          var variant = props.variant || 'primary';
-          var disabled = props.disabled ? ' disabled' : '';
-          return '<button class="yell-btn yell-btn--' + escAttr(variant) + '"' + disabled + '>' + escHtml(label) + '</button>';
-        }
-        if (type === 'Container') {
-          var layout = props.layout || 'stack';
-          var gap = props.gap || '16';
-          var style = '';
-          if (layout === 'grid') style = 'display:grid;gap:' + gap + 'px';
-          else if (layout === 'stack') style = 'display:flex;flex-direction:column;gap:' + gap + 'px';
-          else if (layout === 'row') style = 'display:flex;gap:' + gap + 'px';
-          return '<div style="' + style + '">' + childHtml + '</div>';
-        }
-        if (type === 'Input') {
-          var name = escAttr(props.name || '');
-          var typ = escAttr(props.type || 'text');
-          var placeholder = escAttr(props.placeholder || '');
-          return '<input type="' + typ + '" name="' + name + '" placeholder="' + placeholder + '" />';
-        }
-        if (type === 'Card') {
-          var title = props.title || '';
-          var desc = props.description || '';
-          var badge = props.badge || 'none';
-          var price = props.price || '';
-          var badgeHtml = badge !== 'none' ? '<span class="badge badge--' + escAttr(badge) + '">' + escHtml(badge) + '</span>' : '';
-          return '<div class="yell-card">' + badgeHtml + '<h3>' + escHtml(title) + '</h3><p>' + escHtml(desc) + '</p><div class="price">' + escHtml(price) + '</div></div>';
-        }
-        if (type === 'Modal') {
-          var label2 = props.label || 'Confirm';
-          var body2 = props.body || '';
-          return '<div class="yell-modal-overlay" id="mOverlay"><div class="yell-modal"><h3>' + escHtml(label2) + '</h3><p>' + escHtml(body2) + '</p><div class="yell-modal-actions"><button class="yell-btn yell-btn--ghost" onclick="document.getElementById(\'mOverlay\').style.display=\'none\'">Cancel</button><button class="yell-btn yell-btn--primary" onclick="confirmAction()">Confirm</button></div></div></div><button class="yell-btn yell-btn--primary" onclick="document.getElementById(\'mOverlay\').style.display=\'flex\'">' + escHtml(label2) + '</button>';
-        }
-        if (type === 'Header') {
-          var logo = props.logo || '';
-          return '<header style="display:flex;gap:24px;align-items:center;padding:16px 24px;border-bottom:1px solid #30363d"><a href="#" style="font-weight:bold;font-size:18px;color:#58a6ff;text-decoration:none">' + escHtml(logo) + '</a></header>';
-        }
-        if (type === 'Sidebar') {
-          var items = props.items ? JSON.parse(props.items) : [];
-          var ul = '<ul>';
-          for (var i2 = 0; i2 < items.length; i2++) ul += '<li><a href="#">' + escHtml(items[i2]) + '</a></li>';
-          ul += '</ul>';
-          return '<aside style="padding:16px;background:#161b22;border-radius:8px;border:1px solid #30363d">' + ul + '</aside>';
-        }
-        if (type === 'StatCard') {
-          var label3 = props.label || '';
-          var value = props.value || '0';
-          return '<div class="stat-card"><div class="stat-label">' + escHtml(label3) + '</div><div class="stat-value">' + escHtml(value) + '</div></div>';
-        }
-        if (type === 'PricingCard') {
-          var tier = props.tier || '';
-          var price2 = props.price || '';
-          var features = props.features ? JSON.parse(props.features) : [];
-          var variant2 = props.variant || 'ghost';
-          var featured = props.featured ? ' featured' : '';
-          var featList = '<ul>';
-          for (var i3 = 0; i3 < features.length; i3++) featList += '<li>' + escHtml(features[i3]) + '</li>';
-          featList += '</ul>';
-          return '<div class="pricing-card' + featured + '"><h3>' + escHtml(tier) + '</h3><div class="price">' + escHtml(price2) + '</div>' + featList + '</div>';
-        }
-        if (type === 'Form') {
-          return '<form class="yell-form" onsubmit="return false">' + childHtml + '</form>';
-        }
-        if (type === 'Field') {
-          var label4 = props.label || '';
-          var name2 = escAttr(props.name || '');
-          var typ3 = escAttr(props.type || 'text');
-          var defaultVal = escAttr(props.default || '');
-          return '<div class="field"><label>' + escHtml(label4) + '</label><input type="' + typ3 + '" name="' + name2 + '" value="' + defaultVal + '" /></div>';
-        }
-        if (type === 'RepoCard') {
-          var name3 = escHtml(props.name || '');
-          var desc2 = escHtml(props.description || '');
-          var url = escAttr(props.url || '#');
-          var stars = escHtml(props.stars || '0');
-          var lang = escHtml(props.language || '');
-          return '<a class="repo-card" href="' + url + '" target="_blank"><div class="repo-name">' + name3 + '</div><div class="repo-desc">' + desc2 + '</div><div class="repo-meta"><span class="repo-stars">' + stars + ' stars</span> ' + lang + '</div></a>';
-        }
-
-        if (reg[type]) return reg[type](props, childHtml);
-        return '<div class="yell-unknown">[unknown: ' + escHtml(type) + ']</div>';
-      }
-
-      var html = '';
-      for (var i = 0; i < cs.length; i++) {
-        html += renderNode(cs[i]);
-      }
-
       lastYaml = yaml;
+      var html = renderWithCore(yaml);
       lastHtml = html;
 
-      var iframe = document.getElementById('previewFrame');
       iframe.srcdoc = buildPreviewDoc(html);
-
-      if (validationErrors.length > 0) {
-        setStatus('warn', 'validation errors');
-        showFeedback('warn', '<strong>Validation Warnings</strong><div class="validation-errors">' +
-          validationErrors.map(function(e) {
-            return '<div class="validation-error"><span class="badge badge-error">WARN</span><div><span class="path">' + e.path + '</span> — <span class="msg">' + e.msg + '</span></div></div>';
-          }).join('') + '</div>');
-      } else {
-        setStatus('ok', 'rendered');
-        showFeedback(null);
-      }
-
-      if (currentTab === 'diff') renderDiff();
+      setStatus('ok', 'rendered');
+      showFeedback(null);
     }
 
-    // --- Props validation ---
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
     function validateProps(doc) {
       var errors = [];
       var props = doc.props || (doc.app && doc.app.props) || {};
@@ -826,6 +718,18 @@
 
     // --- Init ---
     loadUrlState();
+  </script>
+  <script type="module">
+    // Issue #28: Dogfood @yell/core
+    window._loadYellCore = async function() {
+      try {
+        const mod = await import('./packages/yell-core/dist/playground.mjs');
+        setPlaygroundCore({ initPlayground: mod.initPlayground });
+      } catch(e) {
+        console.warn('Could not load @yell/core:', e);
+      }
+    };
+    window._loadYellCore();
   </script>
 </body>
 </html>
