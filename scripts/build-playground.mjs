@@ -32,27 +32,30 @@ out.push('"use strict";\n');
 for (const mod of MODULES) {
   let code = readFileSync(resolve(BASE, mod), 'utf8');
 
-  // Remove top-level imports
+  // ── Remove imports ──────────────────────────────────────────────────────────
+  // Only remove import statements, NOT the function usages
   code = code.replace(/^import\s+{[^}]+}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
+  code = code.replace(/^export\s+/gm, '');
+  code = code.replace(/^export\s+{\s*[^}]*}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
 
-  // parser.js: use jsyaml.load (CDN) instead of yaml.parseDocument (npm)
-  // js-yaml.load() returns a plain object directly — NO .toJS() needed
+  // ── Fix parser.js: use jsyaml.load instead of yaml.parseDocument ──────────
   if (mod === 'parser.js') {
     code = code
       .replace(/const\s+doc\s*=\s*parseDocument\(yaml\)/g, 'const doc = jsyaml.load(yaml)')
       .replace(/return\s+doc\.toJS\(\)/g, 'return doc');
   }
 
-  // Remove export keyword
-  code = code.replace(/^export\s+/gm, '');
-
-  // Skip re-exports (already in bundle)
-  code = code.replace(/^export\s+{\s*[^}]*}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
-
-  // Fix href="#" links — prevent parent page navigation when playground is embedded
+  // ── Fix href="#" in playground components ─────────────────────────────────
   if (mod === 'playground.mjs') {
     code = code.replace(/href="#"/g, 'href="javascript:void(0)"');
   }
+
+  // ── Resolve cross-module references ───────────────────────────────────────
+  // renderer.js imports { getComponent, getFunction } from './registry.js'
+  // and { buildTokenManifest } from './tokens.js'
+  // Since all modules are inlined, these are already in scope.
+  // The import statements above were stripped, so the function references
+  // now correctly resolve to the definitions in earlier modules.
 
   out.push(comment(mod));
   out.push(code.trim() + '\n\n');
