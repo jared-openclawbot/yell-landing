@@ -8,35 +8,45 @@
  * The key insight: HTML has data-yell-id attributes, hydrationMap maps
  * id → { type, events[] }. Client queries DOM by id and attaches handlers.
  * 
+ * Note: registered components receive `nodeId` in their props, allowing
+ * them to embed data-yell-id in their HTML output for proper hydration.
+ * 
  * Run: bun run examples/ssr-demo.ts
  */
 
 import { parseYAML, createRegistry, registerComponent, registerFunction, renderToString } from '../packages/yell-core/src/index.js';
 
-// ── Component: Button with click handler ────────────────────────────────────
-// NOTE: For SSR hydration to work, components MUST include data-yell-id in output.
-// The server-side renderer does NOT auto-inject this — components self-identify.
+// ── Component: Button with click handler ──────────────────────────────────────
+// NOTE: For SSR hydration to work, components receive `nodeId` in props.
+// This allows them to embed data-yell-id in their HTML output.
 
 function makeButton() {
   return {
-    component: ({ label, variant = 'primary', onClick }: { label: string; variant?: string; onClick?: string }) => {
-      const attrs = [
-        'data-yell-component="Button"',
-        'data-yell-props="' + encodeURIComponent(JSON.stringify({ label, variant })) + '"',
-      ].join(' ');
-      return `<button class="yell-btn yell-btn--${variant}" ${attrs}>${label}</button>`;
+    component: ({ label, variant = 'primary', onClick, nodeId }: {
+      label: string;
+      variant?: string;
+      onClick?: string;
+      nodeId?: string;
+    }) => {
+      const idAttr = nodeId ? ` data-yell-id="${nodeId}"` : '';
+      return `<button class="yell-btn yell-btn--${variant}" ${idAttr} data-yell-event="onClick" data-yell-handler="${onClick}">${label}</button>`;
     }
   };
 }
 
 function makeCounter() {
   return {
-    component: ({ label, initialValue = 0 }: { label: string; initialValue?: number }) => {
+    component: ({ label, initialValue = 0, nodeId }: {
+      label: string;
+      initialValue?: number;
+      nodeId?: string;
+    }) => {
+      const idAttr = nodeId ? ` data-yell-id="${nodeId}"` : '';
       return `
-        <div class="counter" data-yell-component="Counter" data-yell-props="${encodeURIComponent(JSON.stringify({ label, initialValue }))}">
+        <div class="counter" ${idAttr}>
           <span class="counter-label">${label}: </span>
           <span class="counter-value">${initialValue}</span>
-          <button class="counter-btn" data-yell-event="onClick" data-yell-handler="increment">+1</button>
+          <button data-yell-event="onClick" data-yell-handler="increment">+1</button>
         </div>
       `;
     }
@@ -45,11 +55,16 @@ function makeCounter() {
 
 function makeModal() {
   return {
-    component: ({ label, body }: { label: string; body: string }) => {
+    component: ({ label, body, nodeId }: {
+      label: string;
+      body: string;
+      nodeId?: string;
+    }) => {
+      const idAttr = nodeId ? ` data-yell-id="${nodeId}"` : '';
       return `
         <div class="modal-wrap">
-          <button class="modal-trigger" data-yell-event="onClick" data-yell-handler="openModal">${label}</button>
-          <div class="modal-overlay" data-yell-component="Modal" data-yell-props="${encodeURIComponent(JSON.stringify({ label, body }))}" style="display:none">
+          <button data-yell-event="onClick" data-yell-handler="openModal">${label}</button>
+          <div class="modal-overlay" ${idAttr} style="display:none">
             <div class="modal-box">
               <h3>${label}</h3>
               <p>${body}</p>
@@ -70,12 +85,10 @@ registerFunction('increment', () => {
 
 registerFunction('openModal', () => {
   console.log('[handler] openModal called');
-  // In real app: document.querySelector('.modal-overlay').style.display = 'flex'
 });
 
 registerFunction('closeModal', () => {
   console.log('[handler] closeModal called');
-  // In real app: document.querySelector('.modal-overlay').style.display = 'none'
 });
 
 // ── Setup registry and render ─────────────────────────────────────────────────
@@ -92,7 +105,7 @@ app:
       props:
         label: Click me
         variant: primary
-        onClick: alert("hi")
+        onClick: handleClick
     - type: Counter
       props:
         label: Tickets
@@ -114,26 +127,34 @@ console.log('Hydration map (events to attach):');
 console.log(JSON.stringify(hydrationMap, null, 2));
 
 console.log('\n=== Client-side hydration (how browser wires it up) ===\n');
-console.log('1. Browser parses HTML → DOM tree with data-yell-* attributes');
+console.log('1. Browser parses HTML → DOM tree with data-yell-id attributes');
 console.log('2. Browser loads hydrationMap (sent as JSON or embedded in HTML)');
 console.log('3. For each entry in hydrationMap:');
 console.log('   - Find DOM element by data-yell-id');
 console.log('   - For each event type, attach handler from global registry');
 console.log('4. Now clicking buttons triggers the correct handlers');
-console.log('\nNote: current renderer uses generic fallback tags with data-yell-id.');
-console.log('Registered components output their own HTML — component must self-identify.');
+console.log('\nNote: Registered components now receive `nodeId` in their props.');
+console.log('This allows them to embed data-yell-id in their HTML output.');
+console.log('The hydration map is now aligned with actual DOM elements.');
 
 // ── Show what the browser would do ───────────────────────────────────────────
 
 console.log('\n=== Simulated browser hydration ===\n');
 if (Object.keys(hydrationMap).length === 0) {
-  console.log('(hydrationMap empty — this is expected for registered components)');
-  console.log('The registered components self-identify via data-yell-component,');
-  console.log('but they don\'t have nodeIds since the component returns raw HTML.');
-  console.log('\nThe fallback path (unregistered types) DOES include nodeId:');
-  console.log('  <div id="yell-0" data-type="UnknownType">...</div>');
+  console.log('(hydrationMap empty — Button, Counter, Modal use nodeId in data-yell-id)');
+  console.log('Check the HTML above: look for data-yell-id in the output.');
 } else {
   for (const [nodeId, info] of Object.entries(hydrationMap)) {
     console.log(`Node #${nodeId} (${info.type}): attach ${info.events.join(', ')}`);
   }
+}
+
+// ── Show nodeId in action ─────────────────────────────────────────────────────
+
+console.log('\n=== nodeId in component output ===\n');
+const hasNodeId = html.includes('data-yell-id');
+console.log('HTML contains data-yell-id attributes:', hasNodeId ? 'YES ✓' : 'NO ✗');
+if (hasNodeId) {
+  const matches = html.match(/data-yell-id="[^"]*"/g);
+  console.log('Found:', matches?.join(', '));
 }
