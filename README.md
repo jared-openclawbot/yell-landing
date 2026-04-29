@@ -9,6 +9,13 @@
 - **AI-friendly** — Generate, validate, diff, and patch interfaces as structured content
 - **Design-system aware** — Map schema-safe components to tokens, themes, slots, and constraints
 
+## Live Playground
+
+👉 **[Playground](https://jared-openclawbot.github.io/yell-landing/playground.html)**
+
+Write YAML, see the rendered HTML instantly. Try the built-in component examples:
+Button, Form, Card, Layout, Dashboard, Pricing, GitHub Repos, and more.
+
 ## Packages
 
 Yell is organized as a monorepo. Each package is independent but they compose together:
@@ -22,7 +29,13 @@ Yell is organized as a monorepo. Each package is independent but they compose to
 ## Quick Start
 
 ```bash
-npm install @yell/core
+# Clone and install
+git clone https://github.com/jared-openclawbot/yell-landing.git
+cd yell-landing
+bun install
+
+# Build all packages
+bun run build
 ```
 
 ```typescript
@@ -46,57 +59,63 @@ const config = parseYAML(yaml);
 const { html } = renderToString(config, registry);
 ```
 
+## Built-in Components
+
+The playground ships with these ready-to-use components:
+
+| Component | Description |
+|-----------|-------------|
+| `Text` | Text content with variants: `h1`, `h2`, `h3`, `p` |
+| `Button` | Button with variants: `primary`, `secondary`, `ghost` |
+| `Container` | Layout container with `layout`: `stack`, `grid`, `row` |
+| `Input` | Text input with `name`, `type`, `placeholder` |
+| `Card` | Card with `title`, `description`, `badge`, `price` |
+| `Form` | Form wrapper (supports CSRF) |
+| `Field` | Form field with `label`, `name`, `type`, `default` |
+| `Header` | Header with `logo` text |
+| `Sidebar` | Sidebar with `items` (JSON array) |
+| `Modal` | Modal dialog with `label`, `body` |
+| `StatCard` | Stats display with `label`, `value` |
+| `PricingCard` | Pricing tier with `tier`, `price`, `features` (JSON array) |
+| `RepoCard` | GitHub repo card with `name`, `description`, `url`, `stars`, `language` |
+
 ## Architecture
 
 ```
-@yell/core (required)
+@yell/core (foundation)
     ↓
-@yell/schema (optional, needs core)
+@yell/schema (optional)
     ↓
-@yell/ai-adapter (optional, needs core + schema)
+@yell/ai-adapter (optional)
 ```
 
 - **`@yell/core`** is the foundation. All other packages depend on it.
 - **`@yell/schema`** adds validation on top of core. Use when you need strict prop contracts.
 - **`@yell/ai-adapter`** adds AI generation on top of core + schema. Use when building AI-powered UIs.
 
-## When to Use Each Package
-
-### Use only `@yell/core` when:
-- You want a lightweight YAML runtime
-- Your components are well-known and don't need validation
-- You're building server-rendered pages with simple hydration
-
-### Add `@yell/schema` when:
-- You need to validate props at runtime
-- You want AI agents to understand your component contracts
-- You're building a design system consumed by multiple teams
-
-### Add `@yell/ai-adapter` when:
-- You want AI to generate YAML from natural language
-- You need guardrails to prevent AI from generating invalid YAML
-- You're building AI-first interfaces
-
 ## Development
 
 ```bash
-# Install all dependencies
-npm ci
-
 # Build all packages
-npm run build
+bun run build
 
-# Build a specific package
-npm run build -w @yell/core
-npm run build -w @yell/schema
-npm run build -w @yell/ai-adapter
+# Build specific package
+bun run build:core
+bun run build:schema
+bun run build:ai-adapter
+
+# Bundle playground (inline core, no CDN needed)
+bun run bundle:playground
 
 # Run tests
-npm test
+bun run test
+
+# Full bundle (index.min.html + playground.bundle.js)
+bun run bundle:all
 ```
 
 ## Resources
 
-- [Documentation](docs/)
-- [Playground](playground.html)
-- [Contributing](.github/CONTRIBUTING.md)
+- [Documentation](docs/) — full docs (Mintlify)
+- [Playground](https://jared-openclawbot.github.io/yell-landing/playground.html) — interactive demo
+- [GitHub](https://github.com/jared-openclawbot/yell-landing) — source code

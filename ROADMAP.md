@@ -1,114 +1,119 @@
-# Yell Roadmap — Implementation Guide
+# Yell Roadmap
 
-## Architecture Decision: Two DSL Models
+## Current State
 
-The project currently has **two different DSL models** that should NOT be mixed in the same file:
+**Playground is live and functional** at:
+👉 https://jared-openclawbot.github.io/yell-landing/playground.html
 
-### Model A — Page Composition (`app.children`)
-Used in `index.html`. Defines a page as a tree of component instances.
-
-```yaml
-app:
-  children:
-    - type: Button
-      props:
-        label: Click me
-        variant: primary
-```
-
-**Use for:** Pages, layouts, compositions of existing components.
-
-### Model B — Component Definition (`meta/props/template`)
-Used in `playground.html` examples. Defines a reusable component schema.
-
-```yaml
-meta:
-  version: "1.0"
-  description: A configurable button
-
-props:
-  label:
-    type: string
-    default: "Click me"
-  variant:
-    type: enum
-    default: primary
-    enum: [primary, secondary, ghost]
-
-template: |
-  <button class="yell-btn yell-btn--$props.variant">
-    $props.label
-  </button>
-```
-
-**Use for:** Authoring reusable components (design system components, etc.)
-
-### Rule
-**Do not mix Model A and Model B in the same file.** The playground uses Model B for examples (component authoring). The `index.html` uses Model A (page composition). Keep them separate.
+The playground uses an **inline bundle** (`playground.bundle.js`, ~9KB minified) — no CDN dependency, works on GitHub Pages.
 
 ---
 
-## Pending Work
+## Completed ✓
 
-### 1. Unify DSL Model
-**Priority:** HIGH — prevents confusion and bad DX
+### Core Runtime
+- [x] `parseYAML()` — YAML → YellConfig (app.children model)
+- [x] `createRegistry()` — component registry
+- [x] `registerComponent()` / `getComponent()` — component registration
+- [x] `renderToString()` — SSR renderer with hydration map
+- [x] `escapeAttr()` / `escapeText()` — XSS protection
 
-Pick one composition model and be consistent. Recommendation:
-- Keep `app.children` as the page/instance format
-- Migrate playground examples to `app.children` for page-level demos
-- Keep `meta/props/template` only for component *authoring* (design system)
+### Design System
+- [x] Design tokens with alias resolution (`$tokens.primary`)
+- [x] `tokensAsCSS()` / `tokensAsMap()` — token export
+- [x] `loadDesignSystem()` — load/validate design configs
+- [x] CSS variable injection in renderer output
 
-### 2. HTML Escape / Security
-**Priority:** HIGH — XSS vulnerability
+### Security
+- [x] CSRF generator (`generateCSRFToken`, `validateCSRFToken`)
+- [x] Signed tokens (`generateSignedToken`, `validateSignedToken`)
+- [x] `escapeAttr` on all data-* attributes
+- [x] Text content escaping in built-in components
 
-- [x] `escapeAttr()` added to renderer — escapes `& " < >` in data-* attributes
-- [ ] Escape text content (not just attributes)
-- [ ] Unsafe HTML API — explicit opt-in for `innerHTML`-style rendering with `__html: string` marker
-- [ ] Audit all `innerHTML` / `srcdoc` usage in playground and renderer
+### Bundling & Deployment
+- [x] `playground.bundle.js` — inline core (~9KB minified, 71% smaller than source)
+- [x] `bundle:playground` script — rebuilds bundle with `bun run`
+- [x] GitHub Pages deployment (playground.html + playground.bundle.js committed)
+- [x] All scripts migrated to bun (`bun run build`, etc.)
+- [x] `index.min.html` — minified landing page
 
-### 3. Dogfood @yell/core in Playground
-**Priority:** MEDIUM — demonstrates the package works
-
-The playground currently has a parallel implementation of rendering. It should:
-- Import and use `@yell/core` (or its dist) as the actual renderer
-- The playground HTML rendering becomes the "integration test" of the core package
-- Requires: `yell-core` builds to a usable UMD/ESM bundle consumable via `<script>` tag
-
-### 4. Real SSR + Hydration + Events Example
-**Priority:** MEDIUM — the core thesis of the project
-
-A complete end-to-end example that demonstrates:
-```
-Prompt → YAML (validated) → SSR HTML → Hydration → Event handler
-```
-
-This is the "thing" the project sells. Without it, the thesis is unproven.
-
-### 5. AI Adapter Guardrails
-**Priority:** MEDIUM
-
-Current linter blocks are regex-based and easily bypassed. Real guardrails need:
-- AST-level validation of YAML (not string matching)
-- Block evaluation of expressions (`${}`, `{{}}`, function calls)
-- Explicit safe/unsafe API surface
-
-### 6. Schema Validation
-**Priority:** LOW — nice to have
-
-Strong Zod schemas for all component props. Currently accepts any prop.
+### Playground UX
+- [x] LocalStorage persistence (editor content survives reload)
+- [x] Share URL (base64 hash, copy-to-clipboard)
+- [x] Template examples: Button, Form, Card, Layout, Components, Dashboard, Settings, Pricing, GitHub Repos
+- [x] Template dropdown selector
+- [x] GitHub repos fetcher (live data from API)
+- [x] Validation errors panel
+- [x] Status dot (ok/error/warn/loading)
+- [x] Mobile layout (stacked, preview/diff toggle)
+- [x] href="#" → javascript:void(0) (prevents page navigation)
+- [x] Preview wrapper (.page) with gap 32px for vertical spacing
 
 ---
 
-## Completed Items
+## In Progress
 
-- [x] Design tokens parser (`tokens.ts`) with alias resolution
-- [x] HTML minification (`minify.ts`)
-- [x] CSRF generator (`security/csrf.ts`)
-- [x] JS/CSS bundling (`scripts/bundle.mjs`, `index.min.html`)
-- [x] Default design system shipped with package
-- [x] Theme toggle (dark/light) with localStorage
-- [x] Playground localStorage persistence
-- [x] 3 new templates (dashboard, settings-form, pricing-table)
-- [x] Template dropdown in playground
-- [x] js-yaml parser in index.html (removed fragile parseSimple)
-- [x] XSS fix in renderer (escapeAttr)
+### AI Adapter (`@yell/ai-adapter`)
+- AST-level YAML validation (not regex)
+- Block `${}` and `{{}}` expressions
+- Guardrails for prompt → YAML generation
+
+---
+
+## Pending
+
+### High Priority
+
+1. **Real SSR + Hydration Example** — end-to-end proof of concept
+   ```
+   YAML → SSR HTML → browser hydration → events work
+   ```
+   Current renderer produces HTML, but hydration map isn't wired to actual DOM event attachment.
+
+2. **Unified DSL** — current playground examples mix patterns
+   - `app.children` for page composition ✓
+   - But some examples still use `meta/props/template` model
+   - Should pick one and be consistent
+
+3. **Schema Validation** — Zod schemas for all built-in component props
+   - Currently accepts any props, no type enforcement
+   - Would catch `type: typo` → "Unknown type" at parse time
+
+### Medium Priority
+
+4. **Publish to npm** — `@yell/core` not available on registry
+   - Currently only usable as local monorepo package
+   - jsDelivr import not possible without npm publish
+
+5. **Design Token Editor** — visual tool to create/edit token sets
+
+6. **Diff View Improvements** — color-coded line-by-line YAML→HTML diff
+
+### Low Priority
+
+7. **Dark/light theme toggle** in playground (vs only on index.html)
+
+8. **Prop autocomplete** in CodeMirror (YAML schema hints)
+
+---
+
+## Package Index
+
+| Package | Status | Location |
+|---------|--------|----------|
+| `@yell/core` | ✓ Stable | `packages/yell-core/` |
+| `@yell/schema` | ✓ Built | `packages/yell-schema/` |
+| `@yell/ai-adapter` | 🔨 In progress | `packages/yell-ai-adapter/` |
+| `@yell/linter` | ✓ Built | `packages/yell-linter/` |
+
+---
+
+## Scripts Reference
+
+```bash
+bun run build              # Build all workspaces
+bun run build:core         # Build @yell/core
+bun run bundle:playground  # Rebuild playground.bundle.js
+bun run bundle:all         # index.min.html + playground bundle
+bun run test               # Run all tests
+```
