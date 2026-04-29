@@ -85,9 +85,10 @@
       /* Row 2: Preview/Diff — fills remaining space */
       .pane:last-child { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
       .mobile-toggle { display: flex; flex-shrink: 0; background: var(--surface); border-bottom: 1px solid var(--border); }
+      .tab-bar { display: none; }
       .pane-content { flex: 1; min-height: 0; overflow: hidden; }
       .preview { min-height: 0; }
-      .pane-diff { min-height: 0; }
+      .pane-diff { overflow: auto; }
     }
     @media (min-width: 769px) {
       .mobile-toggle { display: none; }
@@ -153,7 +154,7 @@
       </div>
       <div class="pane-content">
         <div id="pane-preview" class="preview"><iframe id="previewFrame"></iframe></div>
-        <div id="pane-diff" style="display:none; flex-direction:column; flex:1; overflow:hidden; min-height:0;">
+        <div id="pane-diff" style="display:none; flex-direction:column; flex:1; overflow:auto; min-height:0;">
           <div class="pane-header" style="border-bottom:none; flex-shrink:0;">
             <span class="badge badge-diff">YAML</span>
             Diff
