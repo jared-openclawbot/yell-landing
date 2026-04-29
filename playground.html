@@ -367,123 +367,124 @@
       '  </div>\n'
     );
 
-    // --- New template examples ---
-    addExample("dashboard",
-      "meta:\n" +
-      '  version: "1.0"\n' +
-      '  description: Admin dashboard with stats cards and table\n' +
-      '\n' +
-      "props:\n" +
-      "  user:\n" +
-      '    type: string\n' +
-      '    default: \"Alex Chen\"\n' +
-      "  totalUsers:\n" +
-      '    type: number\n' +
-      '    default: 12847\n' +
-      "  revenue:\n" +
-      '    type: number\n' +
-      '    default: 843920\n' +
-      "  growth:\n" +
-      '    type: number\n' +
-      '    default: 12.4\n' +
-      "template: |\n' +
-      '  <div class=\"page\">\n' +
-      '    <h2>Dashboard</h2>\n' +
-      '    <div class=\"row\">\n' +
-      '      <div class=\"stat-card\">\n' +
-      '        <div class=\"stat-label\">Total Users</div>\n' +
-      '        <div class=\"stat-value\">$props.totalUsers</div>\n' +
-      '      </div>\n' +
-      '      <div class=\"stat-card\">\n' +
-      '        <div class=\"stat-label\">Revenue</div>\n' +
-      '        <div class=\"stat-value\">$$props.revenue</div>\n' +
-      '      </div>\n' +
-      '      <div class=\"stat-card\">\n' +
-      '        <div class=\"stat-label\">Growth</div>\n' +
-      '        <div class=\"stat-value\">+$props.growth%</div>\n' +
-      '      </div>\n' +
-      '    </div>\n' +
-      '  </div>\n'
-    );
+    
+    addExample("dashboard", `meta:
+  version: "1.0"
+  description: Admin dashboard with stats cards
 
-    addExample("settings-form",
-      "meta:\n" +
-      '  version: "1.0"\n' +
-      '  description: User settings form with profile and preferences\n' +
-      '\n' +
-      "props:\n" +
-      "  name:\n" +
-      '    type: string\n' +
-      '    default: \"Alex Chen\"\n' +
-      "  email:\n" +
-      '    type: string\n' +
-      '    default: \"alex@example.com\"\n' +
-      "  theme:\n" +
-      '    type: enum\n' +
-      '    default: dark\n' +
-      '    enum: [dark, light]\n' +
-      "template: |\n' +
-      '  <form class=\"yell-form\">\n' +
-      '    <h2>Settings</h2>\n' +
-      '    <div class=\"field\">\n' +
-      '      <label>Full Name</label>\n' +
-      '      <input type=\"text\" value=\"$props.name\" />\n' +
-      '    </div>\n' +
-      '    <div class=\"field\">\n' +
-      '      <label>Email</label>\n' +
-      '      <input type=\"email\" value=\"$props.email\" />\n' +
-      '    </div>\n' +
-      '    <div class=\"field\">\n' +
-      '      <label>Theme</label>\n' +
-      '      <select>\n' +
-      '        <option>dark</option>\n' +
-      '        <option>light</option>\n' +
-      '      </select>\n' +
-      '    </div>\n' +
-      '    <button type=\"submit\" class=\"yell-btn yell-btn--primary\">Save Changes</button>\n' +
-      '  </form>\n'
-    );
+props:
+  user:
+    type: string
+    default: "Alex Chen"
+  totalUsers:
+    type: number
+    default: 12847
+  revenue:
+    type: number
+    default: 843920
+  growth:
+    type: number
+    default: 12.4
 
-    addExample("pricing-table",
-      "meta:\n" +
-      '  version: "1.0"\n' +
-      '  description: Three-tier pricing table\n' +
-      '\n' +
-      "props:\n" +
-      "  currency:\n" +
-      '    type: string\n' +
-      '    default: \"$\"\n' +
-      "template: |\n' +
-      '  <div class=\"pricing-grid\">\n' +
-      '    <div class=\"pricing-card\">\n' +
-      '      <h3>Starter</h3>\n' +
-      '      <div class=\"price\">$props.currency 0</div>\n' +
-      '      <ul>\n' +
-      '        <li>5 projects</li>\n' +
-      '        <li>Basic support</li>\n' +
-      '      </ul>\n' +
-      '      <button class=\"yell-btn yell-btn--ghost\">Get started</button>\n' +
-      '    </div>\n' +
-      '    <div class=\"pricing-card featured\">\n' +
-      '      <h3>Pro</h3>\n' +
-      '      <div class=\"price\">$props.currency 29</div>\n' +
-      '      <ul>\n' +
-      '        <li>Unlimited projects</li>\n' +
-      '        <li>Priority support</li>\n' +
-      '      </ul>\n' +
-      '      <button class=\"yell-btn yell-btn--primary\">Get started</button>\n' +
-      '    </div>\n' +
-      '    <div class=\"pricing-card\">\n' +
-      '      <h3>Enterprise</h3>\n' +
-      '      <div class=\"price\">$props.currency 99</div>\n' +
-      '      <ul>\n' +
-      '        <li>Unlimited everything</li>\n' +
-      '        <li>Dedicated support</li>\n' +
-      '      </ul>\n' +
-      '      <button class=\"yell-btn yell-btn--ghost\">Contact us</button>\n' +
-      '    </div>\n' +
-      '  </div>\n'
-    );
+template: |
+  <div class="page">
+    <h2>Dashboard</h2>
+    <div class="row">
+      <div class="stat-card">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">$props.totalUsers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Revenue</div>
+        <div class="stat-value">$\\$props.revenue</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Growth</div>
+        <div class="stat-value">+$props.growth%</div>
+      </div>
+    </div>
+  </div>
+`);
+
+    addExample("settings-form", `meta:
+  version: "1.0"
+  description: User settings form with profile and preferences
+
+props:
+  name:
+    type: string
+    default: "Alex Chen"
+  email:
+    type: string
+    default: "alex@example.com"
+  theme:
+    type: enum
+    default: dark
+    enum: [dark, light]
+
+template: |
+  <form class="yell-form">
+    <h2>Settings</h2>
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" value="$props.name" />
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" value="$props.email" />
+    </div>
+    <div class="field">
+      <label>Theme</label>
+      <select>
+        <option>dark</option>
+        <option>light</option>
+      </select>
+    </div>
+    <button type="submit" class="yell-btn yell-btn--primary">Save Changes</button>
+  </form>
+`);
+
+    addExample("pricing-table", `meta:
+  version: "1.0"
+  description: Three-tier pricing table
+
+props:
+  currency:
+    type: string
+    default: "$"
+
+template: |
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <h3>Starter</h3>
+      <div class="price">$props.currency 0</div>
+      <ul>
+        <li>5 projects</li>
+        <li>Basic support</li>
+      </ul>
+      <button class="yell-btn yell-btn--ghost">Get started</button>
+    </div>
+    <div class="pricing-card featured">
+      <h3>Pro</h3>
+      <div class="price">$props.currency 29</div>
+      <ul>
+        <li>Unlimited projects</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="yell-btn yell-btn--primary">Get started</button>
+    </div>
+    <div class="pricing-card">
+      <h3>Enterprise</h3>
+      <div class="price">$props.currency 99</div>
+      <ul>
+        <li>Unlimited everything</li>
+        <li>Dedicated support</li>
+      </ul>
+      <button class="yell-btn yell-btn--ghost">Contact us</button>
+    </div>
+  </div>
+`);
+
 
     // --- CodeMirror setup ---
     var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {

@@ -60,6 +60,18 @@ function resolveValue(value: unknown, tokens: Record<string, unknown> | undefine
 }
 
 /**
+ * Escape a string for safe use inside an HTML attribute value.
+ * Prevents XSS via attribute injection.
+ */
+function escapeAttr(value: string): string {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
  * Resolve props: merge node fields + props, expand tokens, evaluate showWhen.
  * YAML puts layout/gap/type at node level (not inside props), so we merge.
  */
@@ -185,7 +197,7 @@ export function renderToString(
       delete props.csrf;
     }
     const attrs = Object.entries(props)
-      .map(([k, v]) => `data-${k}="${String(v)}"`)
+      .map(([k, v]) => `data-${k}="${escapeAttr(String(v))}"`)
       .join(' ');
     const csrfInput = isForm ? '<input type="hidden" name="_csrf" value="$__CSRF_TOKEN__">' : '';
     return `<div id="${nodeId}" ${attrs}>${csrfInput}${renderedChildren}</div>`;
