@@ -63,12 +63,41 @@ function resolveValue(value: unknown, tokens: Record<string, unknown> | undefine
  * Escape a string for safe use inside an HTML attribute value.
  * Prevents XSS via attribute injection.
  */
-function escapeAttr(value: string): string {
+export function escapeAttr(value: string): string {
   return String(value)
     .replace(/&/g, '&amp;')
     .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+/**
+ * Escape a string for safe use as text content inside an HTML element.
+ * Prevents XSS via text node injection.
+ */
+function escapeText(value: string): string {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * Marker for values that should NOT be escaped — they are trusted HTML.
+ * Use only when the content is known to be safe (e.g., from a sanitized source).
+ * 
+ * Usage: { __html: '<b>bold</b>' }
+ * In template: <span>{{{ __html: '<b>bold</b>' }}}</span>
+ */
+export interface UnsafeHTML {
+  __unsafeHTML: string;
+}
+
+/**
+ * Check if a value is marked as trusted/unsafe HTML.
+ */
+export function isUnsafeHTML(value: unknown): value is UnsafeHTML {
+  return typeof value === 'object' && value !== null && '__unsafeHTML' in value;
 }
 
 /**
@@ -190,17 +219,18 @@ export function renderToString(
       }
     }
 
-    // Fallback: render as generic tag with data attrs
-    // If this is a form with csrf: true, inject hidden token input
+    // Escape all prop values for the generic fallback tag.
+    // This is a security boundary: even if a component doesn't escape,
+    // the renderer protects against attribute injection.
     const isForm = node.type.toLowerCase() === 'form' && props.csrf === true;
     if (isForm) {
       delete props.csrf;
     }
-    const attrs = Object.entries(props)
+    const safeAttrs = Object.entries(props)
       .map(([k, v]) => `data-${k}="${escapeAttr(String(v))}"`)
       .join(' ');
     const csrfInput = isForm ? '<input type="hidden" name="_csrf" value="$__CSRF_TOKEN__">' : '';
-    return `<div id="${nodeId}" ${attrs}>${csrfInput}${renderedChildren}</div>`;
+    return `<div id="${nodeId}" ${safeAttrs}>${csrfInput}${renderedChildren}</div>`;
   }
 
   let html = '';
