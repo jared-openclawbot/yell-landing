@@ -5,7 +5,7 @@
  * YAML → SSR render → hydration map → browser event binding
  */
 
-import { renderToString, createRegistry, registerComponent } from './index.js';
+import { renderToString, createRegistry, registerComponent } from '../index.js';
 
 // Component that accepts an event handler
 const Button = ({ label = 'Click me', onClick, count, children }: Record<string, unknown>) => {

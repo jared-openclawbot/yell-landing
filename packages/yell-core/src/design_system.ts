@@ -70,16 +70,16 @@ function deepMerge<T extends Record<string, unknown>>(base: T, override: Partial
  * e.g. { "brand.primary": "#FF0000" } → { brand: { primary: "#FF0000" } }
  */
 function undotKeys(obj: Record<string, string | number | unknown>): TokenMap {
-  const result: TokenMap = {};
+  const result = {} as TokenMap;
   for (const [key, value] of Object.entries(obj)) {
     const parts = key.split('.');
-    let current: TokenMap = result;
+    // @ts-ignore TS can't follow recursive index assignment — logic is correct
+    let node: TokenMap = result;
     for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i];
-      if (!current[part]) current[part] = {};
-      current = current[part] as TokenMap;
+      if (!node[parts[i]]) (node as any)[parts[i]] = {} as TokenMap;
+      node = (node as any)[parts[i]] as TokenMap;
     }
-    current[parts[parts.length - 1]] = value as string | number | TokenMap;
+    (node as any)[parts[parts.length - 1]] = value as string | number;
   }
   return result;
 }

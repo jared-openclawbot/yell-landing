@@ -182,7 +182,7 @@ export function renderToString(
   let tokenCSS = '';
   if (tokens) {
     try {
-      const manifest = buildTokenManifest(tokens);
+      const manifest = buildTokenManifest(tokens as any);
       tokenCSS = `<style>:root{${Object.entries(manifest.resolved)
         .map(([name, t]) => `--${name.replace(/\./g, '-').toLowerCase()}:${t.value}`)
         .join(';')}}</style>`;

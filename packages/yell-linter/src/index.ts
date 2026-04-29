@@ -142,10 +142,10 @@ const schemaValidationRule: LintRule = {
   check(node: LintNode, ctx: LintContext) {
     const errors: LintError[] = [];
     const registry = ctx.lintConfig?.schemaRegistry;
-    if (!registry || typeof registry.validateProps !== 'function') return errors;
+    if (!registry || typeof (registry as any).validateProps !== 'function') return errors;
 
     const props = node.props || {};
-    const validationErrors = registry.validateProps(node.type, props, registry);
+    const validationErrors = (registry as any).validateProps(node.type, props, registry);
 
     for (const err of validationErrors) {
       errors.push({
