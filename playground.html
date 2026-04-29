@@ -701,7 +701,7 @@
     function buildPreviewDoc(html) {
       return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
         'body{font-family:system-ui,sans-serif;padding:20px;margin:0;background:#0d1117;color:#e6edf3;overflow:auto;height:100%;box-sizing:border-box}' +
-        '.page{display:flex;flex-direction:column;gap:24px}' +
+        '.page{display:flex;flex-direction:column;gap:32px;padding:16px}' +
         '.page h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#7d8590;margin-bottom:8px;border-bottom:1px solid #30363d;padding-bottom:6px}' +
         '.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}' +
         '.modal-demo{border:1px dashed #30363d;border-radius:8px;padding:16px;display:inline-block}' +
@@ -765,7 +765,7 @@
         '.pricing-card li{font-size:.8rem;color:#7d8590}' +
         '.pricing-card li::before{content:"✓ ";color:#3fb950}' +
         '.pricing-card select{padding:6px 10px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#e6edf3}' +
-        '</style></head><body>' + html + '</body></html>';
+        '</style></head><body><div class="page">' + html + '</div></body></html>';
     }
 
     // --- Diff view ---
