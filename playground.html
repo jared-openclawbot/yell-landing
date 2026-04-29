@@ -820,32 +820,31 @@
     // --- Init ---
     loadUrlState();
   </script>
-  <script type="module">
-    // Issue #28: Dogfood @yell/core
-    // Load core module, then trigger initial render
-    window._loadYellCore = async function() {
-      try {
-        const mod = await import('./packages/yell-core/dist/playground.mjs');
-        setPlaygroundCore({ initPlayground: mod.initPlayground });
-        // Re-render whatever is in the editor now that core is loaded
+  <script>
+    // Issue #28: Dogfood @yell/core — use inline bundle (built by scripts/build-playground.mjs)
+    // Bundle sets window.initPlayground when loaded
+    window._loadYellCore = function() {
+      if (typeof window.initPlayground === 'function') {
+        setPlaygroundCore({ initPlayground: window.initPlayground });
+        // Render whatever is in the editor now that core is ready
         if (typeof render === 'function') {
           render();
         }
-      } catch(e) {
-        // Show error in status and preview, don't stay stuck on loading
+      } else {
         setStatus('error', 'core error');
         var iframe = document.getElementById('previewFrame');
         if (iframe) {
           iframe.srcdoc = '<html><body style="background:#0d1117;color:#f85149;padding:20px;font-family:system-ui">'
-            + '<h3>Failed to load @yell/core</h3>'
-            + '<p style="color:#7d8590">Run <code>npm run build</code> in the yell-landing directory.</p>'
-            + '<pre style="background:#161b22;padding:12px;border-radius:6px;overflow:auto;font-size:.8rem">' + e.message + '</pre>'
+            + '<h3>Failed to load @yell/core bundle</h3>'
+            + '<p style="color:#7d8590">The playground bundle was not built.</p>'
+            + '<p style="color:#7d8590">Run: <code>node scripts/build-playground.mjs</code></p>'
             + '</body></html>';
         }
-        showFeedback('error', '<strong>Core Load Failed</strong><code>' + e.message + '</code><ul><li>Run <code>npm run build</code> in the project root</li><li>Make sure <code>packages/yell-core/dist/playground.mjs</code> exists</li></ul>');
+        showFeedback('error', '<strong>Core Load Failed</strong>Run <code>node scripts/build-playground.mjs</code> then rebuild the site.');
       }
     };
-    window._loadYellCore();
+    // Load the bundle (set via window._loadYellCore from module script below, or inline below)
   </script>
+  <script src="playground.bundle.js" onload="window._loadYellCore()"></script>
 </body>
 </html>
