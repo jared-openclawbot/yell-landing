@@ -76,6 +76,21 @@
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
     .skeleton { background: linear-gradient(90deg, #161b22 25%, #1f2937 50%, #161b22 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Mobile: stacked layout with toggle between preview/diff */
+    @media (max-width: 768px) {
+      main { display: flex; flex-direction: column; }
+      .pane:first-child { min-height: 40vh; border-right: none; border-bottom: 1px solid var(--border); }
+      .pane:last-child { flex: 1; min-height: 0; }
+      .mobile-toggle { display: flex; flex-shrink: 0; }
+    }
+    @media (min-width: 769px) {
+      .mobile-toggle { display: none; }
+    }
+    .mobile-toggle { background: var(--surface); border-bottom: 1px solid var(--border); }
+    .mobile-toggle button { flex: 1; padding: 8px; border: none; border-bottom: 2px solid transparent; background: none; color: var(--muted); font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .mobile-toggle button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .mobile-toggle button:hover { color: var(--text); }
   </style>
 </head>
 <body>
@@ -121,6 +136,10 @@
         <span id="validationBadge" style="display:none; margin-left:4px;"></span>
       </div>
       <textarea id="editor"></textarea>
+    </div>
+    <div class="mobile-toggle">
+      <button id="mobile-preview-btn" class="active" onclick="switchMobileTab('preview')">Preview</button>
+      <button id="mobile-diff-btn" onclick="switchMobileTab('diff')">Diff</button>
     </div>
     <div class="pane">
       <div class="tab-bar">
@@ -500,6 +519,22 @@
       document.getElementById('pane-preview').style.display = tab === 'preview' ? '' : 'none';
       document.getElementById('pane-diff').style.display = tab === 'diff' ? '' : 'none';
       if (tab === 'diff') renderDiff();
+    }
+
+    // --- Mobile toggle (shared iframe) ---
+    function switchMobileTab(tab) {
+      currentTab = tab;
+      document.getElementById('mobile-preview-btn').className = tab === 'preview' ? 'active' : '';
+      document.getElementById('mobile-diff-btn').className = tab === 'diff' ? 'active' : '';
+      // Both views share the same iframe — show preview content or diff
+      if (tab === 'preview') {
+        document.getElementById('pane-preview').style.display = '';
+        document.getElementById('pane-diff').style.display = 'none';
+      } else {
+        document.getElementById('pane-preview').style.display = 'none';
+        document.getElementById('pane-diff').style.display = '';
+        renderDiff();
+      }
     }
 
     // --- Render pipeline ---
