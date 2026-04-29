@@ -75,7 +75,7 @@ export function escapeAttr(value: string): string {
  * Escape a string for safe use as text content inside an HTML element.
  * Prevents XSS via text node injection.
  */
-function escapeText(value: string): string {
+export function escapeText(value: string): string {
   return String(value)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

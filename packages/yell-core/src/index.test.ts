@@ -188,6 +188,68 @@ app:
       const nodeId = Object.keys(hydrationMap)[0];
       expect(hydrationMap[nodeId]?.events).toContain('onClick');
     });
+
+    // Issue #32: XSS prevention — escape text content by default
+    it('escapes HTML in Text content prop', () => {
+      const yaml = `app:
+  children:
+    - type: Text
+      props:
+        content: "<script>alert('XSS')</script>"
+`;
+      const config = parseYAML(yaml);
+      const { html } = renderToString(config, registry);
+      expect(html).not.toContain('<script>');
+      expect(html).toContain('&lt;script&gt;');
+    });
+
+    it('escapes & in text content', () => {
+      const yaml = `app:
+  children:
+    - type: Text
+      props:
+        content: "Tom & Jerry"
+`;
+      const config = parseYAML(yaml);
+      const { html } = renderToString(config, registry);
+      expect(html).toContain('Tom &amp; Jerry');
+    });
+
+    it('escapes HTML in Button label prop (registered component)', () => {
+      const yaml = `app:
+  children:
+    - type: Button
+      props:
+        label: "<img src=x onerror=alert(1)>"
+`;
+      const config = parseYAML(yaml);
+      const { html } = renderToString(config, registry);
+      expect(html).not.toContain('<img');
+      expect(html).not.toContain('onerror');
+      expect(html).toContain('&lt;img');
+    });
+  });
+
+  describe('XSS prevention (standalone)', () => {
+    // These tests set up their own registry
+    it('escapes HTML in Card title prop', () => {
+      const reg = createRegistry();
+      registerComponent(reg, 'Card', {
+        component: ({ title, description }: any) =>
+          `<div class="card"><h3>${title || ''}</h3><p>${description || ''}</p></div>`,
+      });
+      const yaml = `app:
+  children:
+    - type: Card
+      props:
+        title: "Hello <b>World</b>"
+        description: "desc"
+`;
+      const config = parseYAML(yaml);
+      const { html } = renderToString(config, reg);
+      expect(html).not.toContain('<b>World</b>');
+      expect(html).toContain('&lt;b&gt;World&lt;/b&gt;');
+    });
   });
 
   describe('flattenConfig', () => {
