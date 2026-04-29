@@ -32,18 +32,21 @@ out.push('"use strict";\n');
 for (const mod of MODULES) {
   let code = readFileSync(resolve(BASE, mod), 'utf8');
 
-  // Remove top-level imports (handled by script tags in HTML)
+  // Remove top-level imports
   code = code.replace(/^import\s+{[^}]+}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
 
-  // parser.js uses `parseDocument` from yaml package — replace with jsyaml.load
+  // parser.js: use jsyaml.load (CDN) instead of yaml.parseDocument (npm)
+  // js-yaml.load() returns a plain object directly — NO .toJS() needed
   if (mod === 'parser.js') {
-    code = code.replace(/const\s+doc\s*=\s*parseDocument\(yaml\)/g, 'const doc = jsyaml.load(yaml)');
+    code = code
+      .replace(/const\s+doc\s*=\s*parseDocument\(yaml\)/g, 'const doc = jsyaml.load(yaml)')
+      .replace(/return\s+doc\.toJS\(\)/g, 'return doc');
   }
 
   // Remove export keyword
   code = code.replace(/^export\s+/gm, '');
 
-  // playground.mjs re-exports — skip (already in bundle)
+  // Skip re-exports (already in bundle)
   code = code.replace(/^export\s+{\s*[^}]*}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
 
   out.push(comment(mod));

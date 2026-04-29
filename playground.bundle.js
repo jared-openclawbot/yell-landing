@@ -12,7 +12,7 @@
  */
 function parseYAML(yaml) {
     const doc = jsyaml.load(yaml);
-    return doc.toJS();
+    return doc;
 }
 /**
  * Normalize a raw YAML-parsed object into a clean YellNode.
