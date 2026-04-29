@@ -7,16 +7,16 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
-    "build:core": "npm run build -w @yell/core",
-    "build:schema": "npm run build -w @yell/schema",
-    "build:ai-adapter": "npm run build -w @yell/ai-adapter",
-    "build:linter": "npm run build -w @yell/linter",
-    "bundle": "node scripts/bundle.mjs",
-    "bundle:playground": "node scripts/build-playground.mjs",
-    "bundle:all": "npm run bundle && npm run bundle:playground",
-    "test": "npm run test --workspaces",
-    "dev": "npm run dev --workspaces"
+    "build": "bun run --workspaces build",
+    "build:core": "bun run --filter @yell/core build",
+    "build:schema": "bun run --filter @yell/schema build",
+    "build:ai-adapter": "bun run --filter @yell/ai-adapter build",
+    "build:linter": "bun run --filter @yell/linter build",
+    "bundle": "bun run scripts/bundle.mjs",
+    "bundle:playground": "bun run scripts/build-playground.mjs",
+    "bundle:all": "bun run bundle && bun run bundle:playground",
+    "test": "bun run test --workspaces",
+    "dev": "bun run dev --workspaces"
   },
   "engines": {
     "node": ">=18",
