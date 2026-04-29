@@ -130,12 +130,43 @@ const expressionLengthRule: LintRule = {
   },
 };
 
+/**
+ * Schema-based prop validation rule.
+ * Requires schemaRegistry in LintConfig with a validateProps function.
+ * This replaces fragile regex-based guardrails with real type checking.
+ */
+const schemaValidationRule: LintRule = {
+  name: 'schema-props',
+  severity: 'error',
+  description: 'Validates component props against Zod schemas (AST-based)',
+  check(node: LintNode, ctx: LintContext) {
+    const errors: LintError[] = [];
+    const registry = ctx.lintConfig?.schemaRegistry;
+    if (!registry || typeof registry.validateProps !== 'function') return errors;
+
+    const props = node.props || {};
+    const validationErrors = registry.validateProps(node.type, props, registry);
+
+    for (const err of validationErrors) {
+      errors.push({
+        rule: 'schema-props',
+        severity: 'error',
+        path: ctx.parentPath ? `${ctx.parentPath}.${err.path}` : err.path,
+        message: err.message,
+        suggestion: err.suggestion,
+      });
+    }
+    return errors;
+  },
+};
+
 const allRules: LintRule[] = [
   inlineFunctionRule,
   ternaryRule,
   functionCallRule,
   nestingDepthRule,
   expressionLengthRule,
+  schemaValidationRule,
 ];
 
 // ─── Core Linter ─────────────────────────────────────────────────────────────
@@ -166,7 +197,7 @@ export function lint(yaml: string, config: LintConfig = {}): LintResult {
       const ruleConfig = config.rules?.[rule.name];
       const severity = ruleConfig?.severity ?? rule.severity;
 
-      const ctx: LintContext = { depth, parentPath: path, yamlLines: lines };
+      const ctx: LintContext = { depth, parentPath: path, yamlLines: lines, lintConfig: config };
       const ruleErrors = rule.check(node, ctx, config);
 
       for (const err of ruleErrors) {

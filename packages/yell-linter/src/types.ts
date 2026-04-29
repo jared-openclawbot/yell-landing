@@ -29,6 +29,8 @@ export interface LintContext {
   depth: number;
   parentPath: string;
   yamlLines: string[];
+  /** @internal — set by linter, consumed by schema-validator rule */
+  lintConfig?: LintConfig;
 }
 
 export interface LintConfig {
@@ -36,6 +38,11 @@ export interface LintConfig {
   maxNestingDepth?: number;
   maxExpressionLength?: number;
   allowedShowWhenOps?: string[];
+  /**
+   * Schema registry for component prop validation.
+   * When provided, linter validates props against Zod schemas.
+   */
+  schemaRegistry?: unknown; // import would create circular dep — cast at usage site
 }
 
 export interface LintResult {
