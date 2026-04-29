@@ -2,9 +2,11 @@
  * Playground Bundle Builder
  *
  * Inlines @yell/core modules into a single IIFE for use in playground.html.
- * Replaces the ES module dynamic import with a static script tag.
+ * Minifies output with terser and supports bun for faster builds.
  *
- * Usage: node scripts/build-playground.mjs
+ * Usage:
+ *   node scripts/build-playground.mjs
+ *   bun run scripts/build-playground.mjs
  */
 
 import { readFileSync, writeFileSync } from 'fs';
@@ -25,46 +27,70 @@ function comment(text) {
   return `/* ── ${text} ── */\n`;
 }
 
-const out = ['(function(global) {\n'];
-out.push(comment('Yell Core — playground bundle (inline build)'));
-out.push('"use strict";\n');
+// ── Read and process all modules ──────────────────────────────────────────────
+
+let code = '';
 
 for (const mod of MODULES) {
-  let code = readFileSync(resolve(BASE, mod), 'utf8');
+  let content = readFileSync(resolve(BASE, mod), 'utf8');
 
-  // ── Remove imports ──────────────────────────────────────────────────────────
-  // Only remove import statements, NOT the function usages
-  code = code.replace(/^import\s+{[^}]+}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
-  code = code.replace(/^export\s+/gm, '');
-  code = code.replace(/^export\s+{\s*[^}]*}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
+  // Remove imports and exports
+  content = content
+    .replace(/^import\s+{[^}]+}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '')
+    .replace(/^export\s+/gm, '')
+    .replace(/^export\s+{\s*[^}]*}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
 
-  // ── Fix parser.js: use jsyaml.load instead of yaml.parseDocument ──────────
+  // Fix parser.js: use jsyaml.load instead of yaml.parseDocument
   if (mod === 'parser.js') {
-    code = code
+    content = content
       .replace(/const\s+doc\s*=\s*parseDocument\(yaml\)/g, 'const doc = jsyaml.load(yaml)')
       .replace(/return\s+doc\.toJS\(\)/g, 'return doc');
   }
 
-  // ── Fix href="#" in playground components ─────────────────────────────────
+  // Fix href="#" links in playground components
   if (mod === 'playground.mjs') {
-    code = code.replace(/href="#"/g, 'href="javascript:void(0)"');
+    content = content.replace(/href="#"/g, 'href="javascript:void(0)"');
   }
 
-  // ── Resolve cross-module references ───────────────────────────────────────
-  // renderer.js imports { getComponent, getFunction } from './registry.js'
-  // and { buildTokenManifest } from './tokens.js'
-  // Since all modules are inlined, these are already in scope.
-  // The import statements above were stripped, so the function references
-  // now correctly resolve to the definitions in earlier modules.
-
-  out.push(comment(mod));
-  out.push(code.trim() + '\n\n');
+  code += comment(mod) + content.trim() + '\n\n';
 }
 
-out.push(comment('Bundle export — initPlayground available globally'));
-out.push('global.initPlayground = initPlayground;\n');
-out.push('})(this);\n');
+// Bundle header and footer
+const bundle = '(function(global) {\n'
+  + comment('Yell Core — playground bundle (inline build)')
+  + '"use strict";\n'
+  + code
+  + comment('Bundle export')
+  + 'global.initPlayground = initPlayground;\n'
+  + '})(this);\n';
 
-const content = out.join('');
-writeFileSync('playground.bundle.js', content, 'utf8');
-console.log('✓ playground.bundle.js written (' + content.length + ' bytes)');
+// ── Minify with terser ────────────────────────────────────────────────────────
+
+async function minify(code) {
+  const { minify } = await import('terser');
+  const result = await minify(code, {
+    toplevel: false,
+    compress: {
+      passes: 2,
+      drop_console: false,
+      pure_funcs: ['comment'],
+    },
+    mangle: {
+      toplevel: false,
+      properties: false,
+    },
+    format: {
+      comments: false,
+    },
+  });
+  return result.code;
+}
+
+const minified = await minify(bundle);
+writeFileSync('playground.bundle.js', minified, 'utf8');
+
+const orig = bundle.length;
+const min = minified.length;
+const pct = ((orig - min) / orig * 100).toFixed(1);
+
+console.log(`✓ playground.bundle.js — ${orig}→${min} bytes (${pct}% smaller)`);

@@ -13,6 +13,8 @@
     "build:ai-adapter": "npm run build -w @yell/ai-adapter",
     "build:linter": "npm run build -w @yell/linter",
     "bundle": "node scripts/bundle.mjs",
+    "bundle:playground": "node scripts/build-playground.mjs",
+    "bundle:all": "npm run bundle && npm run bundle:playground",
     "test": "npm run test --workspaces",
     "dev": "npm run dev --workspaces"
   },
