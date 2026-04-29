@@ -373,15 +373,13 @@
         try {
           var decoded = decodeURIComponent(atob(hash));
           editor.setValue(decoded);
-          render();
-          return;
+          return; // Module script will call render() after core loads
         } catch(e) {}
       }
       var saved = loadFromStorage();
       if (saved) {
         editor.setValue(saved);
-        render();
-        return;
+        return; // Module script will call render() after core loads
       }
       loadExample('button');
     }
@@ -528,7 +526,8 @@
     function renderWithCore(yaml) {
       ensurePlaygroundCore();
       if (!_playgroundRenderFn) {
-        return '<div style="color:red;padding:20px">@yell/core not loaded</div>';
+        // Core not ready yet (async load in progress) — show loading state
+        return '<div style="color:#7d8590;padding:20px;text-align:center;font-size:.9rem">Loading @yell/core…</div>';
       }
       try {
         return _playgroundRenderFn(yaml);
@@ -721,10 +720,15 @@
   </script>
   <script type="module">
     // Issue #28: Dogfood @yell/core
+    // Load core module, then trigger initial render
     window._loadYellCore = async function() {
       try {
         const mod = await import('./packages/yell-core/dist/playground.mjs');
         setPlaygroundCore({ initPlayground: mod.initPlayground });
+        // Re-render whatever is in the editor now that core is loaded
+        if (typeof render === 'function') {
+          render();
+        }
       } catch(e) {
         console.warn('Could not load @yell/core:', e);
       }

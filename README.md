@@ -98,5 +98,5 @@ npm test
 ## Resources
 
 - [Documentation](docs/)
-- [Playground](docs/guides/playground.md)
+- [Playground](playground.html)
 - [Contributing](.github/CONTRIBUTING.md)
