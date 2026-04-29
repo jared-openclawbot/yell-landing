@@ -1,96 +1,77 @@
 /**
- * Playground Bundle Builder
- *
- * Inlines @yell/core modules into a single IIFE for use in playground.html.
- * Minifies output with terser and supports bun for faster builds.
- *
- * Usage:
- *   node scripts/build-playground.mjs
- *   bun run scripts/build-playground.mjs
+ * Playground Bundle Builder — esbuild
+ * 
+ * Each dist file wrapped in IIFE to avoid duplicate declarations.
+ * esbuild then concatenates with minification.
+ * 
+ * Usage: bun run bundle:playground
  */
 
-import { readFileSync, writeFileSync } from 'fs';
+import * as esbuild from 'esbuild';
+import { readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 
-const BASE = resolve('packages/yell-core/dist');
+const DIST = resolve('packages/yell-core/dist');
+const OUTFILE = resolve('playground.bundle.js');
 
-const MODULES = [
-  'parser.js',
-  'registry.js',
-  'renderer.js',
-  'tokens.js',
-  'minify.js',
-  'playground.mjs',  // was playground.mjs from src, now from dist
-];
+const FILES = ['parser.js', 'registry.js', 'renderer.js', 'tokens.js', 'minify.js', 'playground.mjs'];
 
-function comment(text) {
-  return `/* ── ${text} ── */\n`;
-}
-
-// ── Read and process all modules ──────────────────────────────────────────────
-
-let code = '';
-
-for (const mod of MODULES) {
-  let content = readFileSync(resolve(BASE, mod), 'utf8');
-
-  // Remove imports and exports
+function preprocess(content, file) {
+  // Remove import/export lines
   content = content
-    .replace(/^import\s+{[^}]+}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '')
-    .replace(/^export\s+/gm, '')
-    .replace(/^export\s+{\s*[^}]*}\s+from\s+['"][^'"]+['"]\s*;?\n?/gm, '');
-
-  // Fix parser.js: use jsyaml.load instead of yaml.parseDocument
-  if (mod === 'parser.js') {
+    .replace(/^import\s+{[^}]+}\s+from\s+['"][^'"]+['"];?\n?/gm, '')
+    .replace(/^import\s+\w+\s+from\s+['"][^'"]+['"];?\n?/gm, '')
+    .replace(/^export\s+/gm, '');
+  
+  // Fix jsyaml in parser
+  if (file === 'parser.js') {
     content = content
-      .replace(/const\s+doc\s*=\s*parseDocument\(yaml\)/g, 'const doc = jsyaml.load(yaml)')
-      .replace(/return\s+doc\.toJS\(\)/g, 'return doc');
+      .replace(/parseDocument\(yaml\)/g, 'jsyaml.load(yaml)')
+      .replace(/\.toJS\(\)/g, '');
   }
-
-  // Fix href="#" links in playground components
-  if (mod === 'playground.mjs') {
+  
+  // Fix href="#" in playground components  
+  if (file === 'playground.mjs') {
     content = content.replace(/href="#"/g, 'href="javascript:void(0)"');
   }
-
-  code += comment(mod) + content.trim() + '\n\n';
+  
+  // Wrap each file in IIFE to isolate function declarations
+  return `(function(){\n${content}\n})();\n`;
 }
 
-// Bundle header and footer
-const bundle = '(function(global) {\n'
-  + comment('Yell Core — playground bundle (inline build)')
-  + '"use strict";\n'
-  + code
-  + comment('Bundle export')
-  + 'global.initPlayground = initPlayground;\n'
-  + '})(this);\n';
-
-// ── Minify with terser ────────────────────────────────────────────────────────
-
-async function minify(code) {
-  const { minify } = await import('terser');
-  const result = await minify(code, {
-    toplevel: false,
-    compress: {
-      passes: 2,
-      drop_console: false,
-      pure_funcs: ['comment'],
-    },
-    mangle: {
-      toplevel: false,
-      properties: false,
-    },
-    format: {
-      comments: false,
-    },
+async function build() {
+  let src = '';
+  for (const file of FILES) {
+    const content = readFileSync(resolve(DIST, file), 'utf8');
+    src += `/* ${file} */\n` + preprocess(content, file) + '\n';
+  }
+  
+  const tmp = resolve('.playground-src.mjs');
+  writeFileSync(tmp, src, 'utf8');
+  
+  await esbuild.build({
+    entryPoints: [tmp],
+    outfile: OUTFILE,
+    format: 'iife',
+    platform: 'browser',
+    target: ['es2020'],
+    bundle: true,
+    minify: true,
+    banner: { js: '/* Yell Core — playground bundle (esbuild) */' },
+    logLevel: 'warning',
+    define: { 'crypto': 'undefined', 'fs': 'undefined' },
   });
-  return result.code;
+  
+  unlinkSync(tmp);
+  
+  // Ensure window.initPlayground is set
+  let bundle = readFileSync(OUTFILE, 'utf8');
+  if (!bundle.includes('window.initPlayground')) {
+    bundle += '\nif(typeof window!=="undefined")window.initPlayground=initPlayground;';
+    writeFileSync(OUTFILE, bundle, 'utf8');
+  }
+  
+  console.log(`✓ playground.bundle.js — ${bundle.length} bytes (esbuild)`);
 }
 
-const minified = await minify(bundle);
-writeFileSync('playground.bundle.js', minified, 'utf8');
-
-const orig = bundle.length;
-const min = minified.length;
-const pct = ((orig - min) / orig * 100).toFixed(1);
-
-console.log(`✓ playground.bundle.js — ${orig}→${min} bytes (${pct}% smaller)`);
+build().catch(err => { console.error('Build failed:', err); process.exit(1); });
