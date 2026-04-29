@@ -179,10 +179,16 @@ export function renderToString(
     }
 
     // Fallback: render as generic tag with data attrs
+    // If this is a form with csrf: true, inject hidden token input
+    const isForm = node.type.toLowerCase() === 'form' && props.csrf === true;
+    if (isForm) {
+      delete props.csrf;
+    }
     const attrs = Object.entries(props)
       .map(([k, v]) => `data-${k}="${String(v)}"`)
       .join(' ');
-    return `<div id="${nodeId}" ${attrs}>${renderedChildren}</div>`;
+    const csrfInput = isForm ? '<input type="hidden" name="_csrf" value="$__CSRF_TOKEN__">' : '';
+    return `<div id="${nodeId}" ${attrs}>${csrfInput}${renderedChildren}</div>`;
   }
 
   let html = '';

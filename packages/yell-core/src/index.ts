@@ -33,15 +33,22 @@ export {
   validateTokens,
 } from './tokens.js';
 export { minifyHTML, minifyCSS } from './minify.js';
+export {
+  generateCSRFToken,
+  validateCSRFToken,
+  generateSignedToken,
+  validateSignedToken,
+  injectCSRFToken,
+  extractCSRFToken,
+} from './security/csrf.js';
 export type {
   TokenManifest,
   ResolvedToken,
   TokenCategory,
   TokenValidationResult,
 } from './tokens.js';
-export type {
-  MinifyOptions,
-} from './minify.js';
+export type { MinifyOptions } from './minify.js';
+export type { SignedToken, CSRFContext } from './security/csrf.js';
 
 export type {
   YellNode,
