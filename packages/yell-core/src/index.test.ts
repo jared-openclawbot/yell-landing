@@ -3,6 +3,7 @@ import {
   parseYAML,
   createRegistry,
   registerComponent,
+  registerFunction,
   renderToString,
   flattenConfig,
   validateConfig,
@@ -297,6 +298,30 @@ app:
       const config = parseYAML(yaml);
       const errors = validateConfig(config, registry);
       expect(errors.length).toBe(0);
+    });
+  });
+
+
+  describe('function registry', () => {
+    it('resolves onClick string to registered function', () => {
+      const reg = createRegistry();
+      registerFunction('handleClick', () => '<strong>clicked</strong>');
+      registerComponent(reg, 'Button', {
+        component: ({ label, onClick }: any) =>
+          `<button>${label || ''} ${typeof onClick === 'function' ? '(fn resolved)' : '(no fn)'}</button>`,
+      });
+      const yaml = `app:
+  children:
+    - type: Button
+      props:
+        label: "Click me"
+        onClick: handleClick
+`;
+      const config = parseYAML(yaml);
+      const { html } = renderToString(config, reg);
+      // onClick should be resolved to actual function, not a string
+      expect(html).toContain('(fn resolved)');
+      expect(html).not.toContain('handleClick');
     });
   });
 });

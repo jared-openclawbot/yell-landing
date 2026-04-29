@@ -13,7 +13,7 @@ import type {
   SSRRenderResult,
   HydrationMap,
 } from './types.js';
-import { getComponent } from './registry.js';
+import { getComponent, getFunction } from './registry.js';
 import { buildTokenManifest, tokensAsCSS } from './tokens.js';
 import { minifyHTML } from './minify.js';
 
@@ -219,7 +219,12 @@ export function renderToString(
         if (isUnsafeHTML(v)) {
           safeProps[k] = (v as UnsafeHTML).__unsafeHTML;
         } else if (typeof v === 'string') {
-          safeProps[k] = escapeText(v);
+          // String event handler names like onClick: "handleClick" → resolve to function
+          if (k.startsWith('on') && getFunction(v as string)) {
+            safeProps[k] = getFunction(v as string);
+          } else {
+            safeProps[k] = escapeText(v);
+          }
         } else {
           safeProps[k] = v;
         }

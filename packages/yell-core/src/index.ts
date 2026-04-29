@@ -23,6 +23,7 @@
 
 export { parseYAML, normalizeNode, flattenConfig, tryParseYAML } from './parser.js';
 export { createRegistry, registerComponent, getComponent, isRegistered, getRegisteredTypes, findUnregisteredTypes } from './registry.js';
+export { registerFunction, getFunction, isFunctionRegistered, getRegisteredFunctions, clearFunctions } from './registry.js';
 export { escapeAttr, escapeText, renderToString, resetIdCounter, validateConfig } from './renderer.js';
 export type { UnsafeHTML } from './renderer.js';
 export { isUnsafeHTML } from './renderer.js';

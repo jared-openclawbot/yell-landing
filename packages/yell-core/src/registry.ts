@@ -71,3 +71,50 @@ export function findUnregisteredTypes(
 
   return unregistered;
 }
+// ─── Function Registry (global, for event handler resolution) ──────────────
+
+/**
+ * Global function registry — maps handler names to actual functions.
+ * Used by SSR to defer function execution to client-side hydration.
+ * 
+ * This is a GLOBAL registry (not per-render-context) so that:
+ * - Functions are registered once and reused across renders
+ * - Testing can mock at module level via registerFunction
+ */
+const fnRegistry = new Map<string, (...args: unknown[]) => unknown>();
+
+/**
+ * Register a named function (event handler) in the global registry.
+ * SSR resolves `onClick: handleClick` → actual function via this registry.
+ */
+export function registerFunction(name: string, fn: (...args: unknown[]) => unknown): void {
+  fnRegistry.set(name, fn);
+}
+
+/**
+ * Get a registered function by name. Returns undefined if not found.
+ */
+export function getFunction(name: string): ((...args: unknown[]) => unknown) | undefined {
+  return fnRegistry.get(name);
+}
+
+/**
+ * Check if a function is registered.
+ */
+export function isFunctionRegistered(name: string): boolean {
+  return fnRegistry.has(name);
+}
+
+/**
+ * Get all registered function names.
+ */
+export function getRegisteredFunctions(): string[] {
+  return Array.from(fnRegistry.keys());
+}
+
+/**
+ * Clear all registered functions. Use in tests to reset state.
+ */
+export function clearFunctions(): void {
+  fnRegistry.clear();
+}
