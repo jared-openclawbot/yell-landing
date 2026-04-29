@@ -12,6 +12,7 @@
     "build:schema": "npm run build -w @yell/schema",
     "build:ai-adapter": "npm run build -w @yell/ai-adapter",
     "build:linter": "npm run build -w @yell/linter",
+    "bundle": "node scripts/bundle.mjs",
     "test": "npm run test --workspaces",
     "dev": "npm run dev --workspaces"
   },
@@ -19,6 +20,7 @@
     "node": ">=18"
   },
   "devDependencies": {
+    "terser": "^5.46.2",
     "vitest": "^4.1.4"
   }
 }
