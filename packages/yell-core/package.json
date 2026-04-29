@@ -10,7 +10,8 @@
     "./types": "./dist/types.js",
     "./parser": "./dist/parser.js",
     "./registry": "./dist/registry.js",
-    "./renderer": "./dist/renderer.js"
+    "./renderer": "./dist/renderer.js",
+    "./playground": "./dist/playground.js"
   },
   "scripts": {
     "build": "tsc",

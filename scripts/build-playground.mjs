@@ -20,7 +20,7 @@ const MODULES = [
   'renderer.js',
   'tokens.js',
   'minify.js',
-  'playground.mjs',
+  'playground.mjs',  // was playground.mjs from src, now from dist
 ];
 
 function comment(text) {
