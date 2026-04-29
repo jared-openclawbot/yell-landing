@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,6 +22,20 @@
       --color-warning: #fbbf24;
       --font-sans: 'Inter', -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    [data-theme="light"] {
+      --color-bg: #f8f9fc;
+      --color-surface: #ffffff;
+      --color-surface-2: #f1f3f8;
+      --color-border: #e2e4ec;
+      --color-text: #1a1a2e;
+      --color-muted: #6b6b8a;
+      --color-brand: #ff8a3d;
+      --color-brand-dim: rgba(255, 138, 61, 0.1);
+      --color-success: #16a34a;
+      --color-info: #2563eb;
+      --color-warning: #d97706;
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -80,6 +94,22 @@
       border-radius: 8px;
       font-weight: 600 !important;
       text-decoration: none;
+    }
+    nav .theme-toggle {
+      background: none;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      color: var(--color-muted);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      transition: all 0.15s;
+    }
+    nav .theme-toggle:hover {
+      border-color: var(--color-brand);
+      color: var(--color-brand);
     }
 
     /* ─── Hero ────────────────────────────────────── */
@@ -559,6 +589,7 @@
       <a href="#components">Components</a>
       <a href="/yell-landing/docs/getting-started/introduction.html">Docs</a>
       <a href="https://github.com/jared-openclawbot/yell-landing" target="_blank">GitHub</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">🌙</button>
       <a href="#live-editor" class="nav-cta">Try it →</a>
     </div>
   </nav>
@@ -948,6 +979,30 @@
 
     yamlInput.addEventListener('input', renderOutput);
     renderOutput();
+
+    // Theme toggle
+    const htmlEl = document.documentElement;
+    const toggleBtn = document.getElementById('theme-toggle');
+    const STORAGE_KEY = 'yell-theme';
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      htmlEl.setAttribute('data-theme', saved);
+    } else {
+      // Detect system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      htmlEl.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    }
+    function updateToggle() {
+      const current = htmlEl.getAttribute('data-theme');
+      toggleBtn.textContent = current === 'dark' ? '☀️' : '🌙';
+    }
+    updateToggle();
+    toggleBtn.addEventListener('click', () => {
+      const next = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      htmlEl.setAttribute('data-theme', next);
+      localStorage.setItem(STORAGE_KEY, next);
+      updateToggle();
+    });
   </script>
 
 </body>
