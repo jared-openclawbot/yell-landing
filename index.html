@@ -7,6 +7,7 @@
   <meta name="description" content="Yell is a declarative UI framework built on YAML instead of JSX — designed for design systems, SSR, hydration, and AI-native interfaces.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
   <style>
     :root {
       --color-bg: #0a0a0f;
@@ -960,17 +961,24 @@
             label: v0.1.0
             variant: success`;
 
-    yamlInput.value = defaultYAML;
+    yamlInput.value = localStorage.getItem('yell-index-yaml') || defaultYAML;
+
+    function renderApp(appNode) {
+      if (!appNode) return '';
+      const children = appNode.children || [];
+      return children.map(child => renderComponent(child)).join('');
+    }
 
     function renderOutput() {
       const yaml = yamlInput.value;
+      localStorage.setItem('yell-index-yaml', yaml);
       try {
-        const nodes = parseSimple(yaml);
-        if (!nodes || nodes.length === 0) {
-          outputBody.innerHTML = '<span class="output-placeholder">No valid nodes found. Check your YAML indentation.</span>';
+        const doc = jsyaml.load(yaml);
+        if (!doc || !doc.app) {
+          outputBody.innerHTML = '<span class="output-placeholder">Add an <code>app:</code> key with <code>children:</code></span>';
           return;
         }
-        const html = nodes.map(n => renderComponent(n)).join('');
+        const html = renderApp(doc.app);
         outputBody.innerHTML = `<div class="output-html">${html}</div>`;
       } catch (e) {
         outputBody.innerHTML = `<div class="output-error">Parse error: ${e.message}</div>`;
