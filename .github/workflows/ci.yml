@@ -2,42 +2,25 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, gh-pages]
   pull_request:
-    branches: [main]
+    branches: [main, gh-pages]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build all packages
-        run: npm run build
-
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v1
         with:
-          node-version: '22'
-          cache: 'npm'
+          bun-version: latest
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install
 
-      - name: Build
-        run: npm run build
+      - name: Build all packages
+        run: bun run --workspaces build
 
       - name: Run tests
-        run: npm test
+        run: bun run --workspaces test
